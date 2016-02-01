@@ -2,7 +2,7 @@ import unittest
 
 from wpull.body import Body
 from wpull.document.htmlparse.lxml_ import HTMLParser
-from wpull.http.request import Request, Response
+from wpull.protocol.http.request import Request, Response
 from wpull.item import LinkType
 from wpull.scraper.sitemap import SitemapScraper
 import wpull.util
