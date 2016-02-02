@@ -13,9 +13,8 @@ import tempfile
 import unittest
 
 from tornado.testing import AsyncHTTPSTestCase
-from trollius import From, Return
 import tornado.testing
-import trollius
+import asyncio
 
 from wpull.builder import Builder
 from wpull.dns import Resolver
@@ -43,20 +42,20 @@ class MockDNSResolver(Resolver):
         Resolver.__init__(self, *args, **kwargs)
         self.hosts_touched = set()
 
-    @trollius.coroutine
+    @asyncio.coroutine
     def resolve(self, host, port):
         self.hosts_touched.add(host)
-        raise Return((socket.AF_INET, ('127.0.0.1', port)))
+        return socket.AF_INET, ('127.0.0.1', port)
 
-    @trollius.coroutine
+    @asyncio.coroutine
     def resolve_all(self, host, port):
         self.hosts_touched.add(host)
-        raise Return([(socket.AF_INET, ('127.0.0.1', port))])
+        return [(socket.AF_INET, ('127.0.0.1', port))]
 
-    @trollius.coroutine
+    @asyncio.coroutine
     def resolve_dual(self, host, port):
         self.hosts_touched.add(host)
-        raise Return([(socket.AF_INET, ('127.0.0.1', port))])
+        return [(socket.AF_INET, ('127.0.0.1', port))]
 
 
 class TestApp(GoodAppTestCase, TempDirMixin):
@@ -89,10 +88,10 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
         self.assertTrue(os.path.exists('index.html'))
 
-        response = yield From(tornado_future_adapter(self.http_client.fetch(self.get_url('/'))))
+        response = yield from tornado_future_adapter(self.http_client.fetch(self.get_url('/')))
 
         with open('index.html', 'rb') as in_file:
             self.assertEqual(response.body, in_file.read())
@@ -125,7 +124,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
         self.assertTrue(os.path.exists('big_payload'))
 
         with open('big_payload', 'rb') as in_file:
@@ -147,7 +146,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(ExitStatus.server_error, exit_code)
         self.assertGreater(builder.factory['Statistics'].files, 1)
@@ -199,7 +198,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         ])
         builder = Builder(args, unit_test=True)
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         print(list(os.walk('.')))
         self.assertTrue(os.path.exists(
@@ -227,7 +226,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
             ])
             builder = Builder(args, unit_test=True)
             app = builder.build()
-            exit_code = yield From(app.run())
+            exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(builder.factory['Statistics'].files, 2)
@@ -249,7 +248,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
             ])
             builder = Builder(args, unit_test=True)
             app = builder.build()
-            exit_code = yield From(app.run())
+            exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(builder.factory['Statistics'].files, 2)
@@ -268,7 +267,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
             ])
             builder = Builder(args, unit_test=True)
             app = builder.build()
-            exit_code = yield From(app.run())
+            exit_code = yield from app.run()
         finally:
             sys.stdin = real_stdin
 
@@ -289,7 +288,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertTrue(os.path.exists('test-00000.warc.gz'))
         self.assertTrue(os.path.exists('test-meta.warc.gz'))
@@ -314,7 +313,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertTrue(os.path.exists('test.warc.gz'))
 
@@ -339,7 +338,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
         self.assertEqual(0, exit_code)
         self.assertGreaterEqual(builder.factory['Statistics'].files, 1)
 
@@ -367,7 +366,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
 
         builder = Builder(args, unit_test=True)
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         with open('test.warc', 'rb') as in_file:
             data = in_file.read()
@@ -388,7 +387,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         ])
         builder = Builder(args, unit_test=True)
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
         self.assertEqual(0, exit_code)
 
     @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
@@ -443,7 +442,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
         print(list(os.walk('.')))
 
         self.assertEqual(42, exit_code)
@@ -477,7 +476,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
         print(list(os.walk('.')))
 
         self.assertEqual(42, exit_code)
@@ -503,7 +502,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         ])
         builder = Builder(args, unit_test=True)
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(1, exit_code)
 
@@ -519,7 +518,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
             ])
         builder = Builder(args, unit_test=True)
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(42, exit_code)
 
@@ -533,7 +532,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         ])
         builder = Builder(args, unit_test=True)
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         urls = tuple(url_record.url for url_record in
                      builder.factory['URLTable'].get_all())
@@ -564,7 +563,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
             builder = Builder(args, unit_test=True)
 
             app = builder.build()
-            exit_code = yield From(app.run())
+            exit_code = yield from app.run()
 
             self.assertEqual(0, exit_code)
             self.assertEqual(1, builder.factory['Statistics'].files)
@@ -601,7 +600,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
 
             self.assertEqual(2, len(builder.factory['CookieJar']))
 
-            exit_code = yield From(app.run())
+            exit_code = yield from app.run()
 
             self.assertEqual(0, exit_code)
             self.assertEqual(1, builder.factory['Statistics'].files)
@@ -632,7 +631,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder.factory.class_map['Resolver'] = MockDNSResolver
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
@@ -653,7 +652,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder.factory.class_map['Resolver'] = MockDNSResolver
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
 
@@ -675,7 +674,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder.factory.class_map['Resolver'] = MockDNSResolver
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
         self.assertEqual(0, exit_code)
         self.assertEqual(2, builder.factory['Statistics'].files)
 
@@ -697,7 +696,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder.factory.class_map['Resolver'] = MockDNSResolver
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
         self.assertEqual(0, exit_code)
         self.assertEqual(2, builder.factory['Statistics'].files)
 
@@ -718,7 +717,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder.factory.class_map['Resolver'] = MockDNSResolver
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
         self.assertEqual(0, exit_code)
         self.assertEqual(0, builder.factory['Statistics'].files)
 
@@ -740,7 +739,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
             URLInfo.parse(self.get_url('/')),
             'User-Agent: *\nDisallow: *\n'
         )
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(0, builder.factory['Statistics'].files)
@@ -755,7 +754,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(0, builder.factory['Statistics'].files)
@@ -773,7 +772,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(4, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
@@ -790,7 +789,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
@@ -806,7 +805,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         print(list(os.walk('.')))
         self.assertTrue(os.path.exists('always_error'))
@@ -827,7 +826,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         print(list(os.walk('.')))
         self.assertTrue(os.path.exists(
@@ -852,7 +851,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         print(list(os.walk('.')))
         self.assertFalse(os.path.exists(
@@ -884,7 +883,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
             builder = Builder(args, unit_test=True)
 
             app = builder.build()
-            exit_code = yield From(app.run())
+            exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(2, builder.factory['Statistics'].files)
@@ -900,7 +899,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
@@ -916,7 +915,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
 
         builder = Builder(args, unit_test=True)
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertTrue(os.path.exists('blah.dat'))
         self.assertTrue(os.path.getsize('blah.dat'))
@@ -936,7 +935,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
 
         builder = Builder(args, unit_test=True)
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(4, exit_code)
 
@@ -951,7 +950,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
 
         builder = Builder(args, unit_test=True)
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
         self.assertTrue(os.path.exists('test_.db'))
@@ -967,7 +966,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
 
         builder = Builder(args, unit_test=True)
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
 
@@ -982,7 +981,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
@@ -998,7 +997,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(0, builder.factory['Statistics'].files)
@@ -1015,7 +1014,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(2, builder.factory['Statistics'].files)
@@ -1032,7 +1031,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(4, builder.factory['Statistics'].files)
@@ -1047,7 +1046,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
@@ -1065,7 +1064,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(2, builder.factory['Statistics'].files)
@@ -1081,7 +1080,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
@@ -1097,7 +1096,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(2, builder.factory['Statistics'].files)
@@ -1115,7 +1114,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(0, builder.factory['Statistics'].files)
@@ -1133,7 +1132,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
         # TODO: proxy doesn't account for files yet
@@ -1179,7 +1178,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
 
@@ -1204,7 +1203,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
 
@@ -1224,7 +1223,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(8, exit_code)
         self.assertEqual(0, builder.factory['Statistics'].files)
@@ -1238,7 +1237,7 @@ class TestApp(GoodAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
@@ -1282,7 +1281,7 @@ class TestAppHTTPS(AsyncTestCase, AsyncHTTPSTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(5, exit_code)
 
@@ -1299,7 +1298,7 @@ class TestAppHTTPS(AsyncTestCase, AsyncHTTPSTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
@@ -1317,7 +1316,7 @@ class TestAppHTTPS(AsyncTestCase, AsyncHTTPSTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         class MockWebSession(WebSession):
-            @trollius.coroutine
+            @asyncio.coroutine
             def fetch(self, file=None, callback=None, duration_timeout=None):
                 raise SSLVerificationError('A very bad certificate!')
 
@@ -1328,7 +1327,7 @@ class TestAppHTTPS(AsyncTestCase, AsyncHTTPSTestCase, TempDirMixin):
         builder.factory.class_map['WebClient'] = MockWebClient
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(7, exit_code)
         self.assertEqual(0, builder.factory['Statistics'].files)
@@ -1361,7 +1360,7 @@ class PhantomJSMixin(object):
         builder.factory.class_map['Resolver'] = MockDNSResolver
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertTrue(os.path.exists('test.warc'))
         self.assertTrue(
@@ -1416,7 +1415,7 @@ class PhantomJSMixin(object):
         builder.factory.class_map['Resolver'] = MockDNSResolver
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         with open('DEUUEAUGH.html.snapshot.html', 'rb') as in_file:
             data = in_file.read()
@@ -1465,7 +1464,7 @@ class TestAppBad(BadAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
 
@@ -1482,7 +1481,7 @@ class TestAppBad(BadAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
 
@@ -1501,7 +1500,7 @@ class TestAppBad(BadAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(0, builder.factory['Statistics'].files)
@@ -1518,7 +1517,7 @@ class TestAppBad(BadAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(7, exit_code)
         self.assertEqual(0, builder.factory['Statistics'].files)
@@ -1534,7 +1533,7 @@ class TestAppBad(BadAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
@@ -1553,7 +1552,7 @@ class TestAppBad(BadAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(4, builder.factory['Statistics'].files)
@@ -1568,7 +1567,7 @@ class TestAppBad(BadAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
@@ -1584,7 +1583,7 @@ class TestAppBad(BadAppTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(4, exit_code)
         self.assertEqual(0, builder.factory['Statistics'].files)
@@ -1614,7 +1613,7 @@ class TestAppFTP(FTPTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(0, builder.factory['Statistics'].files)
@@ -1630,7 +1629,7 @@ class TestAppFTP(FTPTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
@@ -1647,7 +1646,7 @@ class TestAppFTP(FTPTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(6, exit_code)
         self.assertEqual(0, builder.factory['Statistics'].files)
@@ -1670,7 +1669,7 @@ class TestAppFTP(FTPTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(8, exit_code)
         self.assertEqual(6, builder.factory['Statistics'].files)
@@ -1707,7 +1706,7 @@ class TestAppFTP(FTPTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
 
         self.assertEqual(0, exit_code)
 
@@ -1731,7 +1730,7 @@ class TestAppFTP(FTPTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
         print(list(os.walk('.')))
 
         self.assertEqual(0, exit_code)
@@ -1748,7 +1747,7 @@ class TestAppFTP(FTPTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
         print(list(os.walk('.')))
 
         self.assertEqual(0, exit_code)
@@ -1763,7 +1762,7 @@ class TestAppFTP(FTPTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
         print(list(os.walk('.')))
 
         self.assertEqual(0, exit_code)
@@ -1780,19 +1779,19 @@ class TestAppFTP(FTPTestCase, TempDirMixin):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield From(app.run())
+        exit_code = yield from app.run()
         print(list(os.walk('.')))
 
         self.assertEqual(8, exit_code)
         self.assertEqual(0, builder.factory['Statistics'].files)
 
 
-@trollius.coroutine
+@asyncio.coroutine
 def tornado_future_adapter(future):
-    event = trollius.Event()
+    event = asyncio.Event()
 
     future.add_done_callback(lambda dummy: event.set())
 
-    yield From(event.wait())
+    yield from event.wait()
 
-    raise Return(future.result())
+    return future.result()
