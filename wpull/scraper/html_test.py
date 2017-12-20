@@ -45,6 +45,7 @@ class TestHTMLScraper(unittest.TestCase):
             'http://example.com/style_import_quote_url.css',
             'http://example.com/style_single_quote_import.css',
             'http://example.com/style_double_quote_import.css',
+            'http://example.com/bg.png',
             'http://example.com/link_href.css',
             'http://example.com/script.js',
             'http://example.com/body_background.png',
