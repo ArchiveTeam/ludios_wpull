@@ -1365,7 +1365,7 @@ class Builder(object):
         )[0]
         proxy_port = proxy_socket.getsockname()[1]
 
-        proxy_server_task = asyncio.async(
+        proxy_server_task = asyncio.ensure_future(
             asyncio.start_server(proxy_server, sock=proxy_socket)
         )
 

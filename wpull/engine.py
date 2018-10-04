@@ -54,12 +54,12 @@ class BaseEngine(object):
         Coroutine.
         '''
         self._running = True
-        self._producer_task = asyncio.async(self._run_producer_wrapper())
+        self._producer_task = asyncio.ensure_future(self._run_producer_wrapper())
         worker_tasks = self._worker_tasks
 
         while self._running:
             while len(worker_tasks) < self.__concurrent:
-                worker_task = asyncio.async(self._run_worker())
+                worker_task = asyncio.ensure_future(self._run_worker())
                 worker_tasks.add(worker_task)
 
             wait_coroutine = asyncio.wait(
