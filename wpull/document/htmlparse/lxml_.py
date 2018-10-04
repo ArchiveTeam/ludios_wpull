@@ -16,8 +16,6 @@ class HTMLParserTarget(object):
         callback: A callback function. The function should accept one
             argument from :mod:`.document.htmlparse.element`.
     '''
-    # NOTE: If we ever support Python 2 again, byte strings may be
-    # returned from lxml
     def __init__(self, callback):
         self.callback = callback
         self.tag = None
