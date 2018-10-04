@@ -101,14 +101,15 @@ setup_kwargs = dict(
 setup_kwargs['install_requires'] = [
     'chardet',
     'dnspython3',
-    'html5lib',
+    'html5-parser',
+    'lxml',
     'namedlist',
     'sqlalchemy',
     'tornado',
     'yapsy',
 ]
 
-if sys.version_info < (3, 5):
+if sys.version_info < (3, 7):
     setup_kwargs['install_requires'].append('typing')
 
 

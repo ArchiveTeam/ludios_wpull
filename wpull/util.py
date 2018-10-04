@@ -14,8 +14,6 @@ import zipfile
 import pickle
 from itertools import zip_longest
 
-IS_PYPY = platform.python_implementation() == 'PyPy'
-
 
 class ASCIIStreamWriter(codecs.StreamWriter):
     '''A Stream Writer that encodes everything to ASCII.
@@ -267,3 +265,13 @@ def grouper(iterable, n, fillvalue=None):
     # grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx"
     args = [iter(iterable)] * n
     return zip_longest(*args, fillvalue=fillvalue)
+
+
+def fix_unittest_bullshit():
+    # Don't remove all the essential information so that we know what went
+    # wrong in a test, wow, what an idea.
+    def _dont_shorten(s, _prefixlen, _suffixlen):
+        return s
+
+    import unittest.util
+    unittest.util._shorten = _dont_shorten

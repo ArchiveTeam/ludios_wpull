@@ -52,7 +52,6 @@ Missing in Wget
 * ``--no-skip-getaddrinfo``
 * ``--no-robots``: Wpull is designed for archiving.
 * ``--http-compression`` (gzip, deflate, & raw deflate)
-* ``--html-parser``: HTML parsing libraries have many trade-offs. Pick any two: small, fast, reliable.
 * ``--link-extractors``
 * ``--escaped-fragment``: Try to force HTML rendering instead of Javascript.
 * ``--strip-session-id``

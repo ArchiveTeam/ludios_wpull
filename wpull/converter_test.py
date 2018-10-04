@@ -5,7 +5,6 @@ import unittest
 from wpull.converter import CSSConverter, HTMLConverter
 from wpull.database.base import AddURLInfo
 from wpull.database.sqltable import URLTable
-from wpull.document.htmlparse.html5lib_ import HTMLParser as HTML5LibHTMLParser
 from wpull.pipeline.item import Status
 from wpull.scraper.css import CSSScraper
 from wpull.scraper.html import ElementWalker
@@ -259,14 +258,3 @@ class TestLxmlConverter(unittest.TestCase, Mixin, TempDirMixin):
 
     def get_html_parser(self):
         return LxmlHTMLParser()
-
-
-class TestHTML5LibConverter(unittest.TestCase, Mixin, TempDirMixin):
-    def setUp(self):
-        self.set_up_temp_dir()
-
-    def tearDown(self):
-        self.tear_down_temp_dir()
-
-    def get_html_parser(self):
-        return HTML5LibHTMLParser()

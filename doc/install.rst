@@ -7,12 +7,10 @@ Requirements
 
 Wpull requires the following:
 
-* `Python 3.4.3 or greater <http://python.org/download/>`_
+* `Python 3.7.0 or greater <http://python.org/download/>`_
 * `Tornado 4.0 or greater <https://pypi.python.org/pypi/tornado>`_
-* `html5lib <https://pypi.python.org/pypi/html5lib>`_
-
-  * Or `lxml <https://pypi.python.org/pypi/lxml>`_ for faster
-    but much worse HTML parsing
+* `html5-parser <https://pypi.python.org/pypi/html5-parser>`_
+* `lxml <https://pypi.python.org/pypi/lxml>`_
 
 * `chardet <https://pypi.python.org/pypi/chardet>`_
 

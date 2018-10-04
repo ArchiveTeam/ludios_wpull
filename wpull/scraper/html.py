@@ -5,10 +5,11 @@ import itertools
 import logging
 import re
 
+from lxml.etree import _Element as Element
+
 import wpull.util
 from wpull.backport.logging import StyleAdapter
 from wpull.document.html import HTMLReader
-from wpull.document.htmlparse.element import Element
 from wpull.document.util import detect_response_encoding
 from wpull.pipeline.item import LinkType
 from wpull.scraper.base import BaseHTMLScraper, ScrapeResult, LinkContext
@@ -63,7 +64,7 @@ class HTMLScraper(HTMLReader, BaseHTMLScraper):
 
     Args:
         html_parser (class:`.document.htmlparse.base.BaseParser`): An
-            HTML parser such as the lxml or html5lib one.
+            HTML parser.
         element_walker (class:`ElementWalker`): HTML element walker.
         followed_tags: A list of tags that should be scraped
         ignored_tags: A list of tags that should not be scraped

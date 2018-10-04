@@ -2,25 +2,15 @@ import unittest
 
 import wpull.util
 from wpull.body import Body
-from wpull.document.htmlparse.html5lib_ import HTMLParser as HTML5LibHTMLParser
+from wpull.document.htmlparse.lxml_ import HTMLParser
 from wpull.pipeline.item import LinkType
 from wpull.protocol.http.request import Request, Response
 from wpull.scraper.sitemap import SitemapScraper
-from wpull.util import IS_PYPY
 
 
-if not IS_PYPY:
-    from wpull.document.htmlparse.lxml_ import HTMLParser as LxmlHTMLParser
-else:
-    LxmlHTMLParser = type(NotImplemented)
-
-
-class Mixin(object):
-    def get_html_parser(self):
-        raise NotImplementedError()
-
+class TestSitemap(unittest.TestCase):
     def test_sitemap_scraper_robots(self):
-        scraper = SitemapScraper(self.get_html_parser())
+        scraper = SitemapScraper(HTMLParser())
         request = Request('http://example.com/robots.txt')
         response = Response(200, 'OK')
         response.body = Body()
@@ -42,7 +32,7 @@ class Mixin(object):
         self.assertFalse(inline_urls)
 
     def test_sitemap_scraper_invalid_robots(self):
-        scraper = SitemapScraper(self.get_html_parser())
+        scraper = SitemapScraper(HTMLParser())
         request = Request('http://example.com/robots.txt')
         response = Response(200, 'OK')
         response.body = Body()
@@ -60,7 +50,7 @@ class Mixin(object):
         self.assertFalse(inline_urls)
 
     def test_sitemap_scraper_xml_index(self):
-        scraper = SitemapScraper(self.get_html_parser())
+        scraper = SitemapScraper(HTMLParser())
         request = Request('http://example.com/sitemap.xml')
         response = Response(200, 'OK')
         response.body = Body()
@@ -90,7 +80,7 @@ class Mixin(object):
         self.assertFalse(inline_urls)
 
     def test_sitemap_scraper_xml(self):
-        scraper = SitemapScraper(self.get_html_parser())
+        scraper = SitemapScraper(HTMLParser())
         request = Request('http://example.com/sitemap.xml')
         response = Response(200, 'OK')
         response.body = Body()
@@ -121,7 +111,7 @@ class Mixin(object):
         self.assertFalse(inline_urls)
 
     def test_sitemap_scraper_invalid_xml(self):
-        scraper = SitemapScraper(self.get_html_parser())
+        scraper = SitemapScraper(HTMLParser())
         request = Request('http://example.com/sitemap.xml')
         response = Response(200, 'OK')
         response.body = Body()
@@ -147,7 +137,7 @@ class Mixin(object):
         self.assertFalse(inline_urls)
 
     def test_sitemap_scraper_reject_type(self):
-        scraper = SitemapScraper(self.get_html_parser())
+        scraper = SitemapScraper(HTMLParser())
         request = Request('http://example.com/sitemap.xml')
         response = Response(200, 'OK')
         response.body = Body()
@@ -168,14 +158,3 @@ class Mixin(object):
         scrape_result = scraper.scrape(request, response,
                                        link_type=LinkType.css)
         self.assertFalse(scrape_result)
-
-
-@unittest.skipIf(IS_PYPY, 'Not supported under PyPy')
-class TestLxmlSitemap(Mixin, unittest.TestCase):
-    def get_html_parser(self):
-        return LxmlHTMLParser()
-
-
-class TestHTML5LibSitemap(Mixin, unittest.TestCase):
-    def get_html_parser(self):
-        return HTML5LibHTMLParser()

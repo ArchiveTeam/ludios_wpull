@@ -142,7 +142,6 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
             '--remote-encoding', 'latin1',
             '--http-compression',
             '--bind-address', '127.0.0.1',
-            '--html-parser', 'html5lib',
             '--link-extractors', 'html',
             '--page-requisites-level', '5',
             '--no-strong-crypto',

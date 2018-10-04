@@ -4,26 +4,15 @@ import io
 import unittest
 
 from wpull.document.base_test import CODEC_NAMES, EBCDIC
-from wpull.document.htmlparse.html5lib_ import HTMLParser as HTML5LibHTMLParser
+from wpull.document.htmlparse.lxml_ import HTMLParser
 from wpull.document.sitemap import SitemapReader
 from wpull.protocol.http.request import Request
 from wpull.url import URLInfo
-from wpull.util import IS_PYPY
 
 
-if not IS_PYPY:
-    from wpull.document.htmlparse.lxml_ import HTMLParser as LxmlHTMLParser
-else:
-    LxmlHTMLParser = type(NotImplemented)
-
-
-class Mixin(object):
-    def get_html_parser(self):
-        raise NotImplementedError()
-
+class TestSitemap(unittest.TestCase):
     def test_sitemap_encoding(self):
-        parser = self.get_html_parser()
-        is_lxml = isinstance(parser, LxmlHTMLParser)
+        parser = HTMLParser()
         reader = SitemapReader(parser)
 
         bom_map = {
@@ -39,7 +28,7 @@ class Mixin(object):
                 # compatable
                 continue
 
-            if is_lxml and (name.startswith('utf_16') or name.startswith('utf_32')):
+            if name.startswith('utf_16') or name.startswith('utf_32'):
                 # FIXME: libxml/lxml doesn't like it when we pass in a codec
                 # name but don't specify the endian but BOM is included
                 continue
@@ -95,14 +84,3 @@ class Mixin(object):
         self.assertFalse(
             SitemapReader.is_request(Request('example.com/image.jpg'))
         )
-
-
-@unittest.skipIf(IS_PYPY, 'Not supported under PyPy')
-class TestLxmlSitemap(Mixin, unittest.TestCase):
-    def get_html_parser(self):
-        return LxmlHTMLParser()
-
-
-class TestHTML5LibSitemap(Mixin, unittest.TestCase):
-    def get_html_parser(self):
-        return HTML5LibHTMLParser()

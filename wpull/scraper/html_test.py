@@ -5,30 +5,23 @@ import unittest
 
 import wpull.util
 from wpull.body import Body
-from wpull.document.htmlparse.html5lib_ import HTMLParser as HTML5LibHTMLParser
+from wpull.document.htmlparse.lxml_ import HTMLParser
 from wpull.pipeline.item import LinkType
 from wpull.protocol.http.request import Request, Response
 from wpull.scraper.css import CSSScraper
 from wpull.scraper.html import HTMLScraper, ElementWalker
 from wpull.scraper.javascript import JavaScriptScraper
-from wpull.util import IS_PYPY
-
-if not IS_PYPY:
-    from wpull.document.htmlparse.lxml_ import HTMLParser as LxmlHTMLParser
-else:
-    LxmlHTMLParser = type(NotImplemented)
 
 ROOT_PATH = os.path.join(os.path.dirname(__file__), '..')
 
+wpull.util.fix_unittest_bullshit()
 
-class Mixin(object):
-    def get_html_parser(self):
-        raise NotImplementedError()  # pragma: no cover
 
+class TestHTMLScraper(unittest.TestCase):
     def test_html_scraper_links(self):
         element_walker = ElementWalker(
             css_scraper=CSSScraper(), javascript_scraper=JavaScriptScraper())
-        scraper = HTMLScraper(self.get_html_parser(), element_walker)
+        scraper = HTMLScraper(HTMLParser(), element_walker)
         request = Request('http://example.com/')
         response = Response(200, 'OK')
         response.body = Body()
@@ -47,7 +40,7 @@ class Mixin(object):
 
         self.assertEqual('utf-8', scrape_result.encoding)
 
-        self.assertEqual({
+        self.assertEqual(frozenset({
             'http://example.com/style_import_url.css',
             'http://example.com/style_import_quote_url.css',
             'http://example.com/style_single_quote_import.css',
@@ -87,10 +80,10 @@ class Mixin(object):
             'http://example.com/param_ref_value.php',
             'http://example.com/overlay_src.html',
             'http://example.com/script_variable.png',
-        },
+        }),
             inline_urls
         )
-        self.assertEqual({
+        self.assertEqual(frozenset({
             'http://example.com/og_image.png',
             'http://example.com/og_url.html',
             'http://example.com/og_audio.mp3',
@@ -134,7 +127,7 @@ class Mixin(object):
             'http://example.com/http_script_json.html?a=b',
             'http://example.com/a_javascript_link.html',
             'http://example.com/a_onclick_link.html',
-        },
+        }),
             linked_urls
         )
 
@@ -144,7 +137,7 @@ class Mixin(object):
     def test_html_scraper_reject_type(self):
         element_walker = ElementWalker(
             css_scraper=CSSScraper(), javascript_scraper=JavaScriptScraper())
-        scraper = HTMLScraper(self.get_html_parser(), element_walker)
+        scraper = HTMLScraper(HTMLParser(), element_walker)
         request = Request('http://example.com/')
         response = Response(200, 'OK')
         response.body = Body()
@@ -163,7 +156,7 @@ class Mixin(object):
     def test_html_soup(self):
         element_walker = ElementWalker(
             css_scraper=CSSScraper(), javascript_scraper=JavaScriptScraper())
-        scraper = HTMLScraper(self.get_html_parser(), element_walker)
+        scraper = HTMLScraper(HTMLParser(), element_walker)
         request = Request('http://example.com/')
         response = Response(200, '')
         response.body = Body()
@@ -194,7 +187,7 @@ class Mixin(object):
     def test_html_mojibake(self):
         element_walker = ElementWalker(
             css_scraper=CSSScraper(), javascript_scraper=JavaScriptScraper())
-        scraper = HTMLScraper(self.get_html_parser(), element_walker)
+        scraper = HTMLScraper(HTMLParser(), element_walker)
         request = Request('http://example.com/')
         response = Response(200, '')
         response.body = Body()
@@ -225,7 +218,7 @@ class Mixin(object):
     def test_html_krokozyabry(self):
         element_walker = ElementWalker(
             css_scraper=CSSScraper(), javascript_scraper=JavaScriptScraper())
-        scraper = HTMLScraper(self.get_html_parser(), element_walker)
+        scraper = HTMLScraper(HTMLParser(), element_walker)
         request = Request('http://example.com/')
         response = Response(200, '')
         response.body = Body()
@@ -256,7 +249,7 @@ class Mixin(object):
     def test_html_scraper_links_base_href(self):
         element_walker = ElementWalker(
             css_scraper=CSSScraper(), javascript_scraper=JavaScriptScraper())
-        scraper = HTMLScraper(self.get_html_parser(), element_walker)
+        scraper = HTMLScraper(HTMLParser(), element_walker)
         request = Request('http://example.com/')
         response = Response(200, 'OK')
         response.body = Body()
@@ -294,7 +287,7 @@ class Mixin(object):
     def test_xhtml(self):
         element_walker = ElementWalker(
             css_scraper=CSSScraper(), javascript_scraper=JavaScriptScraper())
-        scraper = HTMLScraper(self.get_html_parser(), element_walker)
+        scraper = HTMLScraper(HTMLParser(), element_walker)
         request = Request('http://example.com/')
         response = Response(200, '')
         response.body = Body()
@@ -326,7 +319,7 @@ class Mixin(object):
     def test_xhtml_invalid(self):
         element_walker = ElementWalker(
             css_scraper=CSSScraper(), javascript_scraper=JavaScriptScraper())
-        scraper = HTMLScraper(self.get_html_parser(), element_walker)
+        scraper = HTMLScraper(HTMLParser(), element_walker)
         request = Request('http://example.com/')
         response = Response(200, '')
         response.body = Body()
@@ -359,7 +352,7 @@ class Mixin(object):
     def test_html_wrong_charset(self):
         element_walker = ElementWalker(
             css_scraper=CSSScraper(), javascript_scraper=JavaScriptScraper())
-        scraper = HTMLScraper(self.get_html_parser(), element_walker)
+        scraper = HTMLScraper(HTMLParser(), element_walker)
         request = Request('http://example.com/')
         response = Response(200, '')
         response.body = Body()
@@ -402,7 +395,7 @@ class Mixin(object):
     def test_html_not_quite_charset(self):
         element_walker = ElementWalker(
             css_scraper=CSSScraper(), javascript_scraper=JavaScriptScraper())
-        scraper = HTMLScraper(self.get_html_parser(), element_walker)
+        scraper = HTMLScraper(HTMLParser(), element_walker)
         request = Request('http://example.com/')
         response = Response(200, '')
         response.body = Body()
@@ -430,7 +423,7 @@ class Mixin(object):
     def test_html_garbage(self):
         element_walker = ElementWalker(
             css_scraper=CSSScraper(), javascript_scraper=JavaScriptScraper())
-        scraper = HTMLScraper(self.get_html_parser(), element_walker)
+        scraper = HTMLScraper(HTMLParser(), element_walker)
         request = Request('http://example.com/')
         response = Response(200, '')
         response.body = Body()
@@ -451,7 +444,7 @@ class Mixin(object):
         '''It should accept encoding names with underscore.'''
         element_walker = ElementWalker(
             css_scraper=CSSScraper(), javascript_scraper=JavaScriptScraper())
-        scraper = HTMLScraper(self.get_html_parser(), element_walker)
+        scraper = HTMLScraper(HTMLParser(), element_walker)
         request = Request('http://example.com/')
         response = Response(200, '')
         response.body = Body()
@@ -470,7 +463,7 @@ class Mixin(object):
     def test_html_serious_bad_encoding(self):
         element_walker = ElementWalker(
             css_scraper=CSSScraper(), javascript_scraper=JavaScriptScraper())
-        scraper = HTMLScraper(self.get_html_parser(), element_walker,
+        scraper = HTMLScraper(HTMLParser(), element_walker,
                               encoding_override='utf8')
         request = Request('http://example.com/')
         response = Response(200, '')
@@ -491,7 +484,7 @@ class Mixin(object):
     def test_rss_as_html(self):
         element_walker = ElementWalker(
             css_scraper=CSSScraper(), javascript_scraper=JavaScriptScraper())
-        scraper = HTMLScraper(self.get_html_parser(), element_walker)
+        scraper = HTMLScraper(HTMLParser(), element_walker)
         request = Request('http://example.com/')
         response = Response(200, '')
         response.body = Body()
@@ -518,14 +511,3 @@ class Mixin(object):
             },
             linked_urls
         )
-
-
-@unittest.skipIf(IS_PYPY, 'Not supported under PyPy')
-class TestLxmlHTMLScraper(Mixin, unittest.TestCase):
-    def get_html_parser(self):
-        return LxmlHTMLParser()
-
-
-class TestHTML5LibHTMLScraper(Mixin, unittest.TestCase):
-    def get_html_parser(self):
-        return HTML5LibHTMLParser()

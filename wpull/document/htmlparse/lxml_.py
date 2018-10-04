@@ -1,109 +1,19 @@
-'''Parsing using lxml and libxml2.'''
+'''Parsing using html5-parser and lxml.'''
 import io
 
+import html5_parser
 import lxml.html
 
 from wpull.document.htmlparse.base import BaseParser
-from wpull.document.htmlparse.element import Element, Comment
 from wpull.document.xml import XMLDetector
 import wpull.util
-
-
-class HTMLParserTarget(object):
-    '''An HTML parser target.
-
-    Args:
-        callback: A callback function. The function should accept one
-            argument from :mod:`.document.htmlparse.element`.
-    '''
-    def __init__(self, callback):
-        self.callback = callback
-        self.tag = None
-        self.attrib = None
-        self.buffer = None
-        self.tail_buffer = None
-
-    def start(self, tag, attrib):
-        if self.buffer:
-            self.callback(Element(
-                self.tag, self.attrib,
-                self.buffer.getvalue(),
-                None, False
-            ))
-            self.buffer = None
-
-        if self.tail_buffer:
-            self.callback(Element(
-                self.tag, dict(),
-                None,
-                self.tail_buffer.getvalue(),
-                True
-            ))
-            self.tail_buffer = None
-
-        self.tag = tag
-        self.attrib = attrib
-        self.buffer = io.StringIO()
-
-    def data(self, data):
-        if self.buffer:
-            self.buffer.write(data)
-
-        if self.tail_buffer:
-            self.tail_buffer.write(data)
-
-    def end(self, tag):
-        if self.buffer:
-            self.callback(Element(
-                tag, self.attrib,
-                self.buffer.getvalue(),
-                None, False
-            ))
-            self.buffer = None
-
-        if self.tail_buffer:
-            self.callback(Element(
-                self.tag, dict(),
-                None,
-                self.tail_buffer.getvalue(),
-                True
-            ))
-            self.tail_buffer = None
-
-        self.tail_buffer = io.StringIO()
-        self.tag = tag
-
-    def comment(self, text):
-        self.callback(Comment(text))
-
-    def close(self):
-        if self.buffer:
-            self.callback(Element(
-                self.tag, self.attrib,
-                self.buffer.getvalue(),
-                None, False
-            ))
-            self.buffer = None
-
-        if self.tail_buffer:
-            self.callback(Element(
-                self.tag, dict(),
-                None,
-                self.tail_buffer.getvalue(),
-                True
-            ))
-            self.tail_buffer = None
-
-        return True
 
 
 class HTMLParser(BaseParser):
     '''HTML document parser.
 
-    This reader uses lxml as the parser.
+    This reader uses html5-parser or lxml as the parser.
     '''
-    BUFFER_SIZE = 131072
-
     @property
     def parser_error(self):
         return lxml.etree.LxmlError
@@ -111,22 +21,16 @@ class HTMLParser(BaseParser):
     def parse(self, file, encoding=None):
         parser_type = self.detect_parser_type(file, encoding=encoding)
 
-        if parser_type == 'xhtml':
-            # Use the HTML parser because there exists XHTML soup
-            parser_type = 'html'
-
-        for element in self.parse_lxml(file, encoding=encoding,
+        for element in self.parse_html(file, encoding=encoding,
                                        parser_type=parser_type):
             yield element
 
-    def parse_lxml(self, file, encoding=None, target_class=HTMLParserTarget,
-                   parser_type='html'):
+    def parse_html(self, file, encoding=None, parser_type='html'):
         '''Return an iterator of elements found in the document.
 
         Args:
             file: A file object containing the document.
             encoding (str): The encoding of the document.
-            target_class: A class to be used for target parsing.
             parser_type (str): The type of parser to use. Accepted values:
                 ``html``, ``xhtml``, ``xml``.
 
@@ -134,53 +38,22 @@ class HTMLParser(BaseParser):
             iterator: Each item is an element from
             :mod:`.document.htmlparse.element`
         '''
-        if encoding:
-            lxml_encoding = to_lxml_encoding(encoding) or 'latin1'
-        else:
-            lxml_encoding = encoding
-
-        elements = []
-
-        callback_func = elements.append
-
-        target = target_class(callback_func)
-
         if parser_type == 'html':
-            parser = lxml.html.HTMLParser(
-                encoding=lxml_encoding, target=target
-            )
+            content = file.read()
+            tree = html5_parser.parse(content, transport_encoding=encoding)
         elif parser_type == 'xhtml':
-            parser = lxml.html.XHTMLParser(
-                encoding=lxml_encoding, target=target, recover=True
-            )
+            content = file.read()
+            tree = html5_parser.parse(content, transport_encoding=encoding, maybe_xhtml=True)
         else:
-            parser = lxml.etree.XMLParser(
-                encoding=lxml_encoding, target=target, recover=True
-            )
+            if encoding:
+                lxml_encoding = to_lxml_encoding(encoding) or 'latin1'
+            else:
+                lxml_encoding = encoding
 
-        if parser_type == 'html':
-            # XXX: Force libxml2 to do full read in case of early "</html>"
-            # See https://github.com/chfoo/wpull/issues/104
-            # See https://bugzilla.gnome.org/show_bug.cgi?id=727935
-            for dummy in range(3):
-                parser.feed('<html>'.encode(encoding))
+            parser = lxml.etree.XMLParser(encoding=lxml_encoding, recover=True)
+            tree = lxml.etree.parse(file, parser=parser)
 
-        while True:
-            data = file.read(self.BUFFER_SIZE)
-
-            if not data:
-                break
-
-            parser.feed(data)
-
-            for element in elements:
-                yield element
-
-            del elements[:]
-
-        parser.close()
-
-        for element in elements:
+        for element in tree.getiterator():
             yield element
 
     @classmethod

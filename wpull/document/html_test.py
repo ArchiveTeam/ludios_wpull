@@ -2,24 +2,20 @@ import codecs
 import io
 import unittest
 
+from lxml.etree import _Element as Element
+
+import wpull.util
 from wpull.document.base_test import CODEC_NAMES, EBCDIC
 from wpull.document.html import HTMLReader
-from wpull.document.htmlparse.element import Element
-from wpull.document.htmlparse.html5lib_ import HTMLParser as HTML5LibHTMLParser
+from wpull.document.htmlparse.lxml_ import HTMLParser
 from wpull.protocol.http.request import Request, Response
 from wpull.url import URLInfo
-from wpull.util import IS_PYPY
+
+wpull.util.fix_unittest_bullshit()
 
 
-if not IS_PYPY:
-    from wpull.document.htmlparse.lxml_ import HTMLParser as LxmlHTMLParser
-else:
-    LxmlHTMLParser = type(NotImplemented)
-
-
-class Mixin(object):
-    def get_html_parser(self):
-        raise NotImplementedError()
+class TestHTML(unittest.TestCase):
+    maxDiff = None
 
     def test_html_detect(self):
         self.assertTrue(HTMLReader.is_file(
@@ -73,10 +69,7 @@ class Mixin(object):
         self.assertFalse(HTMLReader.is_response(response))
 
     def test_html_parse_doctype(self):
-        html_parser = self.get_html_parser()
-
-        if not isinstance(html_parser, LxmlHTMLParser):
-            return
+        html_parser = HTMLParser()
 
         self.assertIn(
             'html',
@@ -101,8 +94,7 @@ class Mixin(object):
         self.assertFalse(html_parser.parse_doctype(io.BytesIO(b'A\xfe')))
 
     def test_html_encoding(self):
-        html_parser = self.get_html_parser()
-        is_lxml = isinstance(html_parser, LxmlHTMLParser)
+        html_parser = HTMLParser()
         reader = HTMLReader(html_parser)
 
         bom_map = {
@@ -118,24 +110,21 @@ class Mixin(object):
                 # compatable
                 continue
 
-            if is_lxml and (name.startswith('utf_16') or name.startswith('utf_32')):
+            if name.startswith('utf_16') or name.startswith('utf_32'):
                 # FIXME: libxml/lxml doesn't like it when we pass in a codec
                 # name but don't specify the endian but BOM is included
                 continue
 
             print('->', name)
 
-            data = io.BytesIO( bom_map.get(name, b'') +'<img>'.encode(name))
+            data = io.BytesIO(bom_map.get(name, b'') + '<img>'.encode(name))
             elements = tuple(reader.iter_elements(data, encoding=name))
 
             html_element = elements[0]
-            if isinstance(html_parser, LxmlHTMLParser):
-                self.assertEqual('html', html_element.tag)
-            else:
-                self.assertEqual('img', html_element.tag)
+            self.assertEqual('html', html_element.tag)
 
     def test_html_layout(self):
-        html_parser = self.get_html_parser()
+        html_parser = HTMLParser()
         reader = HTMLReader(html_parser)
 
         elements = tuple(
@@ -155,21 +144,11 @@ class Mixin(object):
         self.assertEqual('html', elements[0].tag)
         self.assertEqual('head', elements[1].tag)
         self.assertEqual('title', elements[2].tag)
-        self.assertEqual('title', elements[3].tag)
-        self.assertEqual('head', elements[4].tag)
-        self.assertEqual('body', elements[5].tag)
-        self.assertEqual('img', elements[6].tag)
-
-        if isinstance(html_parser, LxmlHTMLParser):
-            self.assertEqual('img', elements[7].tag)
-            self.assertEqual('body', elements[8].tag)
-            self.assertEqual('html', elements[9].tag)
-        else:
-            self.assertEqual('body', elements[7].tag)
-            self.assertEqual('html', elements[8].tag)
+        self.assertEqual('body', elements[3].tag)
+        self.assertEqual('img', elements[4].tag)
 
     def test_html_early_html(self):
-        reader = HTMLReader(self.get_html_parser())
+        reader = HTMLReader(HTMLParser())
 
         for test_string in [
             b'''<!DOCTYPE HTML><html></html><img>''',
@@ -245,21 +224,10 @@ class Mixin(object):
     def test_html_script_comment(self):
         test_string = b'''<script><!-- blah --></script>'''
 
-        reader = HTMLReader(self.get_html_parser())
+        reader = HTMLReader(HTMLParser())
         elements = reader.iter_elements(io.BytesIO(test_string),
                                         encoding='ascii')
         elements = tuple(elements)
 
         self.assertTrue(
             all(isinstance(element, Element) for element in elements))
-
-
-@unittest.skipIf(IS_PYPY, 'Not supported under PyPy')
-class TestLxmlHTML(Mixin, unittest.TestCase):
-    def get_html_parser(self):
-        return LxmlHTMLParser()
-
-
-class TestHTML5LibHTML(Mixin, unittest.TestCase):
-    def get_html_parser(self):
-        return HTML5LibHTMLParser()
