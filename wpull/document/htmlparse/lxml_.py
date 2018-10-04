@@ -130,9 +130,9 @@ class HTMLParser(BaseParser):
         '''
         content = file.read()
         if parser_type == 'html':
-            tree = html5_parser.parse(content, encoding=encoding)
+            tree = html5_parser.parse(content, transport_encoding=encoding)
         elif parser_type == 'xhtml':
-            tree = html5_parser.parse(content, encoding=encoding, maybe_xhtml=True)
+            tree = html5_parser.parse(content, transport_encoding=encoding, maybe_xhtml=True)
         else:
             parser = lxml.etree.XMLParser(encoding=encoding, recover=True)
             tree = parser.parse(content)
