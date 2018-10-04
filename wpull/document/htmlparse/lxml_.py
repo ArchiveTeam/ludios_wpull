@@ -38,14 +38,15 @@ class HTMLParser(BaseParser):
             iterator: Each item is either :class:`lxml.etree._Comment`
             or :class:`lxml.etree._Element`
         '''
-        content = file.read()
         if parser_type == 'html':
+            content = file.read()
             tree = html5_parser.parse(content, transport_encoding=encoding)
         elif parser_type == 'xhtml':
+            content = file.read()
             tree = html5_parser.parse(content, transport_encoding=encoding, maybe_xhtml=True)
         else:
             parser = lxml.etree.XMLParser(encoding=encoding, recover=True)
-            tree = parser.parse(content)
+            tree = lxml.etree.parse(file, parser=parser)
             parser.close()
 
         return tree.getiterator()
