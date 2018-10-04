@@ -4,9 +4,7 @@ import io
 import html5_parser
 import lxml.html
 
-from wpull.collections import EmptyFrozenDict, FrozenDict
 from wpull.document.htmlparse.base import BaseParser
-from wpull.document.htmlparse.element import Element, Comment
 from wpull.document.xml import XMLDetector
 import wpull.util
 
@@ -37,8 +35,8 @@ class HTMLParser(BaseParser):
                 ``html``, ``xhtml``, ``xml``.
 
         Returns:
-            iterator: Each item is an element from
-            :mod:`.document.htmlparse.element`
+            iterator: Each item is either :class:`lxml.etree._Comment`
+            or :class:`lxml.etree._Element`
         '''
         content = file.read()
         if parser_type == 'html':
@@ -50,8 +48,7 @@ class HTMLParser(BaseParser):
             tree = parser.parse(content)
             parser.close()
 
-        for element in tree.getiterator():
-            yield element
+        return tree.getiterator()
 
     @classmethod
     def parse_doctype(cls, file, encoding=None):

@@ -6,8 +6,8 @@ class BaseParser(object, metaclass=abc.ABCMeta):
         '''Parse the document for elements.
 
         Returns:
-            iterator: Each item is from
-            :module:`.document.htmlparse.element`
+            iterator: Each item is either :class:`lxml.etree._Comment`
+            or :class:`lxml.etree._Element`
         '''
 
     @abc.abstractproperty

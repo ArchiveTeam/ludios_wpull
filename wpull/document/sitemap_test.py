@@ -7,7 +7,6 @@ from wpull.document.htmlparse.lxml_ import HTMLParser
 from wpull.document.sitemap import SitemapReader
 from wpull.http.request import Request
 from wpull.url import URLInfo
-from wpull.util import IS_PYPY
 
 
 class Mixin(object):

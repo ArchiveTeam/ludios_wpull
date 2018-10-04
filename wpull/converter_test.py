@@ -10,7 +10,6 @@ from wpull.item import Status
 from wpull.scraper.css import CSSScraper
 from wpull.scraper.html import ElementWalker
 from wpull.testing.util import TempDirMixin
-from wpull.util import IS_PYPY
 
 CSS_TEXT = '''
 body {

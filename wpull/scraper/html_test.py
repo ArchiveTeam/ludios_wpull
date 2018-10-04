@@ -9,7 +9,6 @@ from wpull.item import LinkType
 from wpull.scraper.css import CSSScraper
 from wpull.scraper.html import HTMLScraper, ElementWalker
 from wpull.scraper.javascript import JavaScriptScraper
-from wpull.util import IS_PYPY
 import wpull.util
 
 

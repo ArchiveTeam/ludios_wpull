@@ -2,13 +2,13 @@
 import gzip
 import zlib
 
+from lxml.etree import _Element as Element
 
 from wpull.document.base import BaseExtractiveReader, BaseDocumentDetector
 from wpull.document.util import is_gzip
 from wpull.thirdparty import robotexclusionrulesparser
 import wpull.decompression
 import wpull.util
-from wpull.document.htmlparse.element import Element
 
 
 class SitemapReader(BaseDocumentDetector, BaseExtractiveReader):

@@ -1,13 +1,13 @@
 import io
 import unittest
 
+from lxml.etree import _Element as Element
+
 from wpull.document.base_test import CODEC_NAMES, EBCDIC
 from wpull.document.html import HTMLReader
-from wpull.document.htmlparse.element import Element
 from wpull.document.htmlparse.lxml_ import HTMLParser
 from wpull.http.request import Request, Response
 from wpull.url import URLInfo
-from wpull.util import IS_PYPY
 
 
 class Mixin(object):

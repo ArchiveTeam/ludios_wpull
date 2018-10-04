@@ -151,7 +151,7 @@ class BaseHTMLReader(object, metaclass=abc.ABCMeta):
             encoding (str): The encoding of the document.
 
         Returns:
-            iterator: Each item is an element from
-            :mod:`.document.htmlparse.element`
+            iterator: Each item is either :class:`lxml.etree._Comment`
+            or :class:`lxml.etree._Element`
         '''
         pass

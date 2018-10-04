@@ -5,9 +5,10 @@ import itertools
 import logging
 import re
 
+from lxml.etree import _Element as Element
+
 from wpull.backport.logging import BraceMessage as __
 from wpull.document.html import HTMLReader
-from wpull.document.htmlparse.element import Element
 from wpull.document.util import detect_response_encoding
 from wpull.item import LinkType
 from wpull.scraper.base import BaseHTMLScraper, ScrapeResult, LinkContext

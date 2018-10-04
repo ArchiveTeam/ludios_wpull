@@ -8,7 +8,6 @@ import ssl
 import sys
 
 from wpull.backport.logging import BraceMessage as __
-from wpull.util import IS_PYPY
 import wpull.resmon
 import wpull.string
 import wpull.version
