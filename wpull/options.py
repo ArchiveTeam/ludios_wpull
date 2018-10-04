@@ -872,12 +872,6 @@ class AppArgumentParser(argparse.ArgumentParser):
             help=_('request servers to use HTTP compression'),
         )
         group.add_argument(
-            '--html-parser',
-            choices=['html5lib'] if IS_PYPY else ['libxml2-lxml', 'html5lib'],
-            default='html5lib',
-            help=_('select HTML parsing library and strategy')
-        )
-        group.add_argument(
             '--link-extractors',
             choices=CommaChoiceListArgs(['html', 'css', 'javascript']),
             type=self.comma_choice_list,

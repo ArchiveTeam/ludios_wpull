@@ -4,19 +4,13 @@ import os.path
 import unittest
 
 from wpull.converter import CSSConverter, HTMLConverter
+from wpull.document.htmlparse.lxml_ import HTMLParser
 from wpull.database.sqltable import URLTable
-from wpull.document.htmlparse.html5lib_ import HTMLParser as HTML5LibHTMLParser
 from wpull.item import Status
 from wpull.scraper.css import CSSScraper
 from wpull.scraper.html import ElementWalker
 from wpull.testing.util import TempDirMixin
 from wpull.util import IS_PYPY
-
-
-if not IS_PYPY:
-    from wpull.document.htmlparse.lxml_ import HTMLParser as LxmlHTMLParser
-else:
-    LxmlHTMLParser = type(NotImplemented)
 
 CSS_TEXT = '''
 body {
@@ -248,7 +242,6 @@ class Mixin(object):
         self.assertIn("<hr/>", converted_text)
 
 
-@unittest.skipIf(IS_PYPY, 'Not supported under PyPy')
 class TestLxmlConverter(unittest.TestCase, Mixin, TempDirMixin):
     def setUp(self):
         self.set_up_temp_dir()
@@ -257,15 +250,4 @@ class TestLxmlConverter(unittest.TestCase, Mixin, TempDirMixin):
         self.tear_down_temp_dir()
 
     def get_html_parser(self):
-        return LxmlHTMLParser()
-
-
-class TestHTML5LibConverter(unittest.TestCase, Mixin, TempDirMixin):
-    def setUp(self):
-        self.set_up_temp_dir()
-
-    def tearDown(self):
-        self.tear_down_temp_dir()
-
-    def get_html_parser(self):
-        return HTML5LibHTMLParser()
+        return HTMLParser()

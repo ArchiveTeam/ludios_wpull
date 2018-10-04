@@ -124,14 +124,8 @@ class HTMLConverter(HTMLScraper, BaseDocumentConverter):
             )
 
         with open(input_filename, 'rb') as in_file:
-            try:
-                doctype = self._html_parser.parse_doctype(in_file,
-                                                          encoding=encoding)
-                is_xhtml = doctype and 'XHTML' in doctype
-            except AttributeError:
-                # using html5lib
-                is_xhtml = False
-                doctype = None
+            doctype = self._html_parser.parse_doctype(in_file, encoding=encoding)
+            is_xhtml = doctype and 'XHTML' in doctype
 
         with open(input_filename, 'rb') as in_file:
             with open(output_filename, 'wb') as bin_out_file:

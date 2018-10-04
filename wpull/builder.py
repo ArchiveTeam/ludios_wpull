@@ -30,6 +30,7 @@ from wpull.coprocessor.youtubedl import YoutubeDlCoprocessor
 from wpull.database.sqltable import URLTable as SQLURLTable, GenericSQLURLTable
 from wpull.database.wrap import URLTableHookWrapper
 from wpull.debug import DebugConsoleHandler
+from wpull.document.htmlparse.lxml_ import HTMLParser
 from wpull.dns import Resolver, PythonResolver
 from wpull.driver.phantomjs import PhantomJSDriver
 from wpull.engine import Engine
@@ -127,7 +128,7 @@ class Builder(object):
             'FTPProcessorFetchParams': FTPProcessorFetchParams,
             'FTPProcessorInstances': FTPProcessorInstances,
             'HTTPProxyServer': HTTPProxyServer,
-            'HTMLParser': NotImplemented,
+            'HTMLParser': HTMLParser,
             'HTMLScraper': HTMLScraper,
             'JavaScriptScraper': JavaScriptScraper,
             'OutputDocumentRecorder': OutputDocumentRecorder,
@@ -688,12 +689,6 @@ class Builder(object):
 
     def _build_html_parser(self):
         '''Build HTML parser.'''
-        if self._args.html_parser == 'html5lib':
-            from wpull.document.htmlparse.html5lib_ import HTMLParser
-        else:
-            from wpull.document.htmlparse.lxml_ import HTMLParser
-
-        self._factory.class_map['HTMLParser'] = HTMLParser
         self._factory.new('HTMLParser')
 
     def _build_url_table(self):

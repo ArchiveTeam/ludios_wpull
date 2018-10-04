@@ -4,16 +4,10 @@ import unittest
 from wpull.document.base_test import CODEC_NAMES, EBCDIC
 from wpull.document.html import HTMLReader
 from wpull.document.htmlparse.element import Element
-from wpull.document.htmlparse.html5lib_ import HTMLParser as HTML5LibHTMLParser
+from wpull.document.htmlparse.lxml_ import HTMLParser
 from wpull.http.request import Request, Response
 from wpull.url import URLInfo
 from wpull.util import IS_PYPY
-
-
-if not IS_PYPY:
-    from wpull.document.htmlparse.lxml_ import HTMLParser as LxmlHTMLParser
-else:
-    LxmlHTMLParser = type(NotImplemented)
 
 
 class Mixin(object):
@@ -74,7 +68,7 @@ class Mixin(object):
     def test_html_parse_doctype(self):
         html_parser = self.get_html_parser()
 
-        if not isinstance(html_parser, LxmlHTMLParser):
+        if not isinstance(html_parser, HTMLParser):
             return
 
         self.assertIn(
@@ -118,7 +112,7 @@ class Mixin(object):
             elements = tuple(reader.iter_elements(data, encoding=name))
 
             html_element = elements[0]
-            if isinstance(html_parser, LxmlHTMLParser):
+            if isinstance(html_parser, HTMLParser):
                 self.assertEqual('html', html_element.tag)
             else:
                 self.assertEqual('img', html_element.tag)
@@ -149,7 +143,7 @@ class Mixin(object):
         self.assertEqual('body', elements[5].tag)
         self.assertEqual('img', elements[6].tag)
 
-        if isinstance(html_parser, LxmlHTMLParser):
+        if isinstance(html_parser, HTMLParser):
             self.assertEqual('img', elements[7].tag)
             self.assertEqual('body', elements[8].tag)
             self.assertEqual('html', elements[9].tag)
@@ -243,12 +237,6 @@ class Mixin(object):
             all(isinstance(element, Element) for element in elements))
 
 
-@unittest.skipIf(IS_PYPY, 'Not supported under PyPy')
 class TestLxmlHTML(Mixin, unittest.TestCase):
     def get_html_parser(self):
-        return LxmlHTMLParser()
-
-
-class TestHTML5LibHTML(Mixin, unittest.TestCase):
-    def get_html_parser(self):
-        return HTML5LibHTMLParser()
+        return HTMLParser()
