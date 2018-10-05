@@ -163,7 +163,7 @@ class Response(BaseResponse, SerializableMixin, DictableMixin):
 
     Attributes:
         status_code (int): The status code in the status line.
-        status_reason (str): The status reason string in the status line.
+        reason (str): The status reason string in the status line.
         version (str): The HTTP version in the status line. For example,
             ``HTTP/1.1``.
         fields (:class:`.namevalue.NameValueRecord`): The fields in
