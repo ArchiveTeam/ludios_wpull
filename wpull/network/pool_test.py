@@ -126,7 +126,7 @@ class TestConnectionPool(BadAppTestCase):
         pool = ConnectionPool(max_host_count=1)
 
         connection = yield from pool.acquire('127.0.0.1', 1234)
-        connection_2_task = asyncio.async(pool.acquire('127.0.0.1', 1234))
+        connection_2_task = asyncio.ensure_future(pool.acquire('127.0.0.1', 1234))
         yield from asyncio.sleep(0.01)
         pool.no_wait_release(connection)
         yield from pool.clean(force=True)
