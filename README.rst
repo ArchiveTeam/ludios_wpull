@@ -14,7 +14,7 @@ Notable Features:
 
 * Written in Python: lightweight, modifiable, robust, & scriptable
 * Graceful stopping; on-disk database resume
-* PhantomJS & youtube-dl integration (experimental)
+* youtube-dl integration (experimental)
 
 
 Install
