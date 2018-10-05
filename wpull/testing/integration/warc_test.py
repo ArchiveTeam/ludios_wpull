@@ -4,11 +4,11 @@ import os
 from wpull.application.builder import Builder
 from wpull.application.options import AppArgumentParser
 from wpull.testing.integration.base import HTTPGoodAppTestCase
-import wpull.testing.async
+import wpull.testing.async_
 
 
 class TestWARCHTTPGoodApp(HTTPGoodAppTestCase):
-    @wpull.testing.async.async_test()
+    @wpull.testing.async_.async_test()
     def test_app_args_warc_size(self):
         arg_parser = AppArgumentParser()
         args = arg_parser.parse_args([
@@ -31,7 +31,7 @@ class TestWARCHTTPGoodApp(HTTPGoodAppTestCase):
         self.assertEqual(0, exit_code)
         self.assertGreaterEqual(builder.factory['Statistics'].files, 1)
 
-    @wpull.testing.async.async_test()
+    @wpull.testing.async_.async_test()
     def test_app_args_warc(self):
         arg_parser = AppArgumentParser()
         args = arg_parser.parse_args([
@@ -58,7 +58,7 @@ class TestWARCHTTPGoodApp(HTTPGoodAppTestCase):
         self.assertEqual(0, exit_code)
         self.assertGreaterEqual(builder.factory['Statistics'].files, 1)
 
-    @wpull.testing.async.async_test()
+    @wpull.testing.async_.async_test()
     def test_app_args_warc_with_cdx(self):
         arg_parser = AppArgumentParser()
         args = arg_parser.parse_args([
@@ -76,7 +76,7 @@ class TestWARCHTTPGoodApp(HTTPGoodAppTestCase):
         self.assertEqual(0, exit_code)
         self.assertGreaterEqual(builder.factory['Statistics'].files, 1)
 
-    @wpull.testing.async.async_test()
+    @wpull.testing.async_.async_test()
     def test_app_args_warc_dedup(self):
         arg_parser = AppArgumentParser()
 

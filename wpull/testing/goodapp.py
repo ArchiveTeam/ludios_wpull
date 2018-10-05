@@ -11,7 +11,7 @@ from tornado.testing import AsyncHTTPTestCase, AsyncHTTPSTestCase
 from tornado.web import HTTPError
 import tornado.web
 
-from wpull.testing.async import AsyncTestCase
+from wpull.testing.async_ import AsyncTestCase
 
 
 _logger = logging.getLogger(__name__)
@@ -236,7 +236,7 @@ class GoodApp(tornado.web.Application):
 class GoodAppTestCase(AsyncTestCase, AsyncHTTPTestCase):
     def get_new_ioloop(self):
         tornado.ioloop.IOLoop.configure(
-            'wpull.testing.async.TornadoAsyncIOLoop',
+            'wpull.testing.async_.TornadoAsyncIOLoop',
             event_loop=self.event_loop)
         ioloop = tornado.ioloop.IOLoop()
         return ioloop
@@ -254,7 +254,7 @@ class GoodAppTestCase(AsyncTestCase, AsyncHTTPTestCase):
 class GoodAppHTTPSTestCase(AsyncTestCase, AsyncHTTPSTestCase):
     def get_new_ioloop(self):
         tornado.ioloop.IOLoop.configure(
-            'wpull.testing.async.TornadoAsyncIOLoop',
+            'wpull.testing.async_.TornadoAsyncIOLoop',
             event_loop=self.event_loop)
         ioloop = tornado.ioloop.IOLoop()
         return ioloop

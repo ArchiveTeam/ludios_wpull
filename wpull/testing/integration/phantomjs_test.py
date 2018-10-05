@@ -4,7 +4,7 @@ import unittest
 from wpull.application.builder import Builder
 from wpull.application.options import AppArgumentParser
 from wpull.testing.integration.base import HTTPGoodAppTestCase
-import wpull.testing.async
+import wpull.testing.async_
 from wpull.testing.integration.http_app_test import MockDNSResolver
 from wpull.testing.util import TempDirMixin
 from wpull.util import IS_PYPY
@@ -13,7 +13,7 @@ from wpull.util import IS_PYPY
 class PhantomJSMixin(object):
     # FIXME: it stopped working in Travis for a while
     @unittest.skipIf(os.environ.get('TRAVIS'), 'Broken under Travis CI')
-    @wpull.testing.async.async_test()
+    @wpull.testing.async_.async_test()
     def test_app_phantomjs(self):
         arg_parser = AppArgumentParser()
         script_filename = os.path.join(os.path.dirname(__file__),
@@ -71,7 +71,7 @@ class PhantomJSMixin(object):
         self.assertGreaterEqual(builder.factory['Statistics'].files, 1)
 
     @unittest.skipIf(os.environ.get('TRAVIS'), 'Broken under Travis CI')
-    @wpull.testing.async.async_test(
+    @wpull.testing.async_.async_test(
          timeout=30 * 3 if IS_PYPY else 30
     )
     def test_app_phantomjs_scroll(self):

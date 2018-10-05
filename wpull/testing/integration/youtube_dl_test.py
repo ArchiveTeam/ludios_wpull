@@ -6,12 +6,12 @@ import unittest
 from wpull.application.builder import Builder
 from wpull.application.options import AppArgumentParser
 from wpull.testing.integration.base import AppTestCase
-import wpull.testing.async
+import wpull.testing.async_
 
 
 class TestYoutubeDl(AppTestCase):
     @unittest.skip('not a good idea to test continuously on external servers')
-    @wpull.testing.async.async_test()
+    @wpull.testing.async_.async_test()
     def test_youtube_dl(self):
         arg_parser = AppArgumentParser()
         args = arg_parser.parse_args([
@@ -52,7 +52,7 @@ class TestYoutubeDl(AppTestCase):
         self.assertTrue(thumbnails)
 
     @unittest.skip('not a good idea to test continuously on external servers')
-    @wpull.testing.async.async_test()
+    @wpull.testing.async_.async_test()
     def test_propagate_ipv4_only_and_no_cert_check_to_youtube_dl(self):
         arg_parser = AppArgumentParser()
         args = arg_parser.parse_args([
@@ -79,7 +79,7 @@ class TestYoutubeDl(AppTestCase):
             self.assertTrue(re.search(b'Starting process \[\'youtube-dl.*--no-check-certificate', data))
 
     @unittest.skip('not a good idea to test continuously on external servers')
-    @wpull.testing.async.async_test()
+    @wpull.testing.async_.async_test()
     def test_youtube_dl_defaults_have_neither_ipv4_only_nor_no_cert_check(self):
         arg_parser = AppArgumentParser()
         args = arg_parser.parse_args([

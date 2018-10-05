@@ -20,7 +20,7 @@ import tornado.ioloop
 from tornado.testing import AsyncTestCase as TornadoAsyncTestCase
 
 from gzip import GzipFile
-from wpull.testing.async import AsyncTestCase
+from wpull.testing.async_ import AsyncTestCase
 
 
 _logger = logging.getLogger(__name__)
@@ -647,7 +647,7 @@ class Server(threading.Thread):
 class BadAppTestCase(AsyncTestCase, TornadoAsyncTestCase):
     def get_new_ioloop(self):
         tornado.ioloop.IOLoop.configure(
-            'wpull.testing.async.TornadoAsyncIOLoop',
+            'wpull.testing.async_.TornadoAsyncIOLoop',
             event_loop=self.event_loop)
         ioloop = tornado.ioloop.IOLoop()
         return ioloop

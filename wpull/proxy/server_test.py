@@ -13,7 +13,7 @@ from wpull.proxy.server import HTTPProxyServer, HTTPProxySession
 from wpull.cookiewrapper import CookieJarWrapper
 import wpull.testing.badapp
 import wpull.testing.goodapp
-import wpull.testing.async
+import wpull.testing.async_
 
 
 try:
@@ -31,7 +31,7 @@ DEFAULT_TIMEOUT = 30
 class TestProxy(wpull.testing.goodapp.GoodAppTestCase):
     # TODO: fix Travis CI to install pycurl
     @unittest.skipIf(pycurl is None, "pycurl module not present")
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_basic(self):
         cookie_jar = BetterMozillaCookieJar()
         policy = DeFactoCookiePolicy(cookie_jar=cookie_jar)
@@ -87,7 +87,7 @@ class TestProxy(wpull.testing.goodapp.GoodAppTestCase):
 
     # TODO: fix Travis CI to install pycurl
     @unittest.skipIf(pycurl is None, "pycurl module not present")
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_post(self):
         http_client = Client()
         proxy = HTTPProxyServer(http_client)
@@ -115,7 +115,7 @@ class TestProxy(wpull.testing.goodapp.GoodAppTestCase):
 
 class TestProxy2(wpull.testing.badapp.BadAppTestCase):
     @unittest.skipIf(pycurl is None, "pycurl module not present")
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_no_content(self):
         http_client = Client()
         proxy = HTTPProxyServer(http_client)

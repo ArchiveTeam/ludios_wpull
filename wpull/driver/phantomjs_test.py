@@ -3,7 +3,7 @@ import os
 
 from wpull.driver.phantomjs import PhantomJSDriver, PhantomJSDriverParams
 from wpull.testing.goodapp import GoodAppTestCase
-import wpull.testing.async
+import wpull.testing.async_
 from wpull.testing.util import TempDirMixin
 
 
@@ -19,7 +19,7 @@ class TestPhantomJS(GoodAppTestCase, TempDirMixin):
         super().tearDown()
         self.tear_down_temp_dir()
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_driver(self):
         params = PhantomJSDriverParams(
             self.get_url('/static/DEUUEAUGH.html'),

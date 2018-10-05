@@ -4,7 +4,7 @@ import socket
 
 import asyncio
 
-from wpull.testing.async import AsyncTestCase
+from wpull.testing.async_ import AsyncTestCase
 
 
 _logger = logging.getLogger(__name__)

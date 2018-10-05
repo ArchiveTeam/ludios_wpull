@@ -12,12 +12,12 @@ from wpull.proxy.client import HTTPProxyConnectionPool
 from wpull.proxy.server import HTTPProxyServer
 import wpull.testing.badapp
 import wpull.testing.goodapp
-import wpull.testing.async
+import wpull.testing.async_
 
 
 
 class Mixin:
-    @wpull.testing.async.async_test()
+    @wpull.testing.async_.async_test()
     def test_basic_requests(self):
         proxy_http_client = Client()
         proxy_server = HTTPProxyServer(proxy_http_client)

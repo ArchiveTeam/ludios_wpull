@@ -9,7 +9,7 @@ import unittest
 import functools
 import tornado.netutil
 
-import wpull.testing.async
+import wpull.testing.async_
 from wpull.errors import NetworkError, ConnectionRefused, ProtocolError, \
     NetworkTimedOut, SSLVerificationError
 from wpull.network.connection import Connection, SSLConnection
@@ -70,7 +70,7 @@ class StreamTestsMixin(object):
         yield from stream.read_body(request, response, content)
         return response, content.getvalue()
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_no_such_host(self):
         stream = self.new_stream('wpull-no-exist.invalid', 80)
         try:
@@ -81,7 +81,7 @@ class StreamTestsMixin(object):
         else:
             self.fail()  # pragma: no cover
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_connection_refused(self):
         stream = self.new_stream('127.0.0.1', 1)
         try:
@@ -91,7 +91,7 @@ class StreamTestsMixin(object):
         else:
             self.fail()  # pragma: no cover
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_connection_timeout(self):
         stream = self.new_stream('1.0.0.0', 1,
                                  connection_kwargs=dict(connect_timeout=0.1))
@@ -103,7 +103,7 @@ class StreamTestsMixin(object):
         else:
             self.fail()  # pragma: no cover
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_connection_reuse(self):
         stream = self.new_stream()
         request = Request(self.get_url('/'))
@@ -113,7 +113,7 @@ class StreamTestsMixin(object):
         response, dummy = yield from self.fetch(stream, request)
         self.assertEqual(200, response.status_code)
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_connection_reuse_with_http_close(self):
         stream = self.new_stream()
 
@@ -126,7 +126,7 @@ class StreamTestsMixin(object):
             self.assertEqual(b'a' * 100, content)
 
     @unittest.skip("This case is too difficult to solve.")
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_connection_reuse_without_http_close(self):
         stream = self.new_stream()
 
@@ -138,7 +138,7 @@ class StreamTestsMixin(object):
             self.assertEqual(100, len(content))
             self.assertEqual(b'a' * 100, content)
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_read_timeout(self):
         stream = self.new_stream(connection_kwargs=dict(timeout=0.1))
         request = Request(self.get_url('/sleep_long'))
@@ -149,7 +149,7 @@ class StreamTestsMixin(object):
         else:
             self.fail()  # pragma: no cover
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_basic(self):
         stream = self.new_stream()
         request = Request(self.get_url('/'))
@@ -158,7 +158,7 @@ class StreamTestsMixin(object):
         self.assertEqual(b'hello world!', content)
 #         self.assertTrue(response.url_info)
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_basic_content_length(self):
         stream = self.new_stream()
         request = Request(self.get_url('/content_length'))
@@ -168,7 +168,7 @@ class StreamTestsMixin(object):
         self.assertEqual(b'a' * 100, content)
         self.assertEqual(100, len(content))
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_basic_chunked(self):
         stream = self.new_stream()
         request = Request(self.get_url('/chunked'))
@@ -177,7 +177,7 @@ class StreamTestsMixin(object):
         self.assertEqual('chunked', response.fields['Transfer-Encoding'])
         self.assertEqual(b'hello world!', content)
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_basic_chunked_trailer(self):
         stream = self.new_stream()
         request = Request(self.get_url('/chunked_trailer'))
@@ -187,7 +187,7 @@ class StreamTestsMixin(object):
         self.assertEqual('dolphin', response.fields['Animal'])
         self.assertEqual(b'hello world!', content)
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_basic_chunked_trailer_2(self):
         stream = self.new_stream()
         request = Request(self.get_url('/chunked_trailer_2'))
@@ -198,7 +198,7 @@ class StreamTestsMixin(object):
         self.assertEqual('delicious', response.fields['Cake'])
         self.assertEqual(b'hello world!', content)
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_malformed_chunked(self):
         stream = self.new_stream()
         request = Request(self.get_url('/malformed_chunked'))
@@ -209,7 +209,7 @@ class StreamTestsMixin(object):
         else:
             self.fail()  # pragma: no cover
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_non_standard_delim_chunked(self):
         stream = self.new_stream()
         request = Request(self.get_url('/chunked_non_standard_delim'))
@@ -218,7 +218,7 @@ class StreamTestsMixin(object):
         self.assertEqual('chunked', response.fields['Transfer-Encoding'])
         self.assertEqual(b'hello world!', content)
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_chunked_with_extension(self):
         stream = self.new_stream()
         request = Request(self.get_url('/chunked_with_extension'))
@@ -227,7 +227,7 @@ class StreamTestsMixin(object):
         self.assertEqual('chunked', response.fields['Transfer-Encoding'])
         self.assertEqual(b'hello world!', content)
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_buffer_overflow(self):
         stream = self.new_stream()
         request = Request(self.get_url('/buffer_overflow'))
@@ -238,7 +238,7 @@ class StreamTestsMixin(object):
         else:
             self.fail()  # pragma: no cover
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_buffer_overflow_header(self):
         stream = self.new_stream()
         request = Request(self.get_url('/buffer_overflow_header'))
@@ -249,7 +249,7 @@ class StreamTestsMixin(object):
         else:
             self.fail()  # pragma: no cover
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_bad_chunk_size(self):
         stream = self.new_stream()
         request = Request(self.get_url('/bad_chunk_size'))
@@ -260,7 +260,7 @@ class StreamTestsMixin(object):
         else:
             self.fail()  # pragma: no cover
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_content_length_and_chunked(self):
         stream = self.new_stream()
         request = Request(self.get_url('/content_length_and_chunked'))
@@ -269,7 +269,7 @@ class StreamTestsMixin(object):
         self.assertEqual('chunked', response.fields['Transfer-Encoding'])
         self.assertEqual(b'hello world!', content)
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_bad_header_delminators(self):
         stream = self.new_stream()
         request = Request(self.get_url('/bad_header_deliminators'))
@@ -277,7 +277,7 @@ class StreamTestsMixin(object):
         self.assertEqual(200, response.status_code)
         self.assertEqual(b'hi\n', content)
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_utf8_header(self):
         stream = self.new_stream()
         request = Request(self.get_url('/utf8_header'))
@@ -286,7 +286,7 @@ class StreamTestsMixin(object):
         self.assertEqual('🐱'.encode('utf-8').decode('latin-1'),
                          response.fields['whoa'])
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_short_close(self):
         stream = self.new_stream()
         request = Request(self.get_url('/short_close'))
@@ -300,7 +300,7 @@ class StreamTestsMixin(object):
         request = Request(self.get_url('/'))
         yield from self.fetch(stream, request)
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_header_early_close(self):
         stream = self.new_stream()
         request = Request(self.get_url('/header_early_close'))
@@ -314,31 +314,31 @@ class StreamTestsMixin(object):
         request = Request(self.get_url('/'))
         yield from self.fetch(stream, request)
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_unclean_8bit_header(self):
         stream = self.new_stream()
         request = Request(self.get_url('/unclean_8bit_header'))
         yield from self.fetch(stream, request)
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_no_colon_header(self):
         stream = self.new_stream()
         request = Request(self.get_url('/no_colon_header'))
         yield from self.fetch(stream, request)
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_malformed_content_length(self):
         stream = self.new_stream()
         request = Request(self.get_url('/malformed_content_length'))
         yield from self.fetch(stream, request)
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_negative_content_length(self):
         stream = self.new_stream()
         request = Request(self.get_url('/negative_content_length'))
         yield from self.fetch(stream, request)
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_gzip_encoding(self):
         filename = os.path.join(
             os.path.dirname(__file__),
@@ -358,7 +358,7 @@ class StreamTestsMixin(object):
             self.assertEqual(len(test_data), len(content))
             self.assertEqual(test_data, content)
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_zlib_encoding(self):
         filename = os.path.join(
             os.path.dirname(__file__),
@@ -382,7 +382,7 @@ class StreamTestsMixin(object):
             self.assertEqual(test_data, content)
 
     @unittest.skip('zlib seems to not error on short content')
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_gzip_corrupt_short(self):
         stream = self.new_stream()
         request = Request(self.get_url('/gzip_corrupt_short'))
@@ -393,7 +393,7 @@ class StreamTestsMixin(object):
         else:
             self.fail()  # pragma: no cover
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_gzip_corrupt_footer(self):
         stream = self.new_stream()
         request = Request(self.get_url('/gzip_corrupt_footer'))
@@ -404,26 +404,26 @@ class StreamTestsMixin(object):
         else:
             self.fail()  # pragma: no cover
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_no_content(self):
         stream = self.new_stream()
         request = Request(self.get_url('/no_content'))
         yield from self.fetch(stream, request)
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_head_no_content(self):
         stream = self.new_stream()
         request = Request(self.get_url('/no_content'), method='HEAD')
         yield from self.fetch(stream, request)
 
     # XXX: why is this slow on travis
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT * 4)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT * 4)
     def test_big(self):
         stream = self.new_stream()
         request = Request(self.get_url('/big'))
         response, content = yield from self.fetch(stream, request)
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_underrun(self):
         stream = self.new_stream(
             connection_kwargs=dict(connect_timeout=2.0, timeout=1.0))
@@ -438,7 +438,7 @@ class StreamTestsMixin(object):
             else:
                 self.fail()  # pragma: no cover
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_overrun(self):
         stream = self.new_stream()
         request = Request(self.get_url('/overrun'))
@@ -451,7 +451,7 @@ class StreamTestsMixin(object):
         request = Request(self.get_url('/'))
         yield from self.fetch(stream, request)
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_ignore_length(self):
         stream = self.new_stream('127.0.0.1', self._port,
                                  keep_alive=False, ignore_length=True)
@@ -461,7 +461,7 @@ class StreamTestsMixin(object):
 
         self.assertEqual(50, len(content))
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_false_gzip(self):
         stream = self.new_stream('127.0.0.1', self._port)
         request = Request(self.get_url('/false_gzip'))
@@ -470,7 +470,7 @@ class StreamTestsMixin(object):
         self.assertEqual('gzip', response.fields['Content-Encoding'])
         self.assertEqual(b'a' * 100, content)
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_status_line_only(self):
         stream = self.new_stream('127.0.0.1', self._port)
         request = Request(self.get_url('/status_line_only'))
@@ -479,7 +479,7 @@ class StreamTestsMixin(object):
         self.assertEqual(200, response.status_code)
         self.assertEqual(b'Hey', content)
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_newline_line_only(self):
         stream = self.new_stream('127.0.0.1', self._port)
         request = Request(self.get_url('/newline_line_only'))
@@ -487,7 +487,7 @@ class StreamTestsMixin(object):
         with self.assertRaises(ProtocolError):
             yield from self.fetch(stream, request)
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_many_headers(self):
         stream = self.new_stream('127.0.0.1', self._port)
         request = Request(self.get_url('/many_headers'))
@@ -504,7 +504,7 @@ class TestSSLStream(SSLBadAppTestCase, StreamTestsMixin):
     def get_ssl_default(self):
         return True
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_ssl_fail(self):
         ssl_options = dict(
             cert_reqs=ssl.CERT_REQUIRED,
@@ -523,7 +523,7 @@ class TestSSLStream(SSLBadAppTestCase, StreamTestsMixin):
         else:
             self.fail()  # pragma: no cover
 
-    @wpull.testing.async.async_test(timeout=DEFAULT_TIMEOUT)
+    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_ssl_no_check(self):
         stream = self.new_stream(ssl=True)
         request = Request(self.get_url('/'))

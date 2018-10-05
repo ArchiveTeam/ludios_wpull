@@ -6,7 +6,7 @@ import tornado.web
 from tornado.testing import AsyncHTTPSTestCase
 import tornado.ioloop
 
-from wpull.testing.async import AsyncTestCase
+from wpull.testing.async_ import AsyncTestCase
 from wpull.testing.badapp import BadAppTestCase
 from wpull.testing.ftp import FTPTestCase
 from wpull.testing.goodapp import GoodAppTestCase
@@ -59,7 +59,7 @@ class SimpleHandler(tornado.web.RequestHandler):
 class HTTPSSimpleAppTestCase(AsyncTestCase, AsyncHTTPSTestCase, TempDirMixin):
     def get_new_ioloop(self):
         tornado.ioloop.IOLoop.configure(
-            'wpull.testing.async.TornadoAsyncIOLoop',
+            'wpull.testing.async_.TornadoAsyncIOLoop',
             event_loop=self.event_loop)
         ioloop = tornado.ioloop.IOLoop()
         return ioloop

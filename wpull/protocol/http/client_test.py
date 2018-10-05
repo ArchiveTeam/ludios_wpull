@@ -3,7 +3,7 @@ import functools
 import io
 import warnings
 
-import wpull.testing.async
+import wpull.testing.async_
 from wpull.errors import NetworkError
 from wpull.network.connection import Connection
 from wpull.network.pool import ConnectionPool
@@ -18,7 +18,7 @@ class MyException(ValueError):
 
 
 class TestClient(BadAppTestCase):
-    @wpull.testing.async.async_test()
+    @wpull.testing.async_.async_test()
     def test_basic(self):
         client = Client()
 
@@ -38,7 +38,7 @@ class TestClient(BadAppTestCase):
             self.assertTrue(request.address)
             self.assertTrue(response.body)
 
-    @wpull.testing.async.async_test()
+    @wpull.testing.async_.async_test()
     def test_client_exception_throw(self):
         client = Client()
 
@@ -48,7 +48,7 @@ class TestClient(BadAppTestCase):
         with self.assertRaises(NetworkError):
             yield from session.start(request)
 
-    @wpull.testing.async.async_test()
+    @wpull.testing.async_.async_test()
     def test_client_duration_timeout(self):
         client = Client()
 
@@ -57,7 +57,7 @@ class TestClient(BadAppTestCase):
             yield from session.start(request)
             yield from session.download(duration_timeout=0.1)
 
-    @wpull.testing.async.async_test()
+    @wpull.testing.async_.async_test()
     def test_client_exception_recovery(self):
         connection_factory = functools.partial(Connection, timeout=2.0)
         connection_pool = ConnectionPool(connection_factory=connection_factory)
@@ -76,7 +76,7 @@ class TestClient(BadAppTestCase):
                 yield from session.download()
                 self.assertTrue(session.done())
 
-    @wpull.testing.async.async_test()
+    @wpull.testing.async_.async_test()
     def test_client_did_not_complete(self):
         client = Client()
 

@@ -4,7 +4,7 @@ import io
 import os.path
 import unittest
 
-import wpull.testing.async
+import wpull.testing.async_
 from wpull.path import PathNamer
 from wpull.testing.ftp import FTPTestCase
 from wpull.testing.goodapp import GoodAppTestCase

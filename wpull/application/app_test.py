@@ -2,7 +2,7 @@ import asyncio
 
 from typing import Optional
 
-import wpull.testing.async
+import wpull.testing.async_
 from wpull.application.app import Application
 from wpull.pipeline.pipeline import Pipeline, ItemSource, ItemTask, \
     PipelineSeries
@@ -28,8 +28,8 @@ class MyItemSource(ItemSource[int]):
             return self.values.pop(0)
 
 
-class TestAppliation(wpull.testing.async.AsyncTestCase):
-    @wpull.testing.async.async_test()
+class TestAppliation(wpull.testing.async_.AsyncTestCase):
+    @wpull.testing.async_.async_test()
     def test_simple(self):
         source1 = MyItemSource([1, 2, 3])
         source2 = MyItemSource([4, 5, 6])
@@ -43,7 +43,7 @@ class TestAppliation(wpull.testing.async.AsyncTestCase):
 
         self.assertEqual(0, exit_code)
 
-    @wpull.testing.async.async_test()
+    @wpull.testing.async_.async_test()
     def test_exit_codes(self):
         for error_class, expected_exit_code in Application.ERROR_CODE_MAP.items():
             with self.subTest(error_class):
@@ -60,7 +60,7 @@ class TestAppliation(wpull.testing.async.AsyncTestCase):
 
                 self.assertEqual(expected_exit_code, exit_code)
 
-    @wpull.testing.async.async_test()
+    @wpull.testing.async_.async_test()
     def test_pipeline_skipping(self):
         source1 = MyItemSource([1, 2, 3])
         source2 = MyItemSource([4, 5, 6])
