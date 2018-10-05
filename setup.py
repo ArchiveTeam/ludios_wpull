@@ -100,7 +100,7 @@ setup_kwargs = dict(
 # See also requirements.txt
 setup_kwargs['install_requires'] = [
     'chardet',
-    'dnspython3',
+    'dnspython',
     'html5-parser',
     'lxml',
     'namedlist',
