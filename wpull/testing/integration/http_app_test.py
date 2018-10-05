@@ -133,7 +133,6 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
             '--ascii-print',
             '--progress', 'dot',
             '--secure-protocol', 'TLSv1',
-            '--convert-links', '--backup-converted',
             '--accept', '*',
             '--restrict-file-names', 'windows,lower',
             '--quota', '10m',

@@ -5,8 +5,6 @@ import logging
 import sys
 from http.cookiejar import CookieJar
 
-from wpull.application.tasks.conversion import LinkConversionSetupTask, \
-    LinkConversionTask, QueuedFileSource
 from wpull.application.tasks.database import DatabaseSetupTask
 from wpull.application.tasks.database import InputURLTask
 from wpull.application.tasks.download import ProcessTask, ParserSetupTask, ClientSetupTask, ProcessorSetupTask, \
@@ -28,7 +26,6 @@ from wpull.application.app import Application
 from wpull.application.factory import Factory
 from wpull.application.tasks.shutdown import BackgroundAsyncCleanupTask, \
     AppStopTask, CookieJarTeardownTask
-from wpull.converter import BatchDocumentConverter
 from wpull.cookie import DeFactoCookiePolicy
 from wpull.database.sqltable import URLTable as SQLURLTable
 from wpull.database.wrap import URLTableHookWrapper
@@ -83,7 +80,6 @@ class Builder(object):
         self._args = args
         self._factory = Factory({
             'Application': Application,
-            'BatchDocumentConverter': BatchDocumentConverter,
             'BandwidthLimiter': BandwidthLimiter,
             'HTTPClient': HTTPClient,
             'CookieJar': CookieJar,
@@ -171,7 +167,6 @@ class Builder(object):
                 ProcessorSetupTask(),
                 ProxyServerSetupTask(),
                 CoprocessorSetupTask(),
-                LinkConversionSetupTask(),
                 InputURLTask(),
                 URLFiltersPostURLImportSetupTask(),
             ])
@@ -195,16 +190,6 @@ class Builder(object):
             ])
         download_stop_pipeline.skippable = True
 
-        queued_file_source = QueuedFileSource(app_session)
-
-        conversion_pipeline = Pipeline(
-            queued_file_source,
-            [
-                LinkConversionTask()
-            ]
-        )
-        conversion_pipeline.skippable = True
-
         app_stop_pipeline = Pipeline(
             AppSource(app_session),
             [
@@ -218,8 +203,8 @@ class Builder(object):
         pipeline_series = self._factory.new(
             'PipelineSeries',
             (
-                app_start_pipeline, download_pipeline,
-                download_stop_pipeline, conversion_pipeline, app_stop_pipeline
+                app_start_pipeline, download_pipeline, download_stop_pipeline,
+                app_stop_pipeline
             ))
         pipeline_series.concurrency_pipelines.add(download_pipeline)
 

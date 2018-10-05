@@ -1105,18 +1105,6 @@ class AppArgumentParser(argparse.ArgumentParser):
             action='store_true',
             help=_('download files temporarily and delete them after'),
         )
-        group.add_argument(
-            '-k',
-            '--convert-links',
-            action='store_true',
-            help=_('rewrite links in files that point to local files')
-        )
-        group.add_argument(
-            '-K',
-            '--backup-converted',
-            action='store_true',
-            help=_('save original files before converting their links')
-        )
 #         group.add_argument(
 #             '-m',
 #             '--mirror',
