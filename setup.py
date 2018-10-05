@@ -105,7 +105,7 @@ setup_kwargs['install_requires'] = [
     'lxml',
     'namedlist',
     'sqlalchemy',
-    'tornado',
+    'tornado==4.5.3',
     'yapsy',
 ]
 
