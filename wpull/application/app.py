@@ -175,7 +175,6 @@ class Application(HookableMixin):
 
                 if not is_expected:
                     self._print_crash_message()
-                    self._print_report_bug_message()
 
                 break
 
@@ -229,13 +228,3 @@ class Application(HookableMixin):
     def _print_crash_message(cls):
         '''Print crashed message.'''
         _logger.critical(_('Sorry, Wpull unexpectedly crashed.'))
-
-    @classmethod
-    def _print_report_bug_message(cls):
-        '''Print report the bug message.'''
-        _logger.critical(_(
-            'Please report this problem to the authors at Wpull\'s '
-            'issue tracker so it may be fixed. '
-            'If you know how to program, maybe help us fix it? '
-            'Thank you for helping us help you help us all.'
-        ))
