@@ -599,7 +599,12 @@ class ElementWalker(object):
     def iter_links_by_attrib(self, element):
         '''Iterate an element by looking at its attributes for links.'''
         for attrib_name in element.attrib.keys():
-            attrib_value = element.attrib.get(attrib_name)
+            try:
+                attrib_value = element.attrib.get(attrib_name)
+            except ValueError:
+                # lxml.etree.__getNsTag can raise ValueError: Empty tag name
+                # https://bugs.python.org/issue28236
+                attrib_value = ""
 
             if attrib_name in self.LINK_ATTRIBUTES:
                 if self.javascript_scraper and \
