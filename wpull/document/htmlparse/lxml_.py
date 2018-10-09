@@ -38,12 +38,11 @@ class HTMLParser(BaseParser):
             iterator: Each item is an element from
             :mod:`.document.htmlparse.element`
         '''
-        if parser_type == 'html':
+        if parser_type == 'html' or parser_type == 'xhtml':
             content = file.read()
+            # Don't use maybe_xhtml=True for xhtml because it segfaults:
+            # https://github.com/ludios/wpull/issues/15
             tree = html5_parser.parse(content, transport_encoding=encoding)
-        elif parser_type == 'xhtml':
-            content = file.read()
-            tree = html5_parser.parse(content, transport_encoding=encoding, maybe_xhtml=True)
         else:
             if encoding:
                 lxml_encoding = to_lxml_encoding(encoding) or 'latin1'
