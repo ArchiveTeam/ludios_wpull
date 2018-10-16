@@ -67,8 +67,12 @@ class SitemapReader(BaseDocumentDetector, BaseExtractiveReader):
 
         if self.is_file(file):
             for html_obj in self._html_parser.parse(file, encoding):
-                if isinstance(html_obj, Element) \
-                        and html_obj.tag.endswith('loc'):
+                # Beware: some .tag values are not a str:
+                # html_obj=<?xml version="1.0" encoding="UTF-8" ?>
+                # tag=<cyfunction ProcessingInstruction at 0x7f17e49d78e8>
+                if isinstance(html_obj, Element) and \
+                   isinstance(html_obj.tag, str) and \
+                   html_obj.tag.endswith('loc'):
                     if html_obj.text:
                         yield html_obj.text
         else:
