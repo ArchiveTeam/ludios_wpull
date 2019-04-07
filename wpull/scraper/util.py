@@ -36,7 +36,7 @@ def parse_refresh(text):
 
 
 def clean_link_soup(link):
-    '''Strip whitespace from a link in HTML soup.
+    '''Strip whitespace and anchors from a link in HTML soup.
 
     Args:
         link (str): A string containing the link with lots of whitespace.
@@ -51,7 +51,7 @@ def clean_link_soup(link):
 
                 blog/entry/
 
-            how smaug stole all the bitcoins.html
+            how smaug stole all the bitcoins.html#heading-a
         ">
 
     will return
@@ -61,7 +61,7 @@ def clean_link_soup(link):
         str: The cleaned link.
     '''
     return ''.join(
-        [line.strip().replace('\t', '') for line in link.splitlines()]
+        [line.split('#', 1)[0].strip().replace('\t', '') for line in link.splitlines()]
     )
 
 
