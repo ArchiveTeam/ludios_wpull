@@ -254,6 +254,13 @@ class HTMLScraper(HTMLReader, BaseHTMLScraper):
 
     def _is_accepted(self, element_tag):
         '''Return if the link is accepted by the filters.'''
+
+        # Beware: some element_tag values are not a str, e.g.
+        # <cyfunction ProcessingInstruction at 0x7f17e49d78e8>
+        # for XML declarations.
+        if not isinstance(element_tag, str):
+            return False
+
         element_tag = element_tag.lower()
 
         if self._ignored_tags is not None \

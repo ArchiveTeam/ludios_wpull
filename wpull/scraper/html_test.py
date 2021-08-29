@@ -159,6 +159,24 @@ class TestHTMLScraper(unittest.TestCase):
                                        link_type=LinkType.css)
         self.assertFalse(scrape_result)
 
+    def test_bad_xml(self):
+        element_walker = ElementWalker(
+            css_scraper=CSSScraper(), javascript_scraper=JavaScriptScraper())
+        scraper = HTMLScraper(HTMLParser(), element_walker)
+        request = Request('http://example.com/')
+        response = Response(200, 'OK')
+        response.body = Body()
+
+        with wpull.util.reset_file_offset(response.body):
+            html_file_path = os.path.join(ROOT_PATH,
+                                          'testing', 'samples',
+                                          'foxstripcomics_bad_xml.html')
+            with open(html_file_path, 'rb') as in_file:
+                shutil.copyfileobj(in_file, response.body)
+
+        # No crash
+        scraper.scrape(request, response, link_type=LinkType.html)
+
     def test_html_soup(self):
         element_walker = ElementWalker(
             css_scraper=CSSScraper(), javascript_scraper=JavaScriptScraper())

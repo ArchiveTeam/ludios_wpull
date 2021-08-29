@@ -37,6 +37,7 @@ class FuzzedHttpServer(HttpServer):
         'many_urls.html',
         'xkcd_1.html',
         'mojibake.css',
+        'foxstripcomics_bad_xml.html',
     )
 
     def __init__(self, *args, **kwargs):
