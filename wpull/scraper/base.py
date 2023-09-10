@@ -2,22 +2,17 @@
 import abc
 import collections
 import io
-import namedlist
+from collections import namedtuple
 
 from wpull.document.base import BaseTextStreamReader, \
     BaseHTMLReader, BaseExtractiveReader
 from wpull.scraper.util import urljoin_safe
 
 
-LinkContext = namedlist.namedtuple(
+LinkContext = namedtuple(
     'LinkContextType',
-    [
-        'link',
-        ('inline', False),
-        ('linked', False),
-        ('link_type', None),
-        ('extra', None)
-    ]
+    ('link', 'inline', 'linked', 'link_type', 'extra'),
+    defaults=(False, False, None, None)
 )
 '''A named tuple describing a scraped link.
 

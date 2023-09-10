@@ -10,7 +10,7 @@ import os.path
 import re
 import shutil
 
-import namedlist
+from collections import namedtuple
 
 from wpull.backport.logging import StyleAdapter
 from wpull.namevalue import NameValueRecord
@@ -31,21 +31,10 @@ _logger = StyleAdapter(logging.getLogger(__name__))
 _ = gettext.gettext
 
 
-WARCRecorderParams = namedlist.namedtuple(
+WARCRecorderParams = namedtuple(
     'WARCRecorderParamsType',
-    [
-        ('compress', True),
-        ('extra_fields', None),
-        ('temp_dir', './'),
-        ('log', True),
-        ('appending', False),
-        ('digests', True),
-        ('cdx', None),
-        ('max_size', None),
-        ('move_to', None),
-        ('url_table', None),
-        ('software_string', None)
-    ]
+    ('compress','extra_fields','temp_dir','log','appending','digests','cdx','max_size','move_to','url_table','software_string'),
+    defaults=(True, None, './', True, False,True, None,None,None,None,None)
 )
 ''':class:`WARCRecorder` parameters.
 

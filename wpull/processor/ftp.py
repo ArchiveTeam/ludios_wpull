@@ -9,7 +9,7 @@ import posixpath
 import tempfile
 import urllib.parse
 
-import namedlist
+from collections import namedtuple
 from typing import cast
 
 from wpull.backport.logging import StyleAdapter
@@ -35,14 +35,10 @@ _ = gettext.gettext
 GLOB_CHARS = frozenset('[]*?')
 
 
-FTPProcessorFetchParams = namedlist.namedtuple(
-    'FTPProcessorFetchParamsType',
-    [
-        ('remove_listing', True),
-        ('glob', True),
-        ('preserve_permissions', False),
-        ('retr_symlinks', True),
-    ]
+FTPProcessorFetchParams = namedtuple(
+    'FTPProcessorFetchParamsType', 
+    ('remove_listing', 'glob', 'preserve_permissions', 'retr_symlinks'),
+    defaults=(True,True,False,True)
 )
 '''FTPProcessorFetchParams
 

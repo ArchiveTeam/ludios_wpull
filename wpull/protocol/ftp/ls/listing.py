@@ -2,22 +2,17 @@
 import re
 
 import itertools
-import namedlist
+from collections import namedtuple
 
 from wpull.protocol.ftp.ls.date import parse_datetime
 import wpull.protocol.ftp.ls.date
 
 
-FileEntry = namedlist.namedtuple(
+FileEntry = namedtuple(
     'FileEntryType',
-    [
-        'name',
-        ('type', None),
-        ('size', None),
-        ('date', None),
-        ('dest', None),
-        ('perm', None)
-    ])
+    ('name', 'type', 'size', 'date', 'dest', 'perm'),
+    defaults=(None,None,None,None,None)
+    )
 '''A row in a listing.
 
 Attributes:

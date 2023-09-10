@@ -4,7 +4,7 @@ import gettext
 import io
 import logging
 
-import namedlist
+from collections import namedtuple
 import asyncio
 
 from typing import cast, Tuple
@@ -30,13 +30,10 @@ import wpull.util
 _logger = StyleAdapter(logging.getLogger(__name__))
 _ = gettext.gettext
 
-WebProcessorFetchParams = namedlist.namedtuple(
-    'WebProcessorFetchParamsType',
-    [
-        ('post_data', None),
-        ('strong_redirects', True),
-        ('content_on_error', False),
-    ]
+WebProcessorFetchParams = namedtuple(
+    'WebProcessorFetchParamsType', 
+    ('post_data', 'strong_redirects', 'content_on_error'),
+    defaults=(None, True, False)
 )
 '''WebProcessorFetchParams
 
