@@ -1,23 +1,20 @@
 '''Listing parser.'''
 import re
-
 import itertools
-import namedlist
-
 from wpull.protocol.ftp.ls.date import parse_datetime
 import wpull.protocol.ftp.ls.date
+from dataclasses import dataclass
+from datetime import datetime
 
+@dataclass
+class FileEntry:
+    name: str  # Filename
+    type: str | None = None # Filename
+    size: int | None = None  # `file``, ``dir``, ``symlink``, ``other``, ``None``
+    date: datetime | None = None  # datetime object in UTC.
+    dest: str | None = None  # Destination filename for symlinks.
+    perm: int | None = None # Unix permissions expressed as an integer.
 
-FileEntry = namedlist.namedtuple(
-    'FileEntryType',
-    [
-        'name',
-        ('type', None),
-        ('size', None),
-        ('date', None),
-        ('dest', None),
-        ('perm', None)
-    ])
 '''A row in a listing.
 
 Attributes:

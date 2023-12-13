@@ -4,11 +4,20 @@ import unittest
 
 from wpull.pipeline.item import URLRecord
 from wpull.url import URLInfo
-from wpull.urlfilter import (SchemeFilter, HTTPSOnlyFilter, BackwardDomainFilter,
-                             HostnameFilter, RecursiveFilter, LevelFilter,
-                             TriesFilter, ParentFilter, SpanHostsFilter,
-                             RegexFilter, DirectoryFilter,
-                             BackwardFilenameFilter, FollowFTPFilter)
+from wpull.urlfilter import (
+    SchemeFilter,
+    HTTPSOnlyFilter,
+    BackwardDomainFilter,
+    HostnameFilter,
+    RecursiveFilter,
+    LevelFilter,
+    TriesFilter,
+    ParentFilter,
+    SpanHostsFilter,
+    RegexFilter,
+    DirectoryFilter,
+    BackwardFilenameFilter,
+    FollowFTPFilter)
 
 
 class TestURLFilter(unittest.TestCase):
@@ -38,7 +47,7 @@ class TestURLFilter(unittest.TestCase):
         ))
 
     def test_https_filter(self):
-        record= URLRecord()
+        record = URLRecord()
 
         url_filter = HTTPSOnlyFilter()
         self.assertFalse(url_filter.test(

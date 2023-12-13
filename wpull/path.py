@@ -86,7 +86,7 @@ class PathNamer(BasePathNamer):
             os_type=self._os_type, no_control=self._no_control,
             ascii_only=self._ascii_only, case=self._case,
             max_length=self._max_filename_length,
-            )
+        )
 
 
 def url_to_filename(url, index='index.html', alt_char=False):

@@ -136,4 +136,3 @@ class TestUtil(unittest.TestCase):
 
             for num, obj in enumerate(stream.iter_load()):
                 self.assertEqual(num, obj)
-

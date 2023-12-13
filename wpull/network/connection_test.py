@@ -55,10 +55,7 @@ class TestConnection(BadAppTestCase):
 
         @asyncio.coroutine
         def mock_func():
-            if sys.version_info < (3, 3):
-                raise socket.error(123, 'Mock error')
-            else:
-                raise ConnectionError(123, 'Mock error')
+            raise ConnectionError(123, 'Mock error')
 
         with self.assertRaises(NetworkError):
             yield from connection.run_network_operation(mock_func())
@@ -70,10 +67,7 @@ class TestConnection(BadAppTestCase):
 
         @asyncio.coroutine
         def mock_func():
-            if sys.version_info < (3, 3):
-                raise socket.error(123, 'Mock error')
-            else:
-                raise ConnectionError(123, 'Mock error')
+            raise ConnectionError(123, 'Mock error')
 
         with self.assertRaises(NetworkError):
             yield from connection.run_network_operation(mock_func())

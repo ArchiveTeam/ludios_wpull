@@ -128,7 +128,9 @@ class URLInfo(object):
 
         url = url.strip()
         if frozenset(url) & C0_CONTROL_SET:
-            raise ValueError('URL contains control codes: {}'.format(ascii(url)))
+            raise ValueError(
+                'URL contains control codes: {}'.format(
+                    ascii(url)))
 
         scheme, sep, remaining = url.partition(':')
 
@@ -434,7 +436,9 @@ def normalize_hostname(hostname):
     try:
         new_hostname = hostname.encode('idna').decode('ascii').lower()
     except UnicodeError as error:
-        raise UnicodeError('Hostname {} rejected: {}'.format(hostname, error)) from error
+        raise UnicodeError(
+            'Hostname {} rejected: {}'.format(
+                hostname, error)) from error
 
     if hostname != new_hostname:
         # Check for round-trip. May raise UnicodeError
@@ -479,7 +483,11 @@ def normalize_path(path, encoding='utf-8'):
     '''
     if not path.startswith('/'):
         path = '/' + path
-    path = percent_encode(flatten_path(path, flatten_slashes=True), encoding=encoding)
+    path = percent_encode(
+        flatten_path(
+            path,
+            flatten_slashes=True),
+        encoding=encoding)
     return uppercase_percent_encoding(path)
 
 
@@ -499,7 +507,10 @@ def normalize_fragment(text, encoding='utf-8'):
     Percent-encodes unacceptable characters and ensures percent-encoding is
     uppercase.
     '''
-    path = percent_encode(text, encoding=encoding, encode_set=FRAGMENT_ENCODE_SET)
+    path = percent_encode(
+        text,
+        encoding=encoding,
+        encode_set=FRAGMENT_ENCODE_SET)
     return uppercase_percent_encoding(path)
 
 
@@ -509,7 +520,10 @@ def normalize_username(text, encoding='utf-8'):
     Percent-encodes unacceptable characters and ensures percent-encoding is
     uppercase.
     '''
-    path = percent_encode(text, encoding=encoding, encode_set=USERNAME_ENCODE_SET)
+    path = percent_encode(
+        text,
+        encoding=encoding,
+        encode_set=USERNAME_ENCODE_SET)
     return uppercase_percent_encoding(path)
 
 
@@ -519,7 +533,10 @@ def normalize_password(text, encoding='utf-8'):
     Percent-encodes unacceptable characters and ensures percent-encoding is
     uppercase.
     '''
-    path = percent_encode(text, encoding=encoding, encode_set=PASSWORD_ENCODE_SET)
+    path = percent_encode(
+        text,
+        encoding=encoding,
+        encode_set=PASSWORD_ENCODE_SET)
     return uppercase_percent_encoding(path)
 
 
@@ -578,6 +595,7 @@ def percent_encode_query_value(text, encoding='utf-8'):
     '''Percent encode a query value.'''
     result = percent_encode_plus(text, QUERY_VALUE_ENCODE_SET, encoding)
     return result
+
 
 percent_decode = urllib.parse.unquote
 percent_decode_plus = urllib.parse.unquote_plus

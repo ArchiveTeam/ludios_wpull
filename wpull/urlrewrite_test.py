@@ -18,8 +18,8 @@ class TestURLRewrite(unittest.TestCase):
         )
         self.assertEquals(
             'https://groups.google.com/forum/?_escaped_fragment_=forum/python-tulip',
-            rewriter.rewrite(URLInfo.parse('https://groups.google.com/forum/#!forum/python-tulip')).url
-        )
+            rewriter.rewrite(
+                URLInfo.parse('https://groups.google.com/forum/#!forum/python-tulip')).url)
         self.assertEquals(
             'https://groups.google.com/forum/?stupid_hash_fragments&_escaped_fragment_=forum/python-tulip',
             rewriter.rewrite(URLInfo.parse(
@@ -46,7 +46,6 @@ class TestURLRewrite(unittest.TestCase):
             )).url
         )
 
-
     def test_strip_session_id_from_url_path(self):
         self.assertEqual(
             '/asdf',
@@ -72,15 +71,14 @@ class TestURLRewrite(unittest.TestCase):
         self.assertEqual(
             strip_path_session_id("/(a(4hqa0555fwsecu455xqckv45)S(4hqa0555fwsecu455xqckv45)f(4hqa0555fwsecu455xqckv45))/mileg.aspx?page=sessionschedules"),
             '/mileg.aspx?page=sessionschedules',
-            'Check ASP_SESSIONID3'
-        )
+            'Check ASP_SESSIONID3')
 
         self.assertEqual(
             strip_path_session_id("/photos/36050182@N05/"),
             '/photos/36050182@N05/',
             "'@' in path"
         )
-    
+
     def test_strip_session_id_from_url_query(self):
         str32id = "0123456789abcdefghijklemopqrstuv"
         url = "jsessionid=" + str32id
@@ -146,7 +144,7 @@ class TestURLRewrite(unittest.TestCase):
             "With only prefix"
         )
 
-        url = "sid=9682993c8daa2c5497996114facdc805" + "&x=y";
+        url = "sid=9682993c8daa2c5497996114facdc805" + "&x=y"
         self.assertEqual(
             strip_query_session_id(url),
             'x=y',

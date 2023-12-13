@@ -6,7 +6,7 @@ from wpull.url import parse_url_or_log, URLInfo
 class URLRewriter(object):
     '''Clean up URLs.'''
 
-    def __init__(self, hash_fragment: bool=False, session_id: bool=False):
+    def __init__(self, hash_fragment: bool = False, session_id: bool = False):
         self._hash_fragment_enabled = hash_fragment
         self._session_id_enabled = session_id
 
@@ -42,9 +42,14 @@ class URLRewriter(object):
 # https://github.com/internetarchive/surt/blob/746f506dd6f0798adaa5bfd92101b73ed00f2831/surt/URLRegexTransformer.py
 # Copyright 2012-2013 Internet Archive. AGPL v3.
 SESSION_ID_PATH_PATTERNS = (
-    re.compile("^(.*/)(\((?:[a-z]\([0-9a-z]{24}\))+\)/)([^\?]+\.aspx.*)$", re.I),
-    re.compile("^(.*/)(\\([0-9a-z]{24}\\)/)([^\\?]+\\.aspx.*)$", re.I),
+    re.compile(
+        "^(.*/)(\\((?:[a-z]\\([0-9a-z]{24}\\))+\\)/)([^\\?]+\\.aspx.*)$",
+        re.I),
+    re.compile(
+        "^(.*/)(\\([0-9a-z]{24}\\)/)([^\\?]+\\.aspx.*)$",
+        re.I),
 )
+
 
 def strip_path_session_id(path):
     '''Strip session ID from URL path.'''
@@ -57,12 +62,23 @@ def strip_path_session_id(path):
 
 
 SESSION_ID_QUERY_PATTERNS = (
-    re.compile("^(.*)(?:jsessionid=[0-9a-zA-Z]{32})(?:&(.*))?$", re.I),
-    re.compile("^(.*)(?:phpsessid=[0-9a-zA-Z]{32})(?:&(.*))?$", re.I),
-    re.compile("^(.*)(?:sid=[0-9a-zA-Z]{32})(?:&(.*))?$", re.I),
-    re.compile("^(.*)(?:ASPSESSIONID[a-zA-Z]{8}=[a-zA-Z]{24})(?:&(.*))?$", re.I),
-    re.compile("^(.*)(?:cfid=[^&]+&cftoken=[^&]+)(?:&(.*))?$", re.I),
+    re.compile(
+        "^(.*)(?:jsessionid=[0-9a-zA-Z]{32})(?:&(.*))?$",
+        re.I),
+    re.compile(
+        "^(.*)(?:phpsessid=[0-9a-zA-Z]{32})(?:&(.*))?$",
+        re.I),
+    re.compile(
+        "^(.*)(?:sid=[0-9a-zA-Z]{32})(?:&(.*))?$",
+        re.I),
+    re.compile(
+        "^(.*)(?:ASPSESSIONID[a-zA-Z]{8}=[a-zA-Z]{24})(?:&(.*))?$",
+        re.I),
+    re.compile(
+        "^(.*)(?:cfid=[^&]+&cftoken=[^&]+)(?:&(.*))?$",
+        re.I),
 )
+
 
 def strip_query_session_id(query):
     for pattern in SESSION_ID_QUERY_PATTERNS:
