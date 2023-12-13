@@ -1,19 +1,20 @@
 '''Base classes'''
 import abc
-import collections
 import io
-from collections import namedtuple
-
+from dataclasses import dataclass
 from wpull.document.base import BaseTextStreamReader, \
     BaseHTMLReader, BaseExtractiveReader
 from wpull.scraper.util import urljoin_safe
 
 
-LinkContext = namedtuple(
-    'LinkContextType',
-    ('link', 'inline', 'linked', 'link_type', 'extra'),
-    defaults=(False, False, None, None)
-)
+@dataclass
+class LinkContext:
+    link: str
+    inline: bool = False
+    linked: bool = False
+    link_type = None
+    extra = None
+
 '''A named tuple describing a scraped link.
 
 Attributes:
