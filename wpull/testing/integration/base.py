@@ -106,8 +106,7 @@ class FTPAppTestCase(FTPTestCase, TempDirMixin):
         self.tear_down_temp_dir()
 
 
-@asyncio.coroutine
-def tornado_future_adapter(future):
+async def tornado_future_adapter(future):
     event = asyncio.Event()
 
     future.add_done_callback(lambda dummy: event.set())

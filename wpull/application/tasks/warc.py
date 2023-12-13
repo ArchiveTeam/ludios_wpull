@@ -1,4 +1,3 @@
-import asyncio
 import gettext
 import json
 import logging
@@ -18,8 +17,8 @@ _ = gettext.gettext
 
 
 class WARCRecorderSetupTask(ItemTask[AppSession]):
-    @asyncio.coroutine
-    def process(self, session: AppSession):
+    
+    async def process(self, session: AppSession):
         args = session.args
 
         assert args.verbosity, \
@@ -71,8 +70,8 @@ class WARCRecorderSetupTask(ItemTask[AppSession]):
 
 
 class WARCRecorderTeardownTask(ItemTask[AppSession]):
-    @asyncio.coroutine
-    def process(self, session: AppSession):
+    
+    async def process(self, session: AppSession):
         warc_recorder = session.factory.get('WARCRecorder')
 
         if warc_recorder:
@@ -80,8 +79,8 @@ class WARCRecorderTeardownTask(ItemTask[AppSession]):
 
 
 class WARCVisitsTask(ItemTask[AppSession]):
-    @asyncio.coroutine
-    def process(self, session: AppSession):
+    
+    async def process(self, session: AppSession):
         '''Populate the visits from the CDX into the URL table.'''
         if not session.args.warc_dedup:
             return

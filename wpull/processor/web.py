@@ -83,11 +83,10 @@ class WebProcessor(BaseProcessor, HookableMixin):
         '''The fetch parameters.'''
         return self._fetch_params
 
-    @asyncio.coroutine
-    def process(self, item_session: ItemSession):
+    async def process(self, item_session: ItemSession):
         session = self._session_class(self, item_session)
         try:
-            return (yield from session.process())
+            return (await session.process())
         finally:
             session.close()
 
@@ -167,9 +166,8 @@ class WebProcessorSession(BaseProcessorSession):
 
         request.fields['Referer'] = url_record.parent_url
 
-    @asyncio.coroutine
-    def process(self):
-        ok = yield from self._process_robots()
+    async def process(self):
+        ok = await self._process_robots()
 
         if not ok:
             return
@@ -181,21 +179,20 @@ class WebProcessorSession(BaseProcessorSession):
         )
 
         with self._web_client_session:
-            yield from self._process_loop()
+            await self._process_loop()
 
         if not self._item_session.is_processed:
             _logger.debug('Was not processed. Skipping.')
             self._item_session.skip()
 
-    @asyncio.coroutine
-    def _process_robots(self):
+    async def _process_robots(self):
         '''Process robots.txt.
 
         Coroutine.
         '''
         try:
             self._item_session.request = request = self._new_initial_request(with_body=False)
-            verdict, reason = (yield from self._should_fetch_reason_with_robots(
+            verdict, reason = (await self._should_fetch_reason_with_robots(
                 request))
         except REMOTE_ERRORS as error:
             _logger.error(
@@ -211,7 +208,7 @@ class WebProcessorSession(BaseProcessorSession):
 
             if wait_time:
                 _logger.debug('Sleeping {0}.', wait_time)
-                yield from asyncio.sleep(wait_time)
+                await asyncio.sleep(wait_time)
 
             return False
         else:
@@ -223,8 +220,7 @@ class WebProcessorSession(BaseProcessorSession):
 
         return True
 
-    @asyncio.coroutine
-    def _process_loop(self):
+    async def _process_loop(self):
         '''Fetch URL including redirects.
 
         Coroutine.
@@ -240,17 +236,16 @@ class WebProcessorSession(BaseProcessorSession):
                 self._item_session.skip()
                 break
 
-            exit_early, wait_time = yield from self._fetch_one(cast(Request, self._item_session.request))
+            exit_early, wait_time = await self._fetch_one(cast(Request, self._item_session.request))
 
             if wait_time:
                 _logger.debug('Sleeping {}', wait_time)
-                yield from asyncio.sleep(wait_time)
+                await asyncio.sleep(wait_time)
 
             if exit_early:
                 break
 
-    @asyncio.coroutine
-    def _fetch_one(self, request: Request) -> Tuple[bool, float]:
+    async def _fetch_one(self, request: Request) -> Tuple[bool, float]:
         '''Process one of the loop iteration.
 
         Coroutine.
@@ -263,7 +258,7 @@ class WebProcessorSession(BaseProcessorSession):
         response = None
 
         try:
-            response = yield from self._web_client_session.start()
+            response = await self._web_client_session.start()
             self._item_session.response = response
 
             action = self._result_rule.handle_pre_response(self._item_session)
@@ -279,7 +274,7 @@ class WebProcessorSession(BaseProcessorSession):
                     hint='resp_cb'
                 )
 
-            yield from \
+            await \
                 self._web_client_session.download(
                     file=response.body,
                     duration_timeout=self._fetch_rule.duration_timeout
@@ -307,7 +302,7 @@ class WebProcessorSession(BaseProcessorSession):
             action = self._handle_response(request, response)
             wait_time = self._result_rule.get_wait_time(self._item_session)
 
-            yield from self._run_coprocessors(request, response)
+            await self._run_coprocessors(request, response)
 
             response.body.close()
 
@@ -354,14 +349,13 @@ class WebProcessorSession(BaseProcessorSession):
         return self._fetch_rule.check_subsequent_web_request(
             self._item_session, is_redirect=is_redirect)
 
-    @asyncio.coroutine
-    def _should_fetch_reason_with_robots(self, request: Request) -> Tuple[bool, str]:
+    async def _should_fetch_reason_with_robots(self, request: Request) -> Tuple[bool, str]:
         '''Return info whether the URL should be fetched including checking
         robots.txt.
 
         Coroutine.
         '''
-        result = yield from \
+        result = await \
             self._fetch_rule.check_initial_web_request(self._item_session, request)
         return result
 
@@ -452,6 +446,6 @@ class WebProcessorSession(BaseProcessorSession):
         if youtube_dl_coprocessor:
             youtube_dl_coprocessor = cast(YoutubeDlCoprocessor, youtube_dl_coprocessor)
 
-            yield from youtube_dl_coprocessor.process(
+            youtube_dl_coprocessor.process(
                 self._item_session, request, response, self._file_writer_session
             )

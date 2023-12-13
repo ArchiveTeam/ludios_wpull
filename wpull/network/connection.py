@@ -166,8 +166,8 @@ class BaseConnection(object):
         '''Return the state of this connection.'''
         return self._state
 
-    @asyncio.coroutine
-    def connect(self):
+    
+    async def connect(self):
         '''Establish a connection.'''
         _logger.debug(__('Connecting to {0}.', self._address))
 
@@ -187,7 +187,7 @@ class BaseConnection(object):
                 host, port, **self._connection_kwargs()
             )
 
-        self.reader, self.writer = yield from \
+        self.reader, self.writer = await \
             self.run_network_operation(
                 connection_future,
                 wait_timeout=self._connect_timeout,
@@ -229,8 +229,8 @@ class BaseConnection(object):
         self.close()
         self._state = ConnectionState.ready
 
-    @asyncio.coroutine
-    def write(self, data: bytes, drain: bool=True):
+    
+    async def write(self, data: bytes, drain: bool=True):
         '''Write data.'''
         assert self._state == ConnectionState.created, \
             'Expect conn created. Got {}.'.format(self._state)
@@ -241,16 +241,16 @@ class BaseConnection(object):
             fut = self.writer.drain()
 
             if fut:
-                yield from self.run_network_operation(
+                await self.run_network_operation(
                     fut, close_timeout=self._timeout, name='Write')
 
-    @asyncio.coroutine
-    def read(self, amount: int=-1) -> bytes:
+    
+    async def read(self, amount: int=-1) -> bytes:
         '''Read data.'''
         assert self._state == ConnectionState.created, \
             'Expect conn created. Got {}.'.format(self._state)
 
-        data = yield from \
+        data = await \
             self.run_network_operation(
                 self.reader.read(amount),
                 close_timeout=self._timeout,
@@ -258,14 +258,14 @@ class BaseConnection(object):
 
         return data
 
-    @asyncio.coroutine
-    def readline(self) -> bytes:
+    
+    async def readline(self) -> bytes:
         '''Read a line of data.'''
         assert self._state == ConnectionState.created, \
             'Expect conn created. Got {}.'.format(self._state)
 
         with self._close_timer.with_timeout():
-            data = yield from \
+            data = await \
                 self.run_network_operation(
                     self.reader.readline(),
                     close_timeout=self._timeout,
@@ -273,8 +273,8 @@ class BaseConnection(object):
 
         return data
 
-    @asyncio.coroutine
-    def run_network_operation(self, task, wait_timeout=None,
+    
+    async def run_network_operation(self, task, wait_timeout=None,
                               close_timeout=None,
                               name='Network operation'):
         '''Run the task and raise appropriate exceptions.
@@ -288,7 +288,7 @@ class BaseConnection(object):
         try:
             if close_timeout is not None:
                 with self._close_timer.with_timeout():
-                    data = yield from task
+                    data = await task
 
                 if self._close_timer.is_timeout():
                     raise NetworkTimedOut(
@@ -296,10 +296,10 @@ class BaseConnection(object):
                 else:
                     return data
             elif wait_timeout is not None:
-                data = yield from asyncio.wait_for(task, wait_timeout)
+                data = await asyncio.wait_for(task, wait_timeout)
                 return data
             else:
-                return (yield from task)
+                return (await task)
 
         except asyncio.TimeoutError as error:
             self.close()
@@ -395,9 +395,9 @@ class Connection(BaseConnection):
     def proxied(self, value):
         self._proxied = value
 
-    @asyncio.coroutine
-    def read(self, amount: int=-1) -> bytes:
-        data = yield from super().read(amount)
+    
+    async def read(self, amount: int=-1) -> bytes:
+        data = await super().read(amount)
 
         if self._bandwidth_limiter:
             self._bandwidth_limiter.feed(len(data))
@@ -405,12 +405,12 @@ class Connection(BaseConnection):
             sleep_time = self._bandwidth_limiter.sleep_time()
             if sleep_time:
                 _logger.debug('Sleep %s', sleep_time)
-                yield from asyncio.sleep(sleep_time)
+                await asyncio.sleep(sleep_time)
 
         return data
 
-    @asyncio.coroutine
-    def start_tls(self, ssl_context: Union[bool, dict, ssl.SSLContext]=True) \
+    
+    async def start_tls(self, ssl_context: Union[bool, dict, ssl.SSLContext]=True) \
             -> 'SSLConnection':
         '''Start client TLS on this connection and return SSLConnection.
 
@@ -425,7 +425,7 @@ class Connection(BaseConnection):
             bandwidth_limiter=self._bandwidth_limiter, sock=sock
         )
 
-        yield from ssl_conn.connect()
+        await ssl_conn.connect()
 
         return ssl_conn
 
@@ -460,9 +460,9 @@ class SSLConnection(Connection):
 
             return kwargs
 
-    @asyncio.coroutine
-    def connect(self):
-        result = yield from super().connect()
+    
+    async def connect(self):
+        result = await super().connect()
         try:
             sock = self.writer.transport.get_extra_info('ssl_object',
                 self.writer.transport.get_extra_info('socket'))

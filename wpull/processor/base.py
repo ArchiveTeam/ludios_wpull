@@ -29,8 +29,7 @@ class BaseProcessor(object, metaclass=abc.ABCMeta):
 
     Processors contain the logic for processing requests.
     '''
-    @asyncio.coroutine
-    def process(self, item_session: ItemSession):
+    async def process(self, item_session: ItemSession):
         '''Process an URL Item.
 
         Args:

@@ -1,5 +1,3 @@
-import asyncio
-
 from typing import Optional
 
 import wpull.testing.async_
@@ -12,8 +10,8 @@ class MyItemTask(ItemTask[int]):
     def __init__(self, callback=None):
         self.callback = callback
 
-    @asyncio.coroutine
-    def process(self, work_item: int):
+    
+    async def process(self, work_item: int):
         if self.callback:
             self.callback(work_item)
 
@@ -22,8 +20,8 @@ class MyItemSource(ItemSource[int]):
     def __init__(self, values):
         self.values = list(values)
 
-    @asyncio.coroutine
-    def get_item(self) -> Optional[int]:
+    
+    async def get_item(self) -> Optional[int]:
         if self.values:
             return self.values.pop(0)
 

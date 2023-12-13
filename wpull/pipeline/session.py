@@ -182,8 +182,7 @@ class URLItemSource(ItemSource[ItemSession]):
     def __init__(self, app_session: AppSession):
         self._app_session = app_session
 
-    @asyncio.coroutine
-    def get_item(self) -> Optional[ItemSession]:
+    async def get_item(self) -> Optional[ItemSession]:
         try:
             url_record = self._app_session.factory['URLTable'].check_out(Status.todo)
         except NotFound:

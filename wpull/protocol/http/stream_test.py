@@ -61,8 +61,7 @@ class StreamTestsMixin(object):
 
         return stream
 
-    @asyncio.coroutine
-    def fetch(self, stream, request):
+    async def fetch(self, stream, request):
         yield from stream.reconnect()
         yield from stream.write_request(request)
         response = yield from stream.read_response()

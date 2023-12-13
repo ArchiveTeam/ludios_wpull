@@ -138,8 +138,8 @@ class Application(HookableMixin):
         asyncio.get_event_loop().close()
         return exit_status
 
-    @asyncio.coroutine
-    def run(self):
+    
+    async def run(self):
         if self._state != ApplicationState.ready:
             raise RuntimeError('Application is not ready')
 
@@ -154,7 +154,7 @@ class Application(HookableMixin):
             self.event_dispatcher.notify(self.Event.pipeline_begin, pipeline)
 
             try:
-                yield from pipeline.process()
+                await pipeline.process()
             except Exception as error:
                 if isinstance(error, StopIteration):
                     raise

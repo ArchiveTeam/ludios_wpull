@@ -43,8 +43,7 @@ class FetchRule(HookableMixin):
 
         self.hook_dispatcher.register(PluginFunctions.accept_url)
 
-    @asyncio.coroutine
-    def consult_robots_txt(self, request: HTTPRequest) -> bool:
+    async def consult_robots_txt(self, request: HTTPRequest) -> bool:
         '''Consult by fetching robots.txt as needed.
 
         Args:
@@ -59,7 +58,7 @@ class FetchRule(HookableMixin):
         if not self._robots_txt_checker:
             return True
 
-        result = yield from self._robots_txt_checker.can_fetch(request)
+        result = await self._robots_txt_checker.can_fetch(request)
         return result
 
     def consult_helix_fossil(self) -> bool:
@@ -157,8 +156,7 @@ class FetchRule(HookableMixin):
         '''
         return verdict
 
-    @asyncio.coroutine
-    def check_initial_web_request(self, item_session: ItemSession, request: HTTPRequest) -> Tuple[bool, str]:
+    async def check_initial_web_request(self, item_session: ItemSession, request: HTTPRequest) -> Tuple[bool, str]:
         '''Check robots.txt, URL filters, and scripting hook.
 
         Returns:
@@ -169,7 +167,7 @@ class FetchRule(HookableMixin):
         verdict, reason, test_info = self.consult_filters(item_session.request.url_info, item_session.url_record)
 
         if verdict and self._robots_txt_checker:
-            can_fetch = yield from self.consult_robots_txt(request)
+            can_fetch = await self.consult_robots_txt(request)
 
             if not can_fetch:
                 verdict = False

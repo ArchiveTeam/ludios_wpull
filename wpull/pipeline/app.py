@@ -31,8 +31,7 @@ class AppSource(ItemSource[AppSession]):
     def __init__(self, session: AppSession):
         self._source = session
 
-    @asyncio.coroutine
-    def get_item(self) -> Optional[AppSession]:
+    async def get_item(self) -> Optional[AppSession]:
         item = self._source
         self._source = None
         return item

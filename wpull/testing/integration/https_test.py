@@ -54,8 +54,7 @@ class TestHTTPSApp(HTTPSSimpleAppTestCase):
         builder = Builder(args, unit_test=True)
 
         class MockWebSession(WebSession):
-            @asyncio.coroutine
-            def start(self):
+            async def start(self):
                 raise SSLVerificationError('A very bad certificate!')
 
         class MockWebClient(builder.factory.class_map['WebClient']):

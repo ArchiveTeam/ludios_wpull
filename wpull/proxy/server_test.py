@@ -138,8 +138,7 @@ class TestProxy2(wpull.testing.badapp.BadAppTestCase):
         self.assertEqual(204, response.code)
 
 
-@asyncio.coroutine
-def tornado_future_adapter(future):
+async def tornado_future_adapter(future):
     event = asyncio.Event()
 
     future.add_done_callback(lambda dummy: event.set())

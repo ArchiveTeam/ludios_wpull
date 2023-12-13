@@ -1,4 +1,3 @@
-import asyncio
 import gettext
 import inspect
 import logging
@@ -67,8 +66,7 @@ class PluginLocator(IPluginLocator):
 
 
 class PluginSetupTask(ItemTask[AppSession]):
-    @asyncio.coroutine
-    def process(self, session: AppSession):
+    async def process(self, session: AppSession):
         self._debug_log_registered_hooks(session)
         internal_plugin_path = get_package_filename(os.path.join('application', 'plugins'))
         plugin_locations = [internal_plugin_path]

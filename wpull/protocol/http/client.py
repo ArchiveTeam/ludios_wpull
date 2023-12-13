@@ -58,8 +58,8 @@ class Session(BaseSession):
         self.event_dispatcher.register(self.Event.response_data)
         self.event_dispatcher.register(self.Event.end_response)
 
-    @asyncio.coroutine
-    def start(self, request: Request) -> Response:
+    
+    async def start(self, request: Request) -> Response:
         '''Begin a HTTP request
 
         Args:
@@ -79,12 +79,12 @@ class Session(BaseSession):
         self._request = request
         _logger.debug(__('Client fetch request {0}.', request))
 
-        connection = yield from self._acquire_request_connection(request)
+        connection = await self._acquire_request_connection(request)
         full_url = connection.proxied and not connection.tunneled
 
         self._stream = stream = self._stream_factory(connection)
 
-        yield from self._stream.reconnect()
+        await self._stream.reconnect()
 
         request.address = connection.address
 
@@ -92,12 +92,12 @@ class Session(BaseSession):
         write_callback = functools.partial(self.event_dispatcher.notify, self.Event.request_data)
         stream.data_event_dispatcher.add_write_listener(write_callback)
 
-        yield from stream.write_request(request, full_url=full_url)
+        await stream.write_request(request, full_url=full_url)
 
         if request.body:
             assert 'Content-Length' in request.fields
             length = int(request.fields['Content-Length'])
-            yield from stream.write_body(request.body, length=length)
+            await stream.write_body(request.body, length=length)
 
         stream.data_event_dispatcher.remove_write_listener(write_callback)
         self.event_dispatcher.notify(self.Event.end_request, request)
@@ -105,7 +105,7 @@ class Session(BaseSession):
         read_callback = functools.partial(self.event_dispatcher.notify, self.Event.response_data)
         stream.data_event_dispatcher.add_read_listener(read_callback)
 
-        self._response = response = yield from stream.read_response()
+        self._response = response = await stream.read_response()
         response.request = request
 
         self.event_dispatcher.notify(self.Event.begin_response, response)
@@ -114,8 +114,8 @@ class Session(BaseSession):
 
         return response
 
-    @asyncio.coroutine
-    def download(
+    
+    async def download(
             self,
             file: Union[IO[bytes], asyncio.StreamWriter, None]=None,
             raw: bool=False, rewind: bool=True,
@@ -151,7 +151,7 @@ class Session(BaseSession):
         read_future = self._stream.read_body(self._request, self._response, file=file, raw=raw)
 
         try:
-            yield from asyncio.wait_for(read_future, timeout=duration_timeout)
+            await asyncio.wait_for(read_future, timeout=duration_timeout)
         except asyncio.TimeoutError as error:
             raise DurationTimeout(
                 'Did not finish reading after {} seconds.'

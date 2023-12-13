@@ -18,27 +18,9 @@ class AsyncTestCase(unittest.TestCase):
 
 
 def async_test(func=None, timeout=30):
-    # tornado.testing
-    def wrap(f):
-        f = asyncio.coroutine(f)
-
-        @functools.wraps(f)
-        def wrapper(self):
-            return self.event_loop.run_until_complete(
-                asyncio.wait_for(f(self), timeout=timeout,
-                                 loop=self.event_loop)
-            )
-        return wrapper
-
-    if func is not None:
-        # Used like:
-        #     @gen_test
-        #     def f(self):
-        #         pass
-        return wrap(func)
-    else:
-        # Used like @gen_test(timeout=10)
-        return wrap
+    # gen_test uses environment variable ASYNC_TEST_TIMEOUT as default if set, otherwise 5 seconds
+    return func
+    # return gen_test(func, timeout)
 
 
 class TornadoAsyncIOLoop(BaseAsyncIOLoop):

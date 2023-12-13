@@ -30,12 +30,10 @@ class MockWebSession(object):
     def done(self):
         return self.done_value
 
-    @asyncio.coroutine
-    def start(self):
+    async def start(self):
         return self.client.mock_response_callback(self.client.request)
 
-    @asyncio.coroutine
-    def download(self, file=None):
+    async def download(self, file=None):
         pass
 
 

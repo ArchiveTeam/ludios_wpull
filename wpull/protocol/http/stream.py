@@ -60,9 +60,9 @@ class Stream(object):
     def data_event_dispatcher(self) -> DataEventDispatcher:
         return self._data_event_dispatcher
 
-    @asyncio.coroutine
+    
     @close_stream_on_error
-    def write_request(self, request, full_url=False):
+    async def write_request(self, request, full_url=False):
         '''Send the request's HTTP status line and header fields.
 
         This class will automatically connect the connection if the
@@ -84,11 +84,11 @@ class Stream(object):
 
         # XXX: Connection lost is raised too early on Python 3.2, 3.3 so
         # don't flush but check for connection closed on reads
-        yield from self._connection.write(data, drain=False)
+        await self._connection.write(data, drain=False)
 
-    @asyncio.coroutine
+    
     @close_stream_on_error
-    def write_body(self, file, length=None):
+    async def write_body(self, file, length=None):
         '''Send the request's content body.
 
         Coroutine.
@@ -112,7 +112,7 @@ class Stream(object):
                 read_size = self._read_size
 
             if file_is_async:
-                data = yield from file.read(read_size)
+                data = await file.read(read_size)
             else:
                 data = file.read(read_size)
 
@@ -129,14 +129,14 @@ class Stream(object):
             else:
                 drain = True
 
-            yield from self._connection.write(data, drain=drain)
+            await self._connection.write(data, drain=drain)
 
             if length is not None:
                 bytes_left -= len(data)
 
-    @asyncio.coroutine
+    
     @close_stream_on_error
-    def read_response(self, response=None):
+    async def read_response(self, response=None):
         '''Read the response's HTTP status line and header fields.
 
         Coroutine.
@@ -151,7 +151,7 @@ class Stream(object):
 
         while True:
             try:
-                data = yield from self._connection.readline()
+                data = await self._connection.readline()
             except ValueError as error:
                 raise ProtocolError(
                     'Invalid header: {0}'.format(error)) from error
@@ -178,9 +178,9 @@ class Stream(object):
 
         return response
 
-    @asyncio.coroutine
+    
     @close_stream_on_error
-    def read_body(self, request, response, file=None, raw=False):
+    async def read_body(self, request, response, file=None, raw=False):
         '''Read the response's content body.
 
         Coroutine.
@@ -197,11 +197,11 @@ class Stream(object):
             read_strategy = 'close'
 
         if read_strategy == 'chunked':
-            yield from self._read_body_by_chunk(response, file, raw=raw)
+            await self._read_body_by_chunk(response, file, raw=raw)
         elif read_strategy == 'length':
-            yield from self._read_body_by_length(response, file)
+            await self._read_body_by_length(response, file)
         else:
-            yield from self._read_body_until_close(response, file)
+            await self._read_body_until_close(response, file)
 
         should_close = wpull.protocol.http.util.should_close(
             request.version, response.fields.get('Connection'))
@@ -210,8 +210,8 @@ class Stream(object):
             _logger.debug('Not keep-alive. Closing connection.')
             self.close()
 
-    @asyncio.coroutine
-    def _read_body_until_close(self, response, file):
+    
+    async def _read_body_until_close(self, response, file):
         '''Read the response until the connection closes.
 
         Coroutine.
@@ -221,7 +221,7 @@ class Stream(object):
         file_is_async = hasattr(file, 'drain')
 
         while True:
-            data = yield from self._connection.read(self._read_size)
+            data = await self._connection.read(self._read_size)
 
             if not data:
                 break
@@ -234,7 +234,7 @@ class Stream(object):
                 file.write(content_data)
 
                 if file_is_async:
-                    yield from file.drain()
+                    await file.drain()
 
         content_data = self._flush_decompressor()
 
@@ -242,10 +242,10 @@ class Stream(object):
             file.write(content_data)
 
             if file_is_async:
-                yield from file.drain()
+                await file.drain()
 
-    @asyncio.coroutine
-    def _read_body_by_length(self, response, file):
+    
+    async def _read_body_by_length(self, response, file):
         '''Read the connection specified by a length.
 
         Coroutine.
@@ -265,13 +265,13 @@ class Stream(object):
                 _('Invalid content length: {error}'), error=error
             ))
 
-            yield from self._read_body_until_close(response, file)
+            await self._read_body_until_close(response, file)
             return
 
         bytes_left = body_size
 
         while bytes_left > 0:
-            data = yield from self._connection.read(self._read_size)
+            data = await self._connection.read(self._read_size)
 
             if not data:
                 break
@@ -292,7 +292,7 @@ class Stream(object):
                 file.write(content_data)
 
                 if file_is_async:
-                    yield from file.drain()
+                    await file.drain()
 
         if bytes_left > 0:
             raise NetworkError('Connection closed.')
@@ -303,10 +303,10 @@ class Stream(object):
             file.write(content_data)
 
             if file_is_async:
-                yield from file.drain()
+                await file.drain()
 
-    @asyncio.coroutine
-    def _read_body_by_chunk(self, response, file, raw=False):
+    
+    async def _read_body_by_chunk(self, response, file, raw=False):
         '''Read the connection using chunked transfer encoding.
 
         Coroutine.
@@ -316,7 +316,7 @@ class Stream(object):
         file_is_async = hasattr(file, 'drain')
 
         while True:
-            chunk_size, data = yield from reader.read_chunk_header()
+            chunk_size, data = await reader.read_chunk_header()
 
             self._data_event_dispatcher.notify_read(data)
             if raw:
@@ -326,7 +326,7 @@ class Stream(object):
                 break
 
             while True:
-                content, data = yield from reader.read_chunk_body()
+                content, data = await reader.read_chunk_body()
 
                 self._data_event_dispatcher.notify_read(data)
 
@@ -342,7 +342,7 @@ class Stream(object):
                     file.write(content)
 
                     if file_is_async:
-                        yield from file.drain()
+                        await file.drain()
 
         content = self._flush_decompressor()
 
@@ -350,9 +350,9 @@ class Stream(object):
             file.write(content)
 
             if file_is_async:
-                yield from file.drain()
+                await file.drain()
 
-        trailer_data = yield from reader.read_trailer()
+        trailer_data = await reader.read_trailer()
 
         self._data_event_dispatcher.notify_read(trailer_data)
 
@@ -360,7 +360,7 @@ class Stream(object):
             file.write(trailer_data)
 
             if file_is_async:
-                yield from file.drain()
+                await file.drain()
 
         response.fields.parse(trailer_data)
 
@@ -426,8 +426,8 @@ class Stream(object):
         '''Close the connection.'''
         self._connection.close()
 
-    @asyncio.coroutine
-    def reconnect(self):
+    
+    async def reconnect(self):
         '''Connect the connection if needed.
 
         Coroutine.
@@ -435,7 +435,7 @@ class Stream(object):
         if self._connection.closed():
             self._connection.reset()
 
-            yield from self._connection.connect()
+            await self._connection.connect()
 
 
 def is_no_body(request, response, no_content_codes=DEFAULT_NO_CONTENT_CODES):

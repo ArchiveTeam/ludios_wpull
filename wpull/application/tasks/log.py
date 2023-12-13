@@ -8,8 +8,8 @@ from wpull.pipeline.pipeline import ItemTask
 
 
 class LoggingSetupTask(ItemTask[AppSession]):
-    @asyncio.coroutine
-    def process(self, session: AppSession):
+    
+    async def process(self, session: AppSession):
         self._setup_logging(session.args)
         self._setup_console_logger(session, session.args, session.stderr)
         self._setup_file_logger(session, session.args)
@@ -115,8 +115,8 @@ class LoggingSetupTask(ItemTask[AppSession]):
 
 
 class LoggingShutdownTask(ItemTask[AppSession]):
-    @asyncio.coroutine
-    def process(self, session: AppSession):
+    
+    async def process(self, session: AppSession):
         self._close_console_logger(session)
         self._close_file_logger(session)
 

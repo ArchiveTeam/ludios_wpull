@@ -30,8 +30,7 @@ class MySource(ItemSource[MyItem]):
         self._items = list(items)
         self._test_error = test_error
 
-    @asyncio.coroutine
-    def get_item(self) -> Optional[MyItem]:
+    async def get_item(self) -> Optional[MyItem]:
         if self._items:
             if self._test_error and len(self._items) == 1:
                 raise MyItemSourceError()
@@ -63,8 +62,7 @@ class MyItemTask(ItemTask[MyItem]):
     def item_count(self):
         return self._item_count
 
-    @asyncio.coroutine
-    def process(self, work_item: MyItem):
+    async def process(self, work_item: MyItem):
         self._item_count += 1
 
         if self._test_error and self._item_count == 3:
@@ -79,9 +77,9 @@ class MyItemTask(ItemTask[MyItem]):
         work_item.processed_value = work_item.value * 2
 
         if work_item.value % 2 == 0:
-            yield from asyncio.sleep(0.01)
+            await asyncio.sleep(0.01)
         else:
-            yield from asyncio.sleep(0.1)
+            await asyncio.sleep(0.1)
 
         self._current_work -= 1
 

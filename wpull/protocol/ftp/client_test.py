@@ -116,8 +116,7 @@ class TestClient(FTPTestCase):
         with client.session() as session:
             original_func = session._log_in
 
-            @asyncio.coroutine
-            def override_func():
+            async def override_func():
                 yield from original_func()
                 yield from session._control_stream.write_command(Command('EVIL_BAD_PASV_ADDR'))
                 print('Evil awaits')

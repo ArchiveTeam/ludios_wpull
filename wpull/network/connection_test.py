@@ -29,8 +29,7 @@ class TestConnection(BadAppTestCase):
         connection = Connection(
             ('127.0.0.1', self.get_http_port()), 'localhost')
 
-        @asyncio.coroutine
-        def mock_func():
+        async def mock_func():
             raise socket.error(123, 'Mock error')
 
         with self.assertRaises(NetworkError):
@@ -41,8 +40,7 @@ class TestConnection(BadAppTestCase):
         connection = Connection(
             ('127.0.0.1', self.get_http_port()), 'localhost')
 
-        @asyncio.coroutine
-        def mock_func():
+        async def mock_func():
             raise ssl.SSLError(123, 'Mock error')
 
         with self.assertRaises(NetworkError):
@@ -53,8 +51,7 @@ class TestConnection(BadAppTestCase):
         connection = Connection(
             ('127.0.0.1', self.get_http_port()), 'localhost')
 
-        @asyncio.coroutine
-        def mock_func():
+        async def mock_func():
             raise ConnectionError(123, 'Mock error')
 
         with self.assertRaises(NetworkError):
@@ -65,8 +62,7 @@ class TestConnection(BadAppTestCase):
         connection = Connection(
             ('127.0.0.1', self.get_http_port()), 'localhost')
 
-        @asyncio.coroutine
-        def mock_func():
+        async def mock_func():
             raise ConnectionError(123, 'Mock error')
 
         with self.assertRaises(NetworkError):
@@ -77,8 +73,7 @@ class TestConnection(BadAppTestCase):
         connection = Connection(
             ('127.0.0.1', self.get_http_port()), 'localhost')
 
-        @asyncio.coroutine
-        def mock_func():
+        async def mock_func():
             raise ssl.SSLError(1, 'I has a Certificate Error!')
 
         with self.assertRaises(SSLVerificationError):
@@ -89,8 +84,7 @@ class TestConnection(BadAppTestCase):
         connection = Connection(
             ('127.0.0.1', self.get_http_port()), 'localhost')
 
-        @asyncio.coroutine
-        def mock_func():
+        async def mock_func():
             raise ssl.SSLError(1, 'Uh oh! Unknown CA!')
 
         with self.assertRaises(SSLVerificationError):

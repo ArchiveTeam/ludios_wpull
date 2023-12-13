@@ -59,8 +59,7 @@ class TestConnectionPool(BadAppTestCase):
     def test_at_host_max_limit_cycling(self):
         pool = ConnectionPool(max_host_count=10, max_count=10)
 
-        @asyncio.coroutine
-        def con_fut():
+        async def con_fut():
             session = yield from pool.session('localhost', self.get_http_port())
 
             with session as connection:
@@ -80,8 +79,7 @@ class TestConnectionPool(BadAppTestCase):
     def test_over_host_max_limit_cycling(self):
         pool = ConnectionPool(max_host_count=10, max_count=10)
 
-        @asyncio.coroutine
-        def con_fut():
+        async def con_fut():
             session = yield from \
                 pool.session('localhost', self.get_http_port())
 

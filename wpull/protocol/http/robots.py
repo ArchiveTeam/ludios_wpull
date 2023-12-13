@@ -57,8 +57,8 @@ class RobotsTxtChecker(object):
         else:
             raise NotInPoolError()
 
-    @asyncio.coroutine
-    def fetch_robots_txt(self, request: Request, file=None):
+    
+    async def fetch_robots_txt(self, request: Request, file=None):
         '''Fetch the robots.txt file for the request.
 
         Coroutine.
@@ -78,8 +78,8 @@ class RobotsTxtChecker(object):
                 wpull.util.truncate_file(file.name)
 
                 try:
-                    response = yield from session.start()
-                    yield from session.download(file=file)
+                    response = await session.start()
+                    await session.download(file=file)
                 except ProtocolError:
                     self._accept_as_blank(url_info)
 
@@ -95,8 +95,8 @@ class RobotsTxtChecker(object):
             else:
                 self._accept_as_blank(url_info)
 
-    @asyncio.coroutine
-    def can_fetch(self, request: Request, file=None) -> bool:
+    
+    async def can_fetch(self, request: Request, file=None) -> bool:
         '''Return whether the request can fetched.
 
         Args:
@@ -110,7 +110,7 @@ class RobotsTxtChecker(object):
         except NotInPoolError:
             pass
 
-        yield from self.fetch_robots_txt(request, file=file)
+        await self.fetch_robots_txt(request, file=file)
 
         return self.can_fetch_pool(request)
 

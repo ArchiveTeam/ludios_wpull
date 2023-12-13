@@ -6,7 +6,6 @@ import tempfile
 import socket
 import sys
 
-import asyncio
 
 from wpull.application.app import Application
 from wpull.application.builder import Builder
@@ -26,8 +25,7 @@ class MockDNSResolver(Resolver):
         Resolver.__init__(self, *args, **kwargs)
         self.hosts_touched = set()
 
-    @asyncio.coroutine
-    def resolve(self, host):
+    async def resolve(self, host):
         self.hosts_touched.add(host)
         return ResolveResult([
             AddressInfo('127.0.0.1', socket.AF_INET, None, None)

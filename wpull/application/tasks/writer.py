@@ -1,7 +1,6 @@
 import gettext
 import logging
 
-import asyncio
 
 from wpull.pipeline.pipeline import ItemTask
 from wpull.pipeline.app import AppSession
@@ -13,8 +12,7 @@ _ = gettext.gettext
 
 
 class FileWriterSetupTask(ItemTask[AppSession]):
-    @asyncio.coroutine
-    def process(self, session: AppSession):
+    async def process(self, session: AppSession):
         self._build_file_writer(session)
 
     @classmethod

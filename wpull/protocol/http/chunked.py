@@ -4,7 +4,6 @@
 import gettext
 import logging
 
-import asyncio
 
 from wpull.backport.logging import BraceMessage as __
 from wpull.errors import ProtocolError, NetworkError
@@ -26,8 +25,8 @@ class ChunkedTransferReader(object):
         self._chunk_size = None
         self._bytes_left = None
 
-    @asyncio.coroutine
-    def read_chunk_header(self):
+    
+    async def read_chunk_header(self):
         '''Read a single chunk's header.
 
         Returns:
@@ -39,7 +38,7 @@ class ChunkedTransferReader(object):
         # _logger.debug('Reading chunk.')
 
         try:
-            chunk_size_hex = yield from self._connection.readline()
+            chunk_size_hex = await self._connection.readline()
         except ValueError as error:
             raise ProtocolError(
                 'Invalid chunk size: {0}'.format(error)) from error
@@ -60,8 +59,8 @@ class ChunkedTransferReader(object):
 
         return chunk_size, chunk_size_hex
 
-    @asyncio.coroutine
-    def read_chunk_body(self):
+    
+    async def read_chunk_body(self):
         '''Read a fragment of a single chunk.
 
         Call :meth:`read_chunk_header` first.
@@ -80,7 +79,7 @@ class ChunkedTransferReader(object):
 
         if bytes_left > 0:
             size = min(bytes_left, self._read_size)
-            data = yield from self._connection.read(size)
+            data = await self._connection.read(size)
 
             self._bytes_left -= len(data)
 
@@ -90,7 +89,7 @@ class ChunkedTransferReader(object):
         elif bytes_left:
             raise NetworkError('Connection closed.')
 
-        newline_data = yield from self._connection.readline()
+        newline_data = await self._connection.readline()
 
         if len(newline_data) > 2:
             # Should be either CRLF or LF
@@ -101,8 +100,8 @@ class ChunkedTransferReader(object):
 
         return (b'', newline_data)
 
-    @asyncio.coroutine
-    def read_trailer(self):
+    
+    async def read_trailer(self):
         '''Read the HTTP trailer fields.
 
         Returns:
@@ -115,7 +114,7 @@ class ChunkedTransferReader(object):
         trailer_data_list = []
 
         while True:
-            trailer_data = yield from self._connection.readline()
+            trailer_data = await self._connection.readline()
 
             trailer_data_list.append(trailer_data)
 
