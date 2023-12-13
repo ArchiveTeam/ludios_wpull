@@ -134,8 +134,11 @@ class SomePageHandler(tornado.web.RequestHandler):
 
 class BasicAuthHandler(tornado.web.RequestHandler):
     def get(self):
-        _logger.debug('Authorization: %s', self.request.headers.get('Authorization'))
-        if self.request.headers.get('Authorization') == 'Basic cm9vdDpzbWF1Zw==':
+        _logger.debug(
+            'Authorization: %s',
+            self.request.headers.get('Authorization'))
+        if self.request.headers.get(
+                'Authorization') == 'Basic cm9vdDpzbWF1Zw==':
             self.write(b'Welcome. The Krabby Patty Secret formula is:')
         else:
             raise HTTPError(401)
@@ -267,7 +270,6 @@ class GoodAppHTTPSTestCase(AsyncTestCase, AsyncHTTPSTestCase):
 
     def get_app(self):
         return GoodApp()
-
 
 
 if __name__ == '__main__':

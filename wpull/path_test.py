@@ -219,10 +219,8 @@ class TestPath(unittest.TestCase, TempDirMixin):
             'hello"world',
             parse_content_disposition('attachment; filename="hello\\"world"')
         )
-        self.assertEqual(
-            '\'hello"world\'',
-            parse_content_disposition('attachment; filename="\'hello\\"world\'"')
-        )
+        self.assertEqual('\'hello"world\'', parse_content_disposition(
+            'attachment; filename="\'hello\\"world\'"'))
         self.assertEqual(
             '\'hello"world\'',
             parse_content_disposition(

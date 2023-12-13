@@ -140,7 +140,7 @@ class HostnameFilter(BaseURLFilter):
 
     def test(self, url_info, url_table_record):
         test_domain = url_info.hostname
-        if self._accepted and not test_domain in self._accepted:
+        if self._accepted and test_domain not in self._accepted:
             return False
 
         if self._rejected and test_domain in self._rejected:

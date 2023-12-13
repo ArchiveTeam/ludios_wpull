@@ -47,7 +47,7 @@ class FTPSession(object):
                   'drw-r--r-- 1 smaug smaug 0 Apr 01 00:00 example2💎\r\n'
                   '-rw-r--r-- 1 smaug smaug 42 Apr 01 00:00 example (copy).txt\r\n'
                   'lrwxrwxrwx 1 smaug smaug 4 Apr 01 00:00 readme.txt -> example (copy).txt\r\n'
-                 ).encode('utf-8')),
+                  ).encode('utf-8')),
             '/example (copy).txt':
                 ('file',
                  'The real treasure is in Smaug’s heart 💗.\n'.encode('utf-8')),
@@ -63,9 +63,9 @@ class FTPSession(object):
             '/example2💎':
                 ('dir', b'trash.txt',
                  ('02-09-2010  03:00PM                      13 trash.txt\r\n'
-                 ).encode('utf-8'),
+                  ).encode('utf-8'),
                  b'type=file; trash.txt\n'
-                ),
+                 ),
             '/example2💎/trash.txt':
                 ('file', b'hello dragon!'),
             '/hidden/sleep.txt':
@@ -94,7 +94,8 @@ class FTPSession(object):
                 return
 
             try:
-                command, arg = line.decode('utf-8', errors='replace').split(' ', 1)
+                command, arg = line.decode(
+                    'utf-8', errors='replace').split(' ', 1)
             except ValueError:
                 command = line.decode('utf-8', errors='replace').strip()
                 arg = ''
@@ -181,7 +182,8 @@ class FTPSession(object):
         small_port_num = port & 0xff
 
         if 'bad_pasv_addr' in self.evil_flags:
-            self.writer.write(b'227 Now passive mode (127,0,0,WOW,SO,UNEXPECT)\r\n')
+            self.writer.write(
+                b'227 Now passive mode (127,0,0,WOW,SO,UNEXPECT)\r\n')
         else:
             self.writer.write('227 Now passive mode (127,0,0,1,{},{})\r\n'
                               .format(big_port_num, small_port_num)

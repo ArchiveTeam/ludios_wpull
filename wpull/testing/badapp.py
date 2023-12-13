@@ -464,9 +464,15 @@ class Handler(http.server.BaseHTTPRequestHandler):
         )
         self.send_header('Set-cookie', 'COOKIES')
         self.send_header('Set-cookie', 'test=valid')
-        self.send_header('Set-cookie', 'bad=date?; Expires=Sit, 28 Dec 2024 01:59:61 GMT')
-        self.send_header('Set-cookie', 'bad=date?; Expires=Sat, 28 Dec-2024 01:59:61 GMT')
-        self.send_header('Set-cookie', '; Expires=Thu, 01 Jan 1970 00:00:10 GMT')
+        self.send_header(
+            'Set-cookie',
+            'bad=date?; Expires=Sit, 28 Dec 2024 01:59:61 GMT')
+        self.send_header(
+            'Set-cookie',
+            'bad=date?; Expires=Sat, 28 Dec-2024 01:59:61 GMT')
+        self.send_header(
+            'Set-cookie',
+            '; Expires=Thu, 01 Jan 1970 00:00:10 GMT')
         self.send_header('Content-length', '0')
         self.end_headers()
 
@@ -530,7 +536,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         )
         self.send_header('Content-Length', 0)
         self.end_headers()
-        
+
     def bad_redirect_ipv6(self):
         self.send_response(303)
         self.send_header(
@@ -681,6 +687,7 @@ class BadAppTestCase(AsyncTestCase, TornadoAsyncTestCase):
 class SSLBadAppTestCase(BadAppTestCase):
     def get_protocol(self):
         return 'https'
+
 
 if __name__ == '__main__':
     server = Server(8888)

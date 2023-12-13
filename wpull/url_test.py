@@ -91,7 +91,8 @@ class TestURL(unittest.TestCase):
         self.assertEqual(
             'HTTP://userName:pass%3Aword@[A::1]:81/ásdF\u200C/ghjK?a=b=c&D#/?',
             url_info.raw)
-        self.assertEqual(('/%C3%A1sdF%E2%80%8C', 'ghjK'), url_info.split_path())
+        self.assertEqual(('/%C3%A1sdF%E2%80%8C', 'ghjK'),
+                         url_info.split_path())
 
         url_info = URLInfo.parse(
             'Ftp://N00B:hunter2@LocalHost.Example/mydocs/'
@@ -266,7 +267,8 @@ class TestURL(unittest.TestCase):
             'http://ｆａｔ３２ｄｅｆｒａｇｍｅｎｔｅｒ.internets：８０/')
         self.assertRaises(ValueError, URLInfo.parse, 'http:// /spaaaace')
         self.assertRaises(
-            ValueError, URLInfo.parse,
+            ValueError,
+            URLInfo.parse,
             'http://a-long-long-time-ago-the-earth-was-ruled-by-dinosaurs-'
             'they-were-big-so-not-a-lot-of-people-went-around-hassling-them-'
             'actually-no-people-went-around-hassling-them-'
@@ -283,8 +285,7 @@ class TestURL(unittest.TestCase):
             'where-the-dinosaurs-continue-to-thrive-'
             'and-evolved-into-intelligent-vicious-aggressive-beings-'
             'just-like-us-'
-            'and-hey-what-if-they-found-their-way-back.movie'
-        )
+            'and-hey-what-if-they-found-their-way-back.movie')
         self.assertRaises(
             ValueError, URLInfo.parse, 'http://[...]/python.xml%22')
         self.assertRaises(
@@ -292,11 +293,11 @@ class TestURL(unittest.TestCase):
         self.assertRaises(
             ValueError, URLInfo.parse, 'http://[.]/python.xml%22')
         self.assertRaises(
-            ValueError, URLInfo.parse, 
+            ValueError, URLInfo.parse,
             'http://wow:99999999999999999999999999999999999999999999999999999'
             '9999999999999999999999999999999999999999999999999999999999999999')
         self.assertRaises(
-            ValueError, URLInfo.parse, 
+            ValueError, URLInfo.parse,
             'http://wow:-9999999999999999999999999999999999999999999999999999'
             '9999999999999999999999999999999999999999999999999999999999999999')
 

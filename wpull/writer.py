@@ -303,7 +303,9 @@ class BaseFileWriterSession(BaseWriterSession):
 
             if self._local_timestamping and \
                     response.request.url_info.scheme in ('http', 'https'):
-                self.set_timestamp(self._filename, cast(HTTPResponse, response))
+                self.set_timestamp(
+                    self._filename, cast(
+                        HTTPResponse, response))
 
             return self._filename
 
@@ -335,12 +337,12 @@ class BaseFileWriter(BaseWriter):
             given response for the filename.
     '''
     def __init__(self, path_namer: PathNamer,
-                 file_continuing: bool=False,
-                 headers_included: bool=False,
-                 local_timestamping: bool=True,
-                 adjust_extension: bool=False,
-                 content_disposition: bool=False,
-                 trust_server_names: bool=False):
+                 file_continuing: bool = False,
+                 headers_included: bool = False,
+                 local_timestamping: bool = True,
+                 adjust_extension: bool = False,
+                 content_disposition: bool = False,
+                 trust_server_names: bool = False):
         self._path_namer = path_namer
         self._file_continuing = file_continuing
         self._headers_included = headers_included
@@ -527,9 +529,10 @@ class SingleDocumentWriterSession(BaseWriterSession):
 
 class SingleDocumentWriter(BaseWriter):
     '''Writer that writes all the data into a single file.'''
-    def __init__(self, stream: BinaryIO, headers_included: bool=False):
+    def __init__(self, stream: BinaryIO, headers_included: bool = False):
         self._stream = stream
         self._headers_included = headers_included
 
     def session(self) -> SingleDocumentWriterSession:
-        return SingleDocumentWriterSession(self._stream, self._headers_included)
+        return SingleDocumentWriterSession(
+            self._stream, self._headers_included)

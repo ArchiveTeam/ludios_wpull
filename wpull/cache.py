@@ -13,7 +13,7 @@ if 'sphinx' not in sys.modules:
     except ImportError:
         from wpull.backport.functools import total_ordering
 else:
-    total_ordering = lambda obj: obj
+    def total_ordering(obj): return obj
 
 
 class BaseCache(collections.abc.Mapping, object):

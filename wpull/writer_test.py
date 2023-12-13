@@ -43,7 +43,10 @@ class TestWriter(unittest.TestCase, TempDirMixin):
         session = writer.session()
 
         request1 = HTTPRequest('http://example.com/my_file.txt')
-        response1 = HTTPResponse(status_code=200, reason='OK', request=request1)
+        response1 = HTTPResponse(
+            status_code=200,
+            reason='OK',
+            request=request1)
 
         session.process_request(request1)
         session.process_response(response1)
@@ -54,7 +57,10 @@ class TestWriter(unittest.TestCase, TempDirMixin):
         session = writer.session()
 
         request2 = HTTPRequest('http://example.com/my_file.txt')
-        response2 = HTTPResponse(status_code=200, reason='OK', request=request2)
+        response2 = HTTPResponse(
+            status_code=200,
+            reason='OK',
+            request=request2)
 
         session.process_request(request2)
         session.process_response(response2)
@@ -63,7 +69,8 @@ class TestWriter(unittest.TestCase, TempDirMixin):
         self.assertTrue(os.path.exists('my_file.txt'))
 
     def test_file_continue(self):
-        writer = OverwriteFileWriter(self.get_path_namer(), file_continuing=True)
+        writer = OverwriteFileWriter(
+            self.get_path_namer(), file_continuing=True)
         session = writer.session()
 
         with open('my_file.txt', 'wb') as file:
@@ -74,7 +81,10 @@ class TestWriter(unittest.TestCase, TempDirMixin):
 
         self.assertIn('Range', request.fields)
 
-        response = HTTPResponse(status_code=206, reason='Partial content', request=request)
+        response = HTTPResponse(
+            status_code=206,
+            reason='Partial content',
+            request=request)
         session.process_response(response)
 
         response.body.write(b'END')
@@ -103,7 +113,10 @@ class TestWriter(unittest.TestCase, TempDirMixin):
 
         self.assertIn('If-Modified-Since', request.fields)
 
-        response = HTTPResponse(status_code=304, reason='Not modified', request=request)
+        response = HTTPResponse(
+            status_code=304,
+            reason='Not modified',
+            request=request)
         session.process_response(response)
 
     def test_dir_or_file_dir_got_first(self):
@@ -143,7 +156,8 @@ class TestWriter(unittest.TestCase, TempDirMixin):
         self.assertTrue(os.path.isfile('dir_or_file'))
 
     def test_adjust_extension(self):
-        writer = AntiClobberFileWriter(self.get_path_namer(), adjust_extension=True)
+        writer = AntiClobberFileWriter(
+            self.get_path_namer(), adjust_extension=True)
 
         test_data = [
             ('text/html', '/mordor', 'mordor.html'),
@@ -160,7 +174,8 @@ class TestWriter(unittest.TestCase, TempDirMixin):
             session = writer.session()
 
             request = HTTPRequest('http://example.com' + path)
-            response = HTTPResponse(status_code=200, reason='OK', request=request)
+            response = HTTPResponse(
+                status_code=200, reason='OK', request=request)
             response.fields['Content-Type'] = mime_type
 
             session.process_request(request)
@@ -171,7 +186,9 @@ class TestWriter(unittest.TestCase, TempDirMixin):
             self.assertTrue(os.path.exists(filename))
 
     def test_content_disposition(self):
-        writer = AntiClobberFileWriter(self.get_path_namer(), content_disposition=True)
+        writer = AntiClobberFileWriter(
+            self.get_path_namer(),
+            content_disposition=True)
 
         test_data = [
             ('hello1.txt', 'hello1.txt'),
@@ -185,8 +202,10 @@ class TestWriter(unittest.TestCase, TempDirMixin):
             session = writer.session()
 
             request = HTTPRequest('http://example.com')
-            response = HTTPResponse(status_code=200, reason='OK', request=request)
-            response.fields['Content-Disposition'] = 'attachment; filename={}'.format(raw_filename)
+            response = HTTPResponse(
+                status_code=200, reason='OK', request=request)
+            response.fields['Content-Disposition'] = 'attachment; filename={}'.format(
+                raw_filename)
 
             session.process_request(request)
             session.process_response(response)
@@ -196,17 +215,24 @@ class TestWriter(unittest.TestCase, TempDirMixin):
             self.assertTrue(os.path.exists(filename))
 
     def test_trust_server_names(self):
-        writer = AntiClobberFileWriter(self.get_path_namer(), trust_server_names=True)
+        writer = AntiClobberFileWriter(
+            self.get_path_namer(), trust_server_names=True)
         session = writer.session()
 
         request1 = HTTPRequest('http://example.com')
-        response1 = HTTPResponse(status_code=302, reason='Moved', request=request1)
+        response1 = HTTPResponse(
+            status_code=302,
+            reason='Moved',
+            request=request1)
 
         session.process_request(request1)
         session.process_response(response1)
 
         request2 = HTTPRequest('http://example.com/my_file.html')
-        response2 = HTTPResponse(status_code=200, reason='OK', request=request2)
+        response2 = HTTPResponse(
+            status_code=200,
+            reason='OK',
+            request=request2)
 
         session.process_request(request2)
         session.process_response(response2)
@@ -223,7 +249,10 @@ class TestWriter(unittest.TestCase, TempDirMixin):
         session = writer.session()
 
         request1 = HTTPRequest('http://example.com/my_file1.txt')
-        response1 = HTTPResponse(status_code=200, reason='OK', request=request1)
+        response1 = HTTPResponse(
+            status_code=200,
+            reason='OK',
+            request=request1)
 
         session.process_request(request1)
         session.process_response(response1)
@@ -235,7 +264,10 @@ class TestWriter(unittest.TestCase, TempDirMixin):
         session = writer.session()
 
         request2 = HTTPRequest('http://example.com/my_file2.txt')
-        response2 = HTTPResponse(status_code=200, reason='OK', request=request2)
+        response2 = HTTPResponse(
+            status_code=200,
+            reason='OK',
+            request=request2)
 
         session.process_request(request2)
         session.process_response(response2)

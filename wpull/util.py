@@ -135,7 +135,7 @@ def rewrap_bytes(data):
     Intended to rewrap base64 content.
     '''
     return b'\n'.join(
-        data[index:index+70] for index in range(0, len(data), 70)
+        data[index:index + 70] for index in range(0, len(data), 70)
     )
 
 

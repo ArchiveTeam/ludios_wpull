@@ -72,7 +72,7 @@ class TestDecompression(unittest.TestCase):
         self.assertEqual(
             b'DRAGON',
             gzip_uncompress(gzip.compress(b'DRAGON'))
-            )
+        )
 
         # Check for no crash:
         gzip_uncompress(gzip.compress(b'DRAGON')[:1], truncated=True)
