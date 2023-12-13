@@ -1,11 +1,6 @@
 # encoding=utf-8
 '''Data structures.'''
-from collections import OrderedDict,defaultdict
-import collections
-import copy
 import itertools
-import functools
-
 
 
 class LinkedListNode(object):
