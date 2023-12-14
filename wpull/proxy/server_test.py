@@ -65,7 +65,7 @@ class TestProxy(wpull.testing.goodapp.GoodAppTestCase):
         proxy.event_dispatcher.add_listener(
             HTTPProxyServer.Event.begin_session, new_sesssion_callback)
 
-        yield from asyncio.start_server(proxy, sock=proxy_socket)
+        await asyncio.start_server(proxy, sock=proxy_socket)
 
         _logger.debug('Proxy on port {0}'.format(proxy_port))
 
@@ -77,7 +77,7 @@ class TestProxy(wpull.testing.goodapp.GoodAppTestCase):
             proxy_port=proxy_port,
         )
 
-        response = yield from tornado_future_adapter(test_client.fetch(request))
+        response = await tornado_future_adapter(test_client.fetch(request))
 
         self.assertEqual(200, response.code)
         self.assertIn(b'Hello!', response.body)
@@ -93,7 +93,7 @@ class TestProxy(wpull.testing.goodapp.GoodAppTestCase):
         proxy = HTTPProxyServer(http_client)
         proxy_socket, proxy_port = tornado.testing.bind_unused_port()
 
-        yield from asyncio.start_server(proxy, sock=proxy_socket)
+        await asyncio.start_server(proxy, sock=proxy_socket)
 
         _logger.debug('Proxy on port {0}'.format(proxy_port))
 
@@ -107,7 +107,7 @@ class TestProxy(wpull.testing.goodapp.GoodAppTestCase):
             method='POST'
         )
 
-        response = yield from tornado_future_adapter(test_client.fetch(request))
+        response = await tornado_future_adapter(test_client.fetch(request))
 
         self.assertEqual(200, response.code)
         self.assertIn(b'OK', response.body)
@@ -121,7 +121,7 @@ class TestProxy2(wpull.testing.badapp.BadAppTestCase):
         proxy = HTTPProxyServer(http_client)
         proxy_socket, proxy_port = tornado.testing.bind_unused_port()
 
-        yield from asyncio.start_server(proxy, sock=proxy_socket)
+        await asyncio.start_server(proxy, sock=proxy_socket)
 
         _logger.debug('Proxy on port {0}'.format(proxy_port))
 
@@ -133,7 +133,7 @@ class TestProxy2(wpull.testing.badapp.BadAppTestCase):
             proxy_port=proxy_port
         )
 
-        response = yield from tornado_future_adapter(test_client.fetch(request))
+        response = await tornado_future_adapter(test_client.fetch(request))
 
         self.assertEqual(204, response.code)
 
@@ -143,6 +143,6 @@ async def tornado_future_adapter(future):
 
     future.add_done_callback(lambda dummy: event.set())
 
-    yield from event.wait()
+    await event.wait()
 
     return future.result()

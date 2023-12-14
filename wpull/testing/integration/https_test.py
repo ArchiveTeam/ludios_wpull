@@ -18,7 +18,7 @@ class TestHTTPSApp(HTTPSSimpleAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(5, exit_code)
 
@@ -35,7 +35,7 @@ class TestHTTPSApp(HTTPSSimpleAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
@@ -62,7 +62,7 @@ class TestHTTPSApp(HTTPSSimpleAppTestCase):
         builder.factory.class_map['WebClient'] = MockWebClient
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(7, exit_code)
         self.assertEqual(0, builder.factory['Statistics'].files)

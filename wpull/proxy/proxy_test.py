@@ -21,29 +21,29 @@ class Mixin:
         proxy_server = HTTPProxyServer(proxy_http_client)
         proxy_socket, proxy_port = tornado.testing.bind_unused_port()
 
-        yield from asyncio.start_server(proxy_server, sock=proxy_socket)
+        await asyncio.start_server(proxy_server, sock=proxy_socket)
 
         connection_pool = HTTPProxyConnectionPool(('127.0.0.1', proxy_port))
         http_client = Client(connection_pool=connection_pool)
 
         for dummy in range(3):
             with http_client.session() as session:
-                response = yield from session.start(Request(self.get_url('/')))
+                response = await session.start(Request(self.get_url('/')))
                 self.assertEqual(200, response.status_code)
 
                 file = io.BytesIO()
-                yield from session.download(file=file)
+                await session.download(file=file)
                 data = file.getvalue().decode('ascii', 'replace')
                 self.assertTrue(data.endswith('</html>'))
 
             with http_client.session() as session:
-                response = yield from session.start(Request(
+                response = await session.start(Request(
                     self.get_url('/always_error')))
                 self.assertEqual(500, response.status_code)
                 self.assertEqual('Dragon In Data Center', response.reason)
 
                 file = io.BytesIO()
-                yield from session.download(file=file)
+                await session.download(file=file)
                 data = file.getvalue().decode('ascii', 'replace')
                 self.assertEqual('Error', data)
 

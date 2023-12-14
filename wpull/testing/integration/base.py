@@ -111,6 +111,6 @@ async def tornado_future_adapter(future):
 
     future.add_done_callback(lambda dummy: event.set())
 
-    yield from event.wait()
+    await event.wait()
 
     return future.result()

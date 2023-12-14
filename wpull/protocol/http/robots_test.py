@@ -54,10 +54,10 @@ class TestRobots(wpull.testing.async_.AsyncTestCase):
 
         checker.web_client.mock_response_callback = response_callback
 
-        yield from checker.fetch_robots_txt(request)
+        await checker.fetch_robots_txt(request)
 
         self.assertTrue(checker.can_fetch_pool(request))
-        self.assertTrue((yield from checker.can_fetch(request)))
+        self.assertTrue((await checker.can_fetch(request)))
 
     @wpull.testing.async_.async_test
     def test_fetch_disallow(self):
@@ -78,10 +78,10 @@ class TestRobots(wpull.testing.async_.AsyncTestCase):
 
         checker.web_client.mock_response_callback = response_callback
 
-        yield from checker.fetch_robots_txt(request)
+        await checker.fetch_robots_txt(request)
 
         self.assertFalse(checker.can_fetch_pool(request))
-        self.assertFalse((yield from checker.can_fetch(request)))
+        self.assertFalse((await checker.can_fetch(request)))
 
     @wpull.testing.async_.async_test
     def test_redirect_loop(self):
@@ -107,7 +107,7 @@ class TestRobots(wpull.testing.async_.AsyncTestCase):
 
         checker.web_client.mock_response_callback = response_callback
 
-        self.assertTrue((yield from checker.can_fetch(request)))
+        self.assertTrue((await checker.can_fetch(request)))
         self.assertTrue(checker.can_fetch_pool(request))
 
     @wpull.testing.async_.async_test
@@ -127,7 +127,7 @@ class TestRobots(wpull.testing.async_.AsyncTestCase):
         checker.web_client.mock_response_callback = response_callback
 
         try:
-            yield from checker.can_fetch(request)
+            await checker.can_fetch(request)
         except ServerError:
             pass
         else:
@@ -186,5 +186,5 @@ class TestRobots(wpull.testing.async_.AsyncTestCase):
 
         checker.web_client.mock_response_callback = response_callback_1
 
-        self.assertTrue((yield from checker.can_fetch(request)))
+        self.assertTrue((await checker.can_fetch(request)))
         self.assertTrue(checker.can_fetch_pool(request))

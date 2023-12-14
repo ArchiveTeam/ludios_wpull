@@ -22,7 +22,7 @@ class TestWARCHTTPGoodApp(HTTPGoodAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertTrue(os.path.exists('test-00000.warc.gz'))
         self.assertTrue(os.path.exists('test-meta.warc.gz'))
@@ -47,7 +47,7 @@ class TestWARCHTTPGoodApp(HTTPGoodAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertTrue(os.path.exists('test.warc.gz'))
 
@@ -72,7 +72,7 @@ class TestWARCHTTPGoodApp(HTTPGoodAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
         self.assertEqual(0, exit_code)
         self.assertGreaterEqual(builder.factory['Statistics'].files, 1)
 
@@ -100,7 +100,7 @@ class TestWARCHTTPGoodApp(HTTPGoodAppTestCase):
 
         builder = Builder(args, unit_test=True)
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         with open('test.warc', 'rb') as in_file:
             data = in_file.read()

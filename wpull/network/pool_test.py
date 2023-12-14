@@ -14,28 +14,28 @@ class TestConnectionPool(BadAppTestCase):
     def test_basic_acquire(self):
         pool = ConnectionPool(max_host_count=2)
 
-        conn1 = yield from pool.acquire('localhost', self.get_http_port())
-        conn2 = yield from pool.acquire('localhost', self.get_http_port())
+        conn1 = await pool.acquire('localhost', self.get_http_port())
+        conn2 = await pool.acquire('localhost', self.get_http_port())
 
-        yield from pool.release(conn1)
-        yield from pool.release(conn2)
+        await pool.release(conn1)
+        await pool.release(conn2)
 
-        conn3 = yield from pool.acquire('localhost', self.get_http_port())
-        conn4 = yield from pool.acquire('localhost', self.get_http_port())
+        conn3 = await pool.acquire('localhost', self.get_http_port())
+        conn4 = await pool.acquire('localhost', self.get_http_port())
 
-        yield from pool.release(conn3)
-        yield from pool.release(conn4)
+        await pool.release(conn3)
+        await pool.release(conn4)
 
     @wpull.testing.async_.async_test()
     def test_session(self):
         pool = ConnectionPool()
 
         for dummy in range(10):
-            session = yield from \
+            session = await \
                 pool.session('localhost', self.get_http_port())
             with session as connection:
                 if connection.closed():
-                    yield from connection.connect()
+                    await connection.connect()
 
         self.assertEqual(1, len(pool.host_pools))
         host_pool = list(pool.host_pools.values())[0]
@@ -46,11 +46,11 @@ class TestConnectionPool(BadAppTestCase):
     def test_host_max_limit(self):
         pool = ConnectionPool(max_host_count=2)
 
-        yield from pool.acquire('localhost', self.get_http_port())
-        yield from pool.acquire('localhost', self.get_http_port())
+        await pool.acquire('localhost', self.get_http_port())
+        await pool.acquire('localhost', self.get_http_port())
 
         with self.assertRaises(asyncio.TimeoutError):
-            yield from asyncio.wait_for(
+            await asyncio.wait_for(
                 pool.acquire('localhost', self.get_http_port()),
                 0.1
             )
@@ -60,15 +60,15 @@ class TestConnectionPool(BadAppTestCase):
         pool = ConnectionPool(max_host_count=10, max_count=10)
 
         async def con_fut():
-            session = yield from pool.session('localhost', self.get_http_port())
+            session = await pool.session('localhost', self.get_http_port())
 
             with session as connection:
                 if connection.closed():
-                    yield from connection.connect()
+                    await connection.connect()
 
         futs = [con_fut() for dummy in range(10)]
 
-        yield from asyncio.wait(futs)
+        await asyncio.wait(futs)
 
         self.assertEqual(1, len(pool.host_pools))
         connection_pool_entry = list(pool.host_pools.values())[0]
@@ -80,16 +80,16 @@ class TestConnectionPool(BadAppTestCase):
         pool = ConnectionPool(max_host_count=10, max_count=10)
 
         async def con_fut():
-            session = yield from \
+            session = await \
                 pool.session('localhost', self.get_http_port())
 
             with session as connection:
                 if connection.closed():
-                    yield from connection.connect()
+                    await connection.connect()
 
         futs = [con_fut() for dummy in range(20)]
 
-        yield from asyncio.wait(futs)
+        await asyncio.wait(futs)
 
         self.assertEqual(1, len(pool.host_pools))
         connection_pool_entry = list(pool.host_pools.values())[0]
@@ -101,7 +101,7 @@ class TestConnectionPool(BadAppTestCase):
         pool = ConnectionPool(max_host_count=5, max_count=20)
 
         for port in range(10):
-            session = yield from pool.session('localhost', port)
+            session = await pool.session('localhost', port)
 
             with session as connection:
                 self.assertTrue(connection)
@@ -110,12 +110,12 @@ class TestConnectionPool(BadAppTestCase):
     def test_clean(self):
         pool = ConnectionPool(max_host_count=2)
 
-        conn1 = yield from pool.acquire('localhost', self.get_http_port())
-        conn2 = yield from pool.acquire('localhost', self.get_http_port())
+        conn1 = await pool.acquire('localhost', self.get_http_port())
+        conn2 = await pool.acquire('localhost', self.get_http_port())
 
-        yield from pool.release(conn1)
-        yield from pool.release(conn2)
-        yield from pool.clean()
+        await pool.release(conn1)
+        await pool.release(conn2)
+        await pool.clean()
 
         self.assertEqual(0, len(pool.host_pools))
 
@@ -123,15 +123,15 @@ class TestConnectionPool(BadAppTestCase):
     def test_connection_pool_release_clean_race_condition(self):
         pool = ConnectionPool(max_host_count=1)
 
-        connection = yield from pool.acquire('127.0.0.1', 1234)
+        connection = await pool.acquire('127.0.0.1', 1234)
         connection_2_task = asyncio.ensure_future(pool.acquire('127.0.0.1', 1234))
-        yield from asyncio.sleep(0.01)
+        await asyncio.sleep(0.01)
         pool.no_wait_release(connection)
-        yield from pool.clean(force=True)
-        connection_2 = yield from connection_2_task
+        await pool.clean(force=True)
+        connection_2 = await connection_2_task
 
         # This line should not KeyError crash:
-        yield from pool.release(connection_2)
+        await pool.release(connection_2)
 
     @wpull.testing.async_.async_test()
     def test_happy_eyeballs(self):
@@ -140,23 +140,23 @@ class TestConnectionPool(BadAppTestCase):
         pool = ConnectionPool(resolver=resolver,
                               connection_factory=connection_factory)
 
-        conn1 = yield from pool.acquire('google.com', 80)
-        conn2 = yield from pool.acquire('google.com', 80)
+        conn1 = await pool.acquire('google.com', 80)
+        conn2 = await pool.acquire('google.com', 80)
 
-        yield from conn1.connect()
-        yield from conn2.connect()
+        await conn1.connect()
+        await conn2.connect()
         conn1.close()
         conn2.close()
 
-        yield from pool.release(conn1)
-        yield from pool.release(conn2)
+        await pool.release(conn1)
+        await pool.release(conn2)
 
-        conn3 = yield from pool.acquire('google.com', 80)
+        conn3 = await pool.acquire('google.com', 80)
 
-        yield from conn3.connect()
+        await conn3.connect()
         conn3.close()
 
-        yield from pool.release(conn3)
+        await pool.release(conn3)
 
     def test_happy_eyeballs_table(self):
         table = HappyEyeballsTable()

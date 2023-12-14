@@ -79,11 +79,11 @@ class TestHook(AsyncTestCase):
 
         
         async def my_callback_2():
-            yield from asyncio.sleep(0)
+            await asyncio.sleep(0)
             return 9
 
         hook.connect('b', my_callback_2)
-        result = yield from hook.call_async('b')
+        result = await hook.call_async('b')
 
         self.assertEqual(9, result)
 

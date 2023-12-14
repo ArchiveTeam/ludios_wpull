@@ -22,9 +22,9 @@ class TestClient(FTPTestCase):
         file = io.BytesIO()
 
         with client.session() as session:
-            response = yield from \
+            response = await \
                 session.start(Request(self.get_url('/example (copy).txt')))
-            yield from session.download(file)
+            await session.download(file)
 
         self.assertEqual(
             'The real treasure is in Smaug’s heart 💗.\n'.encode('utf-8'),
@@ -37,9 +37,9 @@ class TestClient(FTPTestCase):
         file = io.BytesIO()
 
         with self.assertRaises(DurationTimeout), client.session() as session:
-            yield from \
+            await \
                 session.start(Request(self.get_url('/hidden/sleep.txt')))
-            yield from session.download(file, duration_timeout=0.1)
+            await session.download(file, duration_timeout=0.1)
 
     @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_fetch_no_file(self):
@@ -48,9 +48,9 @@ class TestClient(FTPTestCase):
 
         with client.session() as session:
             try:
-                yield from \
+                await \
                     session.start(Request(self.get_url('/asdf.txt')))
-                yield from session.download(file)
+                await session.download(file)
             except FTPServerError as error:
                 self.assertEqual(550, error.reply_code)
             else:
@@ -64,9 +64,9 @@ class TestClient(FTPTestCase):
         with client.session() as session:
             request = Request(self.get_url('/example (copy).txt'))
             request.set_continue(10)
-            response = yield from session.start(request)
+            response = await session.start(request)
             self.assertEqual(10, response.restart_value)
-            yield from session.download(file)
+            await session.download(file)
 
         self.assertEqual(
             'reasure is in Smaug’s heart 💗.\n'.encode('utf-8'),
@@ -81,9 +81,9 @@ class TestClient(FTPTestCase):
         with client.session() as session:
             request = Request(self.get_url('/example (copy).txt'))
             request.set_continue(99999)  # Magic value in the test server
-            response = yield from session.start(request)
+            response = await session.start(request)
             self.assertFalse(response.restart_value)
-            yield from session.download(file)
+            await session.download(file)
 
         self.assertEqual(
             'The real treasure is in Smaug’s heart 💗.\n'.encode('utf-8'),
@@ -95,9 +95,9 @@ class TestClient(FTPTestCase):
         client = Client()
         file = io.BytesIO()
         with client.session() as session:
-            response = yield from \
+            response = await \
                 session.start_listing(Request(self.get_url('/')))
-            yield from session.download_listing(file)
+            await session.download_listing(file)
 
         print(response.body.content())
         self.assertEqual(5, len(response.files))
@@ -116,15 +116,15 @@ class TestClient(FTPTestCase):
             original_func = session._log_in
 
             async def override_func():
-                yield from original_func()
-                yield from session._control_stream.write_command(Command('EVIL_BAD_PASV_ADDR'))
+                await original_func()
+                await session._control_stream.write_command(Command('EVIL_BAD_PASV_ADDR'))
                 print('Evil awaits')
 
             # TODO: should probably have a way of sending custom commands
             session._log_in = override_func
 
             with self.assertRaises(ProtocolError):
-                yield from \
+                await \
                     session.start(Request(self.get_url('/example (copy).txt')))
 
     @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
@@ -135,5 +135,5 @@ class TestClient(FTPTestCase):
         with client.session() as session:
             request = Request(self.get_url('/example (copy).txt'))
             request.username = 'no_password_required'
-            yield from session.start(request)
-            yield from session.download(file)
+            await session.start(request)
+            await session.download(file)

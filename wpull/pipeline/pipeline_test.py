@@ -97,7 +97,7 @@ class TestPipeline(AsyncTestCase):
         items = self._new_items(4)
         pipeline = Pipeline(MySource(items), [MyItemTask()])
 
-        yield from pipeline.process()
+        await pipeline.process()
 
         self._check_item_values(items)
 
@@ -107,7 +107,7 @@ class TestPipeline(AsyncTestCase):
         pipeline = Pipeline(MySource(items, test_error=True), [MyItemTask()])
 
         with self.assertRaises(MyItemSourceError):
-            yield from pipeline.process()
+            await pipeline.process()
 
     @wpull.testing.async_.async_test()
     def test_item_task_error(self):
@@ -115,7 +115,7 @@ class TestPipeline(AsyncTestCase):
         pipeline = Pipeline(MySource(items), [MyItemTask(test_error=True)])
 
         with self.assertRaises(MyItemTaskError):
-            yield from pipeline.process()
+            await pipeline.process()
 
     @wpull.testing.async_.async_test()
     def test_concurrency_under(self):
@@ -125,7 +125,7 @@ class TestPipeline(AsyncTestCase):
         pipeline = Pipeline(MySource(items), [task], item_queue)
         pipeline.concurrency = 2
 
-        yield from pipeline.process()
+        await pipeline.process()
 
         self._check_item_values(items)
         self.assertEqual(2, task.peak_work)
@@ -138,7 +138,7 @@ class TestPipeline(AsyncTestCase):
         pipeline = Pipeline(MySource(items), [task], item_queue)
         pipeline.concurrency = 100
 
-        yield from pipeline.process()
+        await pipeline.process()
 
         self._check_item_values(items)
         self.assertGreaterEqual(100, task.peak_work)
@@ -152,7 +152,7 @@ class TestPipeline(AsyncTestCase):
         pipeline = Pipeline(MySource(items), [task], item_queue)
         pipeline.concurrency = 200
 
-        yield from pipeline.process()
+        await pipeline.process()
 
         self._check_item_values(items)
         self.assertGreaterEqual(100, task.peak_work)
@@ -170,7 +170,7 @@ class TestPipeline(AsyncTestCase):
 
         task.callback = task_callback
 
-        yield from pipeline.process()
+        await pipeline.process()
 
         self.assertIsNone(items[-1].processed_value)
 
@@ -187,7 +187,7 @@ class TestPipeline(AsyncTestCase):
 
         task.callback = task_callback
 
-        yield from pipeline.process()
+        await pipeline.process()
 
         self._check_item_values(items)
         self.assertEqual(10, task.peak_work)
@@ -212,7 +212,7 @@ class TestPipeline(AsyncTestCase):
 
         task.callback = task_callback
 
-        yield from pipeline.process()
+        await pipeline.process()
 
         self._check_item_values(items)
         self.assertEqual(1, task.peak_work)
@@ -237,7 +237,7 @@ class TestPipeline(AsyncTestCase):
 
         task.callback = task_callback
 
-        yield from pipeline.process()
+        await pipeline.process()
 
         self._check_item_values(items)
         self.assertEqual(10, task.peak_work)

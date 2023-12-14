@@ -17,7 +17,7 @@ class TestFTPApp(FTPAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(0, builder.factory['Statistics'].files)
@@ -33,7 +33,7 @@ class TestFTPApp(FTPAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
@@ -50,7 +50,7 @@ class TestFTPApp(FTPAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(6, exit_code)
         self.assertEqual(0, builder.factory['Statistics'].files)
@@ -73,7 +73,7 @@ class TestFTPApp(FTPAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(8, exit_code)
         self.assertEqual(6, builder.factory['Statistics'].files)
@@ -110,7 +110,7 @@ class TestFTPApp(FTPAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
 
@@ -134,7 +134,7 @@ class TestFTPApp(FTPAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
         print(list(os.walk('.')))
 
         self.assertEqual(0, exit_code)
@@ -151,7 +151,7 @@ class TestFTPApp(FTPAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
         print(list(os.walk('.')))
 
         self.assertEqual(0, exit_code)
@@ -166,7 +166,7 @@ class TestFTPApp(FTPAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
         print(list(os.walk('.')))
 
         self.assertEqual(0, exit_code)
@@ -183,7 +183,7 @@ class TestFTPApp(FTPAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
         print(list(os.walk('.')))
 
         self.assertEqual(8, exit_code)
@@ -201,7 +201,7 @@ class TestFTPApp(FTPAppTestCase):
             out_file.write(b'The')
 
         app = Builder(args, unit_test=True).build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
 

@@ -18,7 +18,7 @@ class TestScriptGoodApp(HTTPGoodAppTestCase):
         ])
         builder = Builder(args, unit_test=True)
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
 
@@ -41,7 +41,7 @@ class TestScriptGoodApp(HTTPGoodAppTestCase):
         builder = Builder(args, unit_test=True)
     
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
         print(list(os.walk('.')))
     
         self.assertEqual(42, exit_code)
@@ -67,6 +67,6 @@ class TestScriptGoodApp(HTTPGoodAppTestCase):
         ])
         builder = Builder(args, unit_test=True)
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
     
         self.assertEqual(1, exit_code)

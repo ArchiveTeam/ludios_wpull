@@ -40,10 +40,10 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
         self.assertTrue(os.path.exists('index.html'))
 
-        response = yield from tornado_future_adapter(self.http_client.fetch(self.get_url('/')))
+        response = await tornado_future_adapter(self.http_client.fetch(self.get_url('/')))
 
         with open('index.html', 'rb') as in_file:
             self.assertEqual(response.body, in_file.read())
@@ -76,7 +76,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
         self.assertTrue(os.path.exists('big_payload'))
 
         with open('big_payload', 'rb') as in_file:
@@ -98,7 +98,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(ExitStatus.server_error, exit_code)
         self.assertGreater(builder.factory['Statistics'].files, 1)
@@ -149,7 +149,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         ])
         builder = Builder(args, unit_test=True)
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         print(list(os.walk('.')))
         self.assertTrue(os.path.exists(
@@ -177,7 +177,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
             ])
             builder = Builder(args, unit_test=True)
             app = builder.build()
-            exit_code = yield from app.run()
+            exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(builder.factory['Statistics'].files, 2)
@@ -199,7 +199,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
             ])
             builder = Builder(args, unit_test=True)
             app = builder.build()
-            exit_code = yield from app.run()
+            exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(builder.factory['Statistics'].files, 2)
@@ -218,7 +218,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
             ])
             builder = Builder(args, unit_test=True)
             app = builder.build()
-            exit_code = yield from app.run()
+            exit_code = await app.run()
         finally:
             sys.stdin = real_stdin
 
@@ -234,7 +234,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         ])
         builder = Builder(args, unit_test=True)
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
         self.assertEqual(0, exit_code)
 
     @wpull.testing.async_.async_test()
@@ -247,7 +247,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         ])
         builder = Builder(args, unit_test=True)
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         urls = tuple(url_record.url for url_record in
                      builder.factory['URLTable'].get_all())
@@ -278,7 +278,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
             builder = Builder(args, unit_test=True)
 
             app = builder.build()
-            exit_code = yield from app.run()
+            exit_code = await app.run()
 
             self.assertEqual(0, exit_code)
             self.assertEqual(1, builder.factory['Statistics'].files)
@@ -326,7 +326,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
 
             app.event_dispatcher.add_listener(Application.Event.pipeline_end, callback)
 
-            exit_code = yield from app.run()
+            exit_code = await app.run()
 
             self.assertTrue(callback_called)
 
@@ -359,7 +359,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         builder.factory.class_map['Resolver'] = MockDNSResolver
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
@@ -380,7 +380,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         builder.factory.class_map['Resolver'] = MockDNSResolver
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
 
@@ -402,7 +402,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         builder.factory.class_map['Resolver'] = MockDNSResolver
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
         self.assertEqual(0, exit_code)
         self.assertEqual(2, builder.factory['Statistics'].files)
 
@@ -424,7 +424,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         builder.factory.class_map['Resolver'] = MockDNSResolver
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
         self.assertEqual(0, exit_code)
         self.assertEqual(2, builder.factory['Statistics'].files)
 
@@ -445,7 +445,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         builder.factory.class_map['Resolver'] = MockDNSResolver
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
         self.assertEqual(0, exit_code)
         self.assertEqual(0, builder.factory['Statistics'].files)
 
@@ -472,7 +472,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
 
         app.event_dispatcher.add_listener(Application.Event.pipeline_end, callback)
 
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(0, builder.factory['Statistics'].files)
@@ -487,7 +487,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(0, builder.factory['Statistics'].files)
@@ -505,7 +505,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(4, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
@@ -522,7 +522,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
@@ -538,7 +538,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         print(list(os.walk('.')))
         self.assertTrue(os.path.exists('always_error'))
@@ -559,7 +559,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         print(list(os.walk('.')))
         self.assertTrue(os.path.exists(
@@ -584,7 +584,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         print(list(os.walk('.')))
         self.assertFalse(os.path.exists(
@@ -616,7 +616,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
             builder = Builder(args, unit_test=True)
 
             app = builder.build()
-            exit_code = yield from app.run()
+            exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(2, builder.factory['Statistics'].files)
@@ -632,7 +632,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
@@ -648,7 +648,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
 
         builder = Builder(args, unit_test=True)
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertTrue(os.path.exists('blah.dat'))
         self.assertTrue(os.path.getsize('blah.dat'))
@@ -668,7 +668,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
 
         builder = Builder(args, unit_test=True)
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(4, exit_code)
 
@@ -683,7 +683,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
 
         builder = Builder(args, unit_test=True)
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         self.assertTrue(os.path.exists('test_.db'))
@@ -699,7 +699,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
 
         builder = Builder(args, unit_test=True)
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
 
@@ -714,7 +714,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
@@ -730,7 +730,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(0, builder.factory['Statistics'].files)
@@ -747,7 +747,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(2, builder.factory['Statistics'].files)
@@ -764,7 +764,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(4, builder.factory['Statistics'].files)
@@ -779,7 +779,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
@@ -797,7 +797,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(2, builder.factory['Statistics'].files)
@@ -813,7 +813,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
@@ -829,7 +829,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(2, builder.factory['Statistics'].files)
@@ -847,7 +847,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(0, builder.factory['Statistics'].files)
@@ -862,7 +862,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(8, exit_code)
         self.assertEqual(0, builder.factory['Statistics'].files)
@@ -876,7 +876,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
@@ -893,7 +893,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
             out_file.write(b'START')
 
         app = Builder(args, unit_test=True).build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
 
@@ -920,7 +920,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
 
         builder = Builder(args, unit_test=True)
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
 
@@ -944,7 +944,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
 
         builder = Builder(args, unit_test=True)
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
 
@@ -972,7 +972,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
 
         builder = Builder(args, unit_test=True)
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
 
@@ -995,7 +995,7 @@ class TestHTTPBadApp(HTTPBadAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
 
@@ -1012,7 +1012,7 @@ class TestHTTPBadApp(HTTPBadAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
 
@@ -1031,7 +1031,7 @@ class TestHTTPBadApp(HTTPBadAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(0, builder.factory['Statistics'].files)
@@ -1048,7 +1048,7 @@ class TestHTTPBadApp(HTTPBadAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(7, exit_code)
         self.assertEqual(0, builder.factory['Statistics'].files)
@@ -1064,7 +1064,7 @@ class TestHTTPBadApp(HTTPBadAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
@@ -1083,7 +1083,7 @@ class TestHTTPBadApp(HTTPBadAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(4, builder.factory['Statistics'].files)
@@ -1098,7 +1098,7 @@ class TestHTTPBadApp(HTTPBadAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
@@ -1114,7 +1114,7 @@ class TestHTTPBadApp(HTTPBadAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(4, exit_code)
         self.assertEqual(0, builder.factory['Statistics'].files)

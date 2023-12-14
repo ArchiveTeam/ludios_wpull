@@ -37,7 +37,7 @@ class TestAppliation(wpull.testing.async_.AsyncTestCase):
 
         app = Application(PipelineSeries([pipeline1, pipeline2]))
 
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
 
@@ -54,7 +54,7 @@ class TestAppliation(wpull.testing.async_.AsyncTestCase):
                 pipeline = Pipeline(source, [task])
                 app = Application(PipelineSeries([pipeline]))
 
-                exit_code = yield from app.run()
+                exit_code = await app.run()
 
                 self.assertEqual(expected_exit_code, exit_code)
 
@@ -79,7 +79,7 @@ class TestAppliation(wpull.testing.async_.AsyncTestCase):
 
         task1.callback = callback
 
-        yield from app.run()
+        await app.run()
 
         self.assertTrue(source1.values, 'unprocessed')
         self.assertTrue(source2.values, 'skipped')

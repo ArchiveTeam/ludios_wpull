@@ -23,7 +23,7 @@ class TestYoutubeDl(AppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         # TODO: proxy doesn't account for files yet
@@ -68,7 +68,7 @@ class TestYoutubeDl(AppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
 
@@ -93,7 +93,7 @@ class TestYoutubeDl(AppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
 

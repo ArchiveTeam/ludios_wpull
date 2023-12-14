@@ -21,10 +21,10 @@ class TestWebClient(GoodAppTestCase):
         session = client.session(Request(self.get_url('/')))
 
         self.assertFalse(session.done())
-        response = yield from session.start()
+        response = await session.start()
 
         body = io.BytesIO()
-        yield from session.download(body)
+        await session.download(body)
 
         self.assertEqual(200, response.status_code)
         self.assertTrue(session.done())
@@ -38,11 +38,11 @@ class TestWebClient(GoodAppTestCase):
         status_codes = []
 
         while not session.done():
-            response = yield from session.start()
+            response = await session.start()
             if not status_codes:
                 self.assertEqual(LoopType.redirect, session.loop_type())
             status_codes.append(response.status_code)
-            yield from session.download()
+            await session.download()
 
         self.assertEqual([301, 200], status_codes)
         self.assertTrue(session.done())
@@ -56,11 +56,11 @@ class TestWebClient(GoodAppTestCase):
         status_codes = []
 
         while not session.done():
-            response = yield from session.start()
+            response = await session.start()
             if not status_codes:
                 self.assertEqual(LoopType.redirect, session.loop_type())
             status_codes.append(response.status_code)
-            yield from session.download()
+            await session.download()
 
         self.assertEqual([307, 200], status_codes)
         self.assertTrue(session.done())
@@ -75,8 +75,8 @@ class TestWebClientBadCase(BadAppTestCase):
 
         with self.assertRaises(ProtocolError):
             while not session.done():
-                yield from session.start()
-                yield from session.download()
+                await session.start()
+                await session.download()
 
     @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_bad_redirect_ipv6(self):
@@ -85,8 +85,8 @@ class TestWebClientBadCase(BadAppTestCase):
 
         with self.assertRaises(ProtocolError):
             while not session.done():
-                yield from session.start()
-                yield from session.download()
+                await session.start()
+                await session.download()
 
     @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
     def test_duration_timeout(self):
@@ -94,5 +94,5 @@ class TestWebClientBadCase(BadAppTestCase):
         session = client.session(Request(self.get_url('/sleep_long')))
 
         with self.assertRaises(DurationTimeout):
-            yield from session.start()
-            yield from session.download(duration_timeout=0.1)
+            await session.start()
+            await session.download(duration_timeout=0.1)

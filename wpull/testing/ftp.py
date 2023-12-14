@@ -19,7 +19,7 @@ class MockFTPServer(object):
         session = FTPSession(reader, writer)
 
         try:
-            yield from session.process()
+            await session.process()
         except Exception:
             _logger.exception('Server error')
             writer.close()
@@ -83,9 +83,9 @@ class FTPSession(object):
         self.writer.write(b'220 Please upload your treasures now.\r\n')
 
         while True:
-            yield from self.writer.drain()
+            await self.writer.drain()
             _logger.debug('Await command')
-            line = yield from self.reader.readline()
+            line = await self.reader.readline()
 
             if line[-1:] != b'\n':
                 _logger.debug('Connection closed')
@@ -140,7 +140,7 @@ class FTPSession(object):
                         not self._current_password:
                     self.writer.write(b'530 Login required\r\n')
                 else:
-                    yield from func()
+                    await func()
 
     async def _cmd_user(self):
         self._current_username = self.arg
@@ -169,7 +169,7 @@ class FTPSession(object):
             self.data_reader = data_reader
             self.data_writer = data_writer
 
-        self.data_server = yield from \
+        self.data_server = await \
             asyncio.start_server(data_server_cb, sock=sock)
         port = sock.getsockname()[1]
 
@@ -187,13 +187,13 @@ class FTPSession(object):
     async def _wait_data_writer(self):
         for dummy in range(50):
             if not self.data_writer:
-                yield from asyncio.sleep(0.1)
+                await asyncio.sleep(0.1)
             else:
                 return
         raise Exception('Time out')
 
     async def _cmd_nlst(self):
-        yield from self._wait_data_writer()
+        await self._wait_data_writer()
 
         if not self.data_writer:
             self.writer.write(b'227 Use PORT or PASV first\r\n')
@@ -214,7 +214,7 @@ class FTPSession(object):
             self.data_server.close()
 
     async def _cmd_list(self):
-        yield from self._wait_data_writer()
+        await self._wait_data_writer()
 
         if not self.data_writer:
             self.writer.write(b'227 Use PORT or PASV first\r\n')
@@ -234,7 +234,7 @@ class FTPSession(object):
             self.data_server.close()
 
     async def _cmd_mlsd(self):
-        yield from self._wait_data_writer()
+        await self._wait_data_writer()
 
         info = self.routes.get(self.path)
 
@@ -260,7 +260,7 @@ class FTPSession(object):
             self.data_server.close()
 
     async def _cmd_retr(self):
-        yield from self._wait_data_writer()
+        await self._wait_data_writer()
 
         info = self.routes.get(self.path)
 
@@ -270,7 +270,7 @@ class FTPSession(object):
             self.writer.write(b'150 Begin data\r\n')
 
             if self.path == '/hidden/sleep.txt':
-                yield from asyncio.sleep(2)
+                await asyncio.sleep(2)
 
             self.data_writer.write(info[1][self.restart_value or 0:])
             self.restart_value = None

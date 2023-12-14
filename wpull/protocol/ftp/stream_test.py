@@ -22,7 +22,7 @@ class TestStream(FTPTestCase):
             _logger.debug(__('{0}={1}', data_type, data))
 
         connection = Connection(('127.0.0.1', self.server_port()))
-        yield from connection.connect()
+        await connection.connect()
 
         control_stream = ControlStream(connection)
         control_stream.data_event_dispatcher.add_read_listener(
@@ -30,36 +30,36 @@ class TestStream(FTPTestCase):
         control_stream.data_event_dispatcher.add_write_listener(
             functools.partial(log_cb, 'write'))
 
-        reply = yield from control_stream.read_reply()
+        reply = await control_stream.read_reply()
         self.assertEqual(220, reply.code)
 
-        yield from control_stream.write_command(Command('USER', 'smaug'))
-        reply = yield from control_stream.read_reply()
+        await control_stream.write_command(Command('USER', 'smaug'))
+        reply = await control_stream.read_reply()
         self.assertEqual(331, reply.code)
 
-        yield from control_stream.write_command(Command('PASS', 'gold1'))
-        reply = yield from control_stream.read_reply()
+        await control_stream.write_command(Command('PASS', 'gold1'))
+        reply = await control_stream.read_reply()
         self.assertEqual(230, reply.code)
 
-        yield from control_stream.write_command(Command('PASV'))
-        reply = yield from control_stream.read_reply()
+        await control_stream.write_command(Command('PASV'))
+        reply = await control_stream.read_reply()
         self.assertEqual(227, reply.code)
         address = parse_address(reply.text)
 
         data_connection = Connection(address)
-        yield from data_connection.connect()
+        await data_connection.connect()
 
         data_stream = DataStream(data_connection)
 
-        yield from control_stream.write_command(Command('RETR', 'example (copy).txt'))
-        reply = yield from control_stream.read_reply()
+        await control_stream.write_command(Command('RETR', 'example (copy).txt'))
+        reply = await control_stream.read_reply()
         self.assertEqual(150, reply.code)
 
         my_file = io.BytesIO()
 
-        yield from data_stream.read_file(my_file)
+        await data_stream.read_file(my_file)
 
-        reply = yield from control_stream.read_reply()
+        reply = await control_stream.read_reply()
         self.assertEqual(226, reply.code)
 
         self.assertEqual(
