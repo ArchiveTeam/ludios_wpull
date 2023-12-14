@@ -2,12 +2,8 @@ import contextlib
 import gettext
 import glob
 import logging
-import os
 import tempfile
 import subprocess
-
-
-import asyncio
 
 from wpull.backport.logging import BraceMessage as __
 from wpull.document.html import HTMLReader

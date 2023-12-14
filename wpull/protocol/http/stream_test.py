@@ -1,5 +1,4 @@
 # encoding=utf-8
-import asyncio
 import io
 import logging
 import os.path

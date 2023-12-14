@@ -4,7 +4,7 @@ import functools
 
 import wpull.testing.async_
 from wpull.network.connection import Connection
-from wpull.network.dns import Resolver, IPFamilyPreference
+from wpull.network.dns import Resolver
 from wpull.network.pool import ConnectionPool, HostPool, HappyEyeballsTable
 from wpull.testing.badapp import BadAppTestCase
 

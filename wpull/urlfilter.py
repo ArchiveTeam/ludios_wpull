@@ -4,7 +4,7 @@ import abc
 import fnmatch
 import re
 
-from typing import List, Iterator
+from typing import Iterator
 
 from wpull.pipeline.item import URLRecord
 from wpull.url import URLInfo, schemes_similar, is_subdir

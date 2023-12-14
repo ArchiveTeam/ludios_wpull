@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from typing import Optional, List, Iterable
+from typing import Optional, Iterable
 
 from wpull.pipeline.pipeline import ItemTask, ItemSource, Pipeline, ItemQueue, \
     PipelineSeries

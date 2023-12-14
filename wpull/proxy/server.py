@@ -3,13 +3,9 @@
 import enum
 import gettext
 import logging
-import ssl
 import os
-import socket
-
 import asyncio
 
-import errno
 
 from wpull.application.hook import HookableMixin, HookDisconnected
 from wpull.backport.logging import BraceMessage as __

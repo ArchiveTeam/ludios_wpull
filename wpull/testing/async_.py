@@ -1,4 +1,3 @@
-import functools
 import unittest
 
 from tornado.platform.asyncio import BaseAsyncIOLoop
@@ -18,7 +17,8 @@ class AsyncTestCase(unittest.TestCase):
 
 
 def async_test(func=None, timeout=30):
-    # gen_test uses environment variable ASYNC_TEST_TIMEOUT as default if set, otherwise 5 seconds
+    # gen_test uses environment variable ASYNC_TEST_TIMEOUT as default if set,
+    # otherwise 5 seconds
     return func
     # return gen_test(func, timeout)
 

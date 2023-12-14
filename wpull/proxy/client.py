@@ -1,5 +1,4 @@
 '''Proxy support for HTTP requests.'''
-import asyncio
 import base64
 import io
 import logging

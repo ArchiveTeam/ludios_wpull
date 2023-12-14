@@ -1,6 +1,5 @@
 '''Client abstractions'''
 import abc
-import asyncio
 import contextlib
 import enum
 import logging

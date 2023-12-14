@@ -1,8 +1,5 @@
 # encoding=utf-8
-import contextlib
 import io
-
-import asyncio
 
 from wpull.errors import ProtocolError, ServerError
 from wpull.protocol.http.request import Request, Response

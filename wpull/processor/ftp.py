@@ -27,7 +27,7 @@ from wpull.protocol.ftp.request import Request, ListingResponse, Response
 from wpull.protocol.ftp.util import FTPServerError
 from wpull.scraper.util import urljoin_safe
 from wpull.url import parse_url_or_log, URLInfo
-from wpull.writer import NullWriter, BaseFileWriter
+from wpull.writer import BaseFileWriter
 
 _logger = StyleAdapter(logging.getLogger(__name__))
 _ = gettext.gettext

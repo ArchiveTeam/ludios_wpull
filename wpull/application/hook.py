@@ -5,11 +5,9 @@ See :ref:`scripting-hooks` for an introduction.
 '''
 import collections.abc
 import enum
-import functools
 import gettext
 import logging
 
-import asyncio
 
 from typing import Optional, Iterable
 

@@ -1,5 +1,4 @@
 '''HTML link extractor.'''
-import collections
 import gettext
 import itertools
 import logging

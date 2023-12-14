@@ -1,8 +1,6 @@
 '''RPC processes.'''
 
-import abc
 import gettext
-import json
 import logging
 import subprocess
 import atexit

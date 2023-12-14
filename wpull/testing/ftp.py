@@ -14,7 +14,6 @@ class MockFTPServer(object):
     def __init__(self):
         pass
 
-    
     async def __call__(self, reader, writer):
         _logger.debug('New session')
         session = FTPSession(reader, writer)
@@ -79,7 +78,6 @@ class FTPSession(object):
         self.evil_flags = set()
         self.restart_value = None
 
-    
     async def process(self):
         self.writer.write(b'220-Welcome to Smaug\'s FTP server\r\n')
         self.writer.write(b'220 Please upload your treasures now.\r\n')
@@ -144,7 +142,6 @@ class FTPSession(object):
                 else:
                     yield from func()
 
-    
     async def _cmd_user(self):
         self._current_username = self.arg
 
@@ -154,7 +151,6 @@ class FTPSession(object):
         else:
             self.writer.write(b'331 Password required\r\n')
 
-    
     async def _cmd_pass(self):
         if self._current_username == 'anonymous':
             self.writer.write(b'230 Log in OK\r\n')
@@ -165,7 +161,6 @@ class FTPSession(object):
         else:
             self.writer.write(b'530 Password incorrect\r\n')
 
-    
     async def _cmd_pasv(self):
         sock = socket.socket()
         sock.bind(('127.0.0.1', 0))
@@ -189,7 +184,6 @@ class FTPSession(object):
                               .format(big_port_num, small_port_num)
                               .encode('utf-8'))
 
-    
     async def _wait_data_writer(self):
         for dummy in range(50):
             if not self.data_writer:
@@ -198,7 +192,6 @@ class FTPSession(object):
                 return
         raise Exception('Time out')
 
-    
     async def _cmd_nlst(self):
         yield from self._wait_data_writer()
 
@@ -220,7 +213,6 @@ class FTPSession(object):
             self.writer.write(b'226 End listings\r\n')
             self.data_server.close()
 
-    
     async def _cmd_list(self):
         yield from self._wait_data_writer()
 
@@ -241,7 +233,6 @@ class FTPSession(object):
             self.writer.write(b'226 End listings\r\n')
             self.data_server.close()
 
-    
     async def _cmd_mlsd(self):
         yield from self._wait_data_writer()
 
@@ -268,7 +259,6 @@ class FTPSession(object):
             self.writer.write(b'226 End listings\r\n')
             self.data_server.close()
 
-    
     async def _cmd_retr(self):
         yield from self._wait_data_writer()
 
@@ -294,7 +284,6 @@ class FTPSession(object):
         else:
             self.writer.write(b'550 File error\r\n')
 
-    
     async def _cmd_size(self):
         info = self.routes.get(self.path)
 
@@ -307,7 +296,6 @@ class FTPSession(object):
         else:
             self.writer.write(b'550 Unknown command\r\n')
 
-    
     async def _cmd_rest(self):
         try:
             self.restart_value = int(self.arg)
@@ -321,25 +309,21 @@ class FTPSession(object):
             self.restart_value = None
             self.writer.write(b'550 What?\r\n')
 
-    
     async def _cmd_cwd(self):
         if self.arg in ('example1', 'example2💎', '/'):
             self.writer.write(b'250 Changed directory\r\n')
         else:
             self.writer.write(b'550 Change directory error\r\n')
 
-    
     async def _cmd_type(self):
         if self.arg == 'I':
             self.writer.write(b'200 Now binary mode\r\n')
         else:
             self.writer.write(b'500 Unknown type\r\n')
 
-    
     async def _cmd_pwd(self):
         self.writer.write(b'257 /\r\n')
 
-    
     async def _cmd_evil_bad_pasv_addr(self):
         self.evil_flags.add('bad_pasv_addr')
 

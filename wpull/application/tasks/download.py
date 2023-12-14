@@ -7,7 +7,6 @@ import tornado.netutil
 
 from wpull.backport.logging import BraceMessage as __
 from wpull.cookie import BetterMozillaCookieJar
-from wpull.namevalue import NameValueRecord
 from wpull.pipeline.pipeline import ItemTask
 from wpull.pipeline.session import ItemSession
 from wpull.pipeline.app import AppSession

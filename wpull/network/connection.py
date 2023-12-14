@@ -10,7 +10,6 @@ import socket
 import ssl
 
 import tornado.netutil
-from tornado.netutil import SSLCertificateError
 from typing import Optional, Union
 from wpull.backport.logging import BraceMessage as __
 from wpull.errors import NetworkError, ConnectionRefused, SSLVerificationError, \
