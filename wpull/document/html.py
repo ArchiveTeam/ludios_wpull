@@ -1,5 +1,4 @@
 '''HTML document readers.'''
-import io
 
 from wpull.document.base import BaseHTMLReader, BaseDocumentDetector
 import wpull.string

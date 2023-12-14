@@ -1,12 +1,8 @@
-from typing import cast
-
 from wpull.application.options import LOG_VERBOSE, LOG_DEBUG
 from wpull.application.plugin import WpullPlugin
 from wpull.pipeline.app import new_encoded_stream
 from wpull.pipeline.progress import BarProgress, DotProgress
-from wpull.protocol.http.client import Client as HTTPClient
 from wpull.protocol.http.client import Session as HTTPSession
-from wpull.protocol.ftp.client import Client as FTPClient
 from wpull.protocol.ftp.client import Session as FTPSession
 
 

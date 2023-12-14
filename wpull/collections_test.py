@@ -1,10 +1,8 @@
 # encoding=utf-8
 
-import copy
 import unittest
 
 from wpull.collections import LinkedList
-from collections import defaultdict
 
 
 class TestCollections(unittest.TestCase):

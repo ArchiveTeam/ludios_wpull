@@ -1,8 +1,7 @@
 import gettext
 import logging
-from http.cookiejar import CookieJar
 
-from typing import Optional, cast
+from typing import cast
 
 import wpull.string
 from wpull.application.hook import Actions

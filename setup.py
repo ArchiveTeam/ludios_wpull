@@ -7,7 +7,6 @@ import os.path
 import re
 import os
 import sys
-import platform
 
 
 def get_version():

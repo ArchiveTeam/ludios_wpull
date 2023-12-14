@@ -5,7 +5,6 @@ from typing import cast, Optional
 
 from wpull.application.hook import Actions
 from wpull.application.plugin import WpullPlugin, hook, PluginFunctions, event
-from wpull.network.dns import ResolveResult
 from wpull.pipeline.app import AppSession
 from wpull.pipeline.item import URLRecord
 from wpull.pipeline.session import ItemSession

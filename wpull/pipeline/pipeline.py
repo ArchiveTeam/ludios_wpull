@@ -4,7 +4,6 @@ import enum
 import gettext
 import logging
 
-import time
 from typing import Optional, Sequence, TypeVar, Generic, Iterator, Tuple, Set
 from wpull.backport.logging import BraceMessage as __
 

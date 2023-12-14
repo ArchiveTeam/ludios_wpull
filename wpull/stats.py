@@ -1,9 +1,6 @@
 # encoding=utf-8
 '''Statistics.'''
 import logging
-import os
-import shelve
-import tempfile
 import time
 from collections import Counter
 from typing import Optional

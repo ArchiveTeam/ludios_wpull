@@ -6,7 +6,6 @@ import gettext
 import ipaddress
 import logging
 import re
-import string
 import urllib.parse
 import posixpath
 

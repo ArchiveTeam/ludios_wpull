@@ -1,5 +1,4 @@
 '''Fetching rules.'''
-import asyncio
 import logging
 import random
 

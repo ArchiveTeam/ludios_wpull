@@ -1,7 +1,6 @@
 import io
 import logging
 
-import asyncio
 from wpull.protocol.abstract.client import DurationTimeout
 from wpull.errors import ProtocolError
 

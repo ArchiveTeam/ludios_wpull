@@ -1,6 +1,5 @@
 import os.path
 import shutil
-import sys
 import unittest
 
 import wpull.util

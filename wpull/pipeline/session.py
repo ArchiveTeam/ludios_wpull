@@ -1,4 +1,3 @@
-import asyncio
 import gettext
 import logging
 
@@ -10,8 +9,7 @@ from wpull.pipeline.item import URLRecord, Status, URLResult, URLProperties, \
     URLData, LinkType
 from wpull.pipeline.pipeline import ItemSource
 from wpull.backport.logging import BraceMessage as __
-from wpull.protocol.abstract.request import URLPropertyMixin, \
-    ProtocolResponseMixin, BaseResponse, BaseRequest
+from wpull.protocol.abstract.request import BaseResponse, BaseRequest
 from wpull.url import parse_url_or_log
 
 _logger = logging.getLogger(__name__)

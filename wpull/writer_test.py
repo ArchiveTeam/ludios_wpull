@@ -1,19 +1,14 @@
 # encoding=utf-8
-import hashlib
 import io
 import os.path
 import unittest
 
-import wpull.testing.async_
 from wpull.path import PathNamer
-from wpull.testing.ftp import FTPTestCase
-from wpull.testing.goodapp import GoodAppTestCase
 from wpull.testing.util import TempDirMixin
 from wpull.writer import NullWriter, AntiClobberFileWriter, OverwriteFileWriter, \
     TimestampingFileWriter, SingleDocumentWriter
 from wpull.protocol.http.request import Response as HTTPResponse
 from wpull.protocol.http.request import Request as HTTPRequest
-from wpull.protocol.ftp.request import Response as FTPResponse
 
 
 class TestWriter(unittest.TestCase, TempDirMixin):

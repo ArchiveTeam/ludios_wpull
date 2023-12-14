@@ -17,7 +17,6 @@ from wpull.errors import NetworkError, ProtocolError
 from wpull.protocol.http.chunked import ChunkedTransferReader
 from wpull.protocol.http.request import Response
 import wpull.protocol.http.util
-from wpull.observer import Observer
 
 
 _ = gettext.gettext

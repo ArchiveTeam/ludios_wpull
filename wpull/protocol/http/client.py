@@ -10,7 +10,6 @@ import asyncio
 
 from typing import Optional, Union, IO, Callable
 
-from wpull.application.hook import HookableMixin
 from wpull.protocol.abstract.client import BaseClient, BaseSession, DurationTimeout
 from wpull.backport.logging import BraceMessage as __
 from wpull.body import Body

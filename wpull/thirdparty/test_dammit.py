@@ -4,7 +4,6 @@
 # Beautiful Soup is made available under the MIT license
 
 import unittest
-import wpull.thirdparty.dammit
 from wpull.thirdparty.dammit import (
     EntitySubstitution,
     UnicodeDammit,

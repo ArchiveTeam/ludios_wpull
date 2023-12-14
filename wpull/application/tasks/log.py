@@ -1,7 +1,5 @@
 import logging
 
-import asyncio
-
 from wpull.application.options import LOG_VERY_QUIET, LOG_QUIET, LOG_NO_VERBOSE, LOG_VERBOSE, LOG_DEBUG
 from wpull.pipeline.app import AppSession, new_encoded_stream
 from wpull.pipeline.pipeline import ItemTask

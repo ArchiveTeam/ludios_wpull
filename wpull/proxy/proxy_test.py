@@ -1,5 +1,4 @@
 import io
-import unittest
 
 
 import asyncio
@@ -7,7 +6,6 @@ import tornado.testing
 
 from wpull.protocol.http.client import Client
 from wpull.protocol.http.request import Request
-from wpull.protocol.http.web import WebClient
 from wpull.proxy.client import HTTPProxyConnectionPool
 from wpull.proxy.server import HTTPProxyServer
 import wpull.testing.badapp

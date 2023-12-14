@@ -1,9 +1,6 @@
 '''FTP service control.'''
 import logging
 
-
-import asyncio
-
 from typing import Sequence, Tuple, Callable, IO
 from typing import Union
 

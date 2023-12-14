@@ -11,7 +11,6 @@ import asyncio
 from typing import IO, Tuple
 from typing import Optional
 
-from wpull.application.hook import HookableMixin
 from wpull.protocol.abstract.client import BaseClient, BaseSession, DurationTimeout
 from wpull.body import Body
 from wpull.errors import ProtocolError, AuthenticationError

@@ -1,8 +1,6 @@
 '''Abstract stream classes'''
 import functools
 
-import asyncio
-
 from typing import Callable
 
 import wpull.util

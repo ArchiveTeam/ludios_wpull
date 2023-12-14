@@ -3,7 +3,6 @@ import email
 from http.cookiejar import CookieJar
 import http.cookiejar
 import os
-import sys
 import tempfile
 import unittest
 import urllib.request

@@ -1,9 +1,7 @@
 # encoding=utf8
 
-import asyncio
 import socket
 import ssl
-import sys
 
 import wpull.testing.async_
 from wpull.errors import NetworkError, NetworkTimedOut, SSLVerificationError

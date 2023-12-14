@@ -1,10 +1,9 @@
 # encoding=utf-8
 
 
-import time
 import unittest
 
-from wpull.database.base import NotFound, AddURLInfo
+from wpull.database.base import AddURLInfo
 from wpull.database.sqltable import SQLiteURLTable
 from wpull.pipeline.item import Status, URLProperties, URLResult
 

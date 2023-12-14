@@ -1,10 +1,9 @@
 '''URL table wrappers.'''
 from wpull.application.plugin import event_interface, PluginFunctions
 from wpull.database.base import BaseURLTable
-from wpull.application.hook import HookableMixin, HookDisconnected
+from wpull.application.hook import HookableMixin
 from wpull.pipeline.item import Status, URLRecord
 from wpull.url import parse_url_or_log, URLInfo
-import wpull.application.hook
 
 
 class URLTableHookWrapper(BaseURLTable, HookableMixin):

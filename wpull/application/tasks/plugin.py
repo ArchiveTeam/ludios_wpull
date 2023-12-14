@@ -1,5 +1,4 @@
 import gettext
-import inspect
 import logging
 import os
 import re
@@ -7,8 +6,6 @@ from configparser import ConfigParser
 
 from typing import cast
 from yapsy.IPluginLocator import IPluginLocator
-from yapsy.PluginFileLocator import PluginFileAnalyzerMathingRegex, \
-    PluginFileLocator
 from yapsy.PluginInfo import PluginInfo
 from yapsy.PluginManager import PluginManager
 

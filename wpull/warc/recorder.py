@@ -1,6 +1,5 @@
 import textwrap
 from tempfile import NamedTemporaryFile
-import contextlib
 import gettext
 import glob
 import gzip

@@ -1,7 +1,6 @@
 import datetime
 import enum
 import gettext
-import logging
 import sys
 import time
 import itertools

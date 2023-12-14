@@ -4,7 +4,7 @@ import copy
 import re
 
 from wpull.protocol.abstract.request import SerializableMixin, DictableMixin, \
-    URLPropertyMixin, ProtocolResponseMixin, BaseResponse, BaseRequest
+    BaseResponse, BaseRequest
 from wpull.errors import ProtocolError
 from wpull.namevalue import NameValueRecord
 import wpull.string
