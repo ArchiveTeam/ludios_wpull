@@ -302,7 +302,7 @@ class WebProcessorSession(BaseProcessorSession):
             action = self._handle_response(request, response)
             wait_time = self._result_rule.get_wait_time(self._item_session)
 
-            await self._run_coprocessors(request, response)
+            self._run_coprocessors(request, response)
 
             response.body.close()
 
