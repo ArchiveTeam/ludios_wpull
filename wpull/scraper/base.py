@@ -50,7 +50,7 @@ Attributes:
 '''
 
 
-@dataclass
+@dataclass(frozen=True)
 class LinkContext:
     link: str
     inline: bool = False
