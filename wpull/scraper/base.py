@@ -20,7 +20,7 @@ class LinkInfo:
     base_link: str | None
     value_type: str
 
-    link_type: LinkInfo
+    link_type: LinkType
 
     def __hash__(self):
         return self.link.__hash__()
@@ -46,7 +46,7 @@ Attributes:
         * ``script``: The link was found in JavaScript text.
         * ``srcset``: The link was found in a ``srcset`` attribute.
 
-    link_type: A value from :class:`item.LinkInfo`.
+    link_type: A value from :class:`item.LinkType`.
 '''
 
 
