@@ -5,6 +5,49 @@ from dataclasses import dataclass
 from wpull.document.base import BaseTextStreamReader, \
     BaseHTMLReader, BaseExtractiveReader
 from wpull.scraper.util import urljoin_safe
+from wpull.pipeline.item import LinkType
+from wpull.document.html import HTMLReadElement
+
+
+@dataclass
+class LinkInfo:
+    element: HTMLReadElement
+    tag: str
+    attrib: str | None
+    link: str
+    inline: bool
+    linked: bool
+    base_link: str | None
+    value_type: str
+
+    link_type: LinkInfo
+
+    def __hash__(self):
+        return self.link.__hash__()
+
+'''Information about a link in a lxml document.  Comparable on link only.
+
+Attributes:
+    element: An instance of :class:`.document.HTMLReadElement`.
+    tag (str): The element tag name.
+    attrib (str, None): If ``str``, the name of the attribute. Otherwise,
+        the link was found in ``element.text``.
+    link (str): The link found.
+    inline (bool): Whether the link is an embedded object (like images or
+        stylesheets).
+    linked (bool): Whether the link is a link to another page.
+    base_link (str, None): The base URL.
+    value_type (str): Indicates how the link was found. Possible values are
+
+        * ``plain``: The link was found plainly in an attribute value.
+        * ``list``: The link was found in a space separated list.
+        * ``css``: The link was found in a CSS text.
+        * ``refresh``: The link was found in a refresh meta string.
+        * ``script``: The link was found in JavaScript text.
+        * ``srcset``: The link was found in a ``srcset`` attribute.
+
+    link_type: A value from :class:`item.LinkInfo`.
+'''
 
 
 @dataclass
@@ -12,8 +55,8 @@ class LinkContext:
     link: str
     inline: bool = False
     linked: bool = False
-    link_type = None
-    extra = None
+    link_type: LinkType = None
+    extra: LinkInfo = None
 
 '''A named tuple describing a scraped link.
 
