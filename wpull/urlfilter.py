@@ -10,7 +10,7 @@ from wpull.pipeline.item import URLRecord
 from wpull.url import URLInfo, schemes_similar, is_subdir
 
 
-class BaseURLFilter(object, metaclass=abc.ABCMeta):
+class BaseURLFilter(metaclass=abc.ABCMeta):
     '''Base class for URL filters.
 
     The Processor uses filters to determine whether a URL should be downloaded.

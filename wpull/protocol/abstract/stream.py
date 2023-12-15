@@ -18,7 +18,7 @@ def close_stream_on_error(func):
 DataEventCallback = Callable[[bytes], None]
 
 
-class DataEventDispatcher(object):
+class DataEventDispatcher:
     def __init__(self):
         self._read_listeners = set()
         self._write_listeners = set()

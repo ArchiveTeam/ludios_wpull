@@ -69,7 +69,7 @@ Args:
 '''
 
 
-class WARCRecorder(object):
+class WARCRecorder:
     '''Record to WARC file.
 
     Args:
@@ -498,7 +498,7 @@ class WARCRecorder(object):
             return match.group(1)
 
 
-class BaseWARCRecorderSession(object):
+class BaseWARCRecorderSession:
     '''Base WARC recorder session.'''
     def __init__(self, recorder, temp_dir=None, url_table=None):
         self._recorder = recorder

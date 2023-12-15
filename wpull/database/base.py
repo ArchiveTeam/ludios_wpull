@@ -23,7 +23,7 @@ AddURLInfo = typing.NamedTuple('_AddURLInfo', [
 ])
 
 
-class BaseURLTable(object, metaclass=abc.ABCMeta):
+class BaseURLTable(metaclass=abc.ABCMeta):
     '''URL table.'''
 
     @abc.abstractmethod

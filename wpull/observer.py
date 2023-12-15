@@ -2,7 +2,7 @@
 '''Observer.'''
 
 
-class Observer(object):
+class Observer:
     '''Observer.
 
     Args:

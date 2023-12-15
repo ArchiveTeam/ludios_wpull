@@ -11,7 +11,7 @@ from wpull.cookie import DeFactoCookiePolicy, BetterMozillaCookieJar
 
 
 # from Lib/test/test_http_cookiejar.py
-class FakeResponse(object):
+class FakeResponse:
     def __init__(self, headers=None, url=None):
         """
         headers: list of RFC822-style 'Key: value' strings

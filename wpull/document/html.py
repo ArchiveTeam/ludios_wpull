@@ -4,7 +4,7 @@ from wpull.document.base import BaseHTMLReader, BaseDocumentDetector
 import wpull.string
 
 
-class HTMLReadElement(object):
+class HTMLReadElement:
     '''Results from :meth:`HTMLReader.read_links`.
 
     Attributes:

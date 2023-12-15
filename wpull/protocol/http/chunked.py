@@ -13,7 +13,7 @@ _ = gettext.gettext
 _logger = logging.getLogger(__name__)
 
 
-class ChunkedTransferReader(object):
+class ChunkedTransferReader:
     '''Read chunked transfer encoded stream.
 
     Args:

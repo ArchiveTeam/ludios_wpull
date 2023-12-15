@@ -1,7 +1,7 @@
 import abc
 
 
-class BaseParser(object, metaclass=abc.ABCMeta):
+class BaseParser(metaclass=abc.ABCMeta):
     def parse(self, file, encoding=None):
         '''Parse the document for elements.
 

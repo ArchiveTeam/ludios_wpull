@@ -7,7 +7,7 @@ import datetime
 from wpull.protocol.ftp.ls.listing import FileEntry
 
 
-class ReplyCodes(object):
+class ReplyCodes:
     command_okay = 200
     syntax_error_command_unrecognized = 500
     syntax_error_in_parameters_or_arguments = 501

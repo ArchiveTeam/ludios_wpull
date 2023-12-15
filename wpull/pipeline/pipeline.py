@@ -77,7 +77,7 @@ class ItemQueue(Generic[WorkItemT]):
         self._worker_ready_condition.release()
 
 
-class Worker(object):
+class Worker:
     def __init__(self, item_queue: ItemQueue, tasks: Sequence[ItemTask]):
         self._item_queue = item_queue
         self._tasks = tasks
@@ -114,7 +114,7 @@ class Worker(object):
                 break
 
 
-class Producer(object):
+class Producer:
     def __init__(self, item_source: ItemSource, item_queue: ItemQueue):
         self._item_source = item_source
         self._item_queue = item_queue
@@ -152,7 +152,7 @@ class PipelineState(enum.Enum):
     stopping = 'stopping'
 
 
-class Pipeline(object):
+class Pipeline:
     def __init__(self, item_source: ItemSource, tasks: Sequence[ItemTask],
                  item_queue: Optional[ItemQueue]=None):
         self._item_queue = item_queue or ItemQueue()
@@ -285,7 +285,7 @@ class Pipeline(object):
         ))
 
 
-class PipelineSeries(object):
+class PipelineSeries:
     def __init__(self, pipelines: Iterator[Pipeline]):
         self._pipelines = tuple(pipelines)
         self._concurrency = 1

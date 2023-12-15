@@ -16,7 +16,7 @@ from wpull.protocol.ftp.request import Reply, Command
 _logger = logging.getLogger(__name__)
 
 
-class DataStream(object):
+class DataStream:
     '''Stream class for a data connection.
 
     Args:
@@ -66,7 +66,7 @@ class DataStream(object):
     # TODO: def write_file()
 
 
-class ControlStream(object):
+class ControlStream:
     '''Stream class for a control connection.
 
     Args:

@@ -147,7 +147,7 @@ class EventDispatcher(collections.abc.Mapping):
         return name in self._callbacks
 
 
-class HookableMixin(object):
+class HookableMixin:
     _plugins = [] # type: Iterable[WpullPlugin]
 
     def __init__(self):

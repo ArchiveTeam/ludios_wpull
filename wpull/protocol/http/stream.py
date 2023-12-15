@@ -30,7 +30,7 @@ DEFAULT_NO_CONTENT_CODES = frozenset(itertools.chain(
 '''Status codes where a response body is prohibited.'''
 
 
-class Stream(object):
+class Stream:
     '''HTTP stream reader/writer.
 
     Args:

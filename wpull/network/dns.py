@@ -57,7 +57,7 @@ class DNSInfo(_DNSInfo):
         ))
 
 
-class ResolveResult(object):
+class ResolveResult:
     '''DNS resolution information.'''
     def __init__(self, address_infos: List[AddressInfo],
                  dns_infos: Optional[List[DNSInfo]]=None):

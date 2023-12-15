@@ -16,7 +16,7 @@ else:
     def total_ordering(obj): return obj
 
 
-class BaseCache(collections.abc.Mapping, object):
+class BaseCache(collections.abc.Mapping):
     @abc.abstractmethod
     def __setitem__(self, key, value):
         pass
@@ -118,7 +118,7 @@ class LRUCache(FIFOCache):
 
 
 @total_ordering
-class CacheItem(object):
+class CacheItem:
     '''Info about an item in the cache.
 
     Args:

@@ -70,7 +70,7 @@ _logger = logging.getLogger(__name__)
 _ = gettext.gettext
 
 
-class Builder(object):
+class Builder:
     '''Application builder.
 
     Args:

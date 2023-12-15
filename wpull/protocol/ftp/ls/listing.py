@@ -35,7 +35,7 @@ class UnknownListingError(ListingError):
     '''Failed to determine type of listing.'''
 
 
-class LineParser(object):
+class LineParser:
     '''Parse individual lines in a listing.'''
     def __init__(self):
         self.type = None

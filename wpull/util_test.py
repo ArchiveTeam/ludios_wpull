@@ -56,7 +56,7 @@ class TestUtil(unittest.TestCase):
         self.assertFalse(is_ascii('😤'))
 
     def test_close_on_error(self):
-        class MyObject(object):
+        class MyObject:
             def __init__(self):
                 self.closed = False
 

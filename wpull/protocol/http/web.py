@@ -30,7 +30,7 @@ class LoopType(enum.Enum):
     '''Response to a HTTP authentication.'''
 
 
-class WebSession(object):
+class WebSession:
     '''A web session.'''
     def __init__(self, request: Request,
                  http_client: Client,
@@ -223,7 +223,7 @@ class WebSession(object):
             request.fields['Authorization'] = 'Basic {}'.format(auth_string)
 
 
-class WebClient(object):
+class WebClient:
     '''A web client handles redirects, cookies, basic authentication.
 
     Args:

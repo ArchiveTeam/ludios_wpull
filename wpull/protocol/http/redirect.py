@@ -3,7 +3,7 @@
 import wpull.url
 
 
-class RedirectTracker(object):
+class RedirectTracker:
     '''Keeps track of HTTP document URL redirects.
 
     Args:

@@ -16,7 +16,7 @@ _ = gettext.gettext
 _logger = logging.getLogger(__name__)
 
 
-class Process(object):
+class Process:
     '''Subprocess wrapper.'''
     def __init__(self, proc_args, stdout_callback=None, stderr_callback=None):
         self._proc_args = proc_args

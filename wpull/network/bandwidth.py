@@ -4,7 +4,7 @@ import collections
 import time
 
 
-class BandwidthMeter(object):
+class BandwidthMeter:
     '''Calculates the speed of data transfer.
 
     Args:

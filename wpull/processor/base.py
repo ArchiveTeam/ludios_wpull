@@ -22,7 +22,7 @@ REMOTE_ERRORS = (
 '''List of error classes that are errors that occur with a server.'''
 
 
-class BaseProcessor(object, metaclass=abc.ABCMeta):
+class BaseProcessor(metaclass=abc.ABCMeta):
     '''Base class for processors.
 
     Processors contain the logic for processing requests.
@@ -46,7 +46,7 @@ class BaseProcessor(object, metaclass=abc.ABCMeta):
         '''Run any clean up actions.'''
 
 
-class BaseProcessorSession(object, metaclass=abc.ABCMeta):
+class BaseProcessorSession(metaclass=abc.ABCMeta):
     '''Base class for processor sessions.'''
 
     def _log_error(self, request, error):

@@ -21,7 +21,7 @@ DEFAULT_TIMEOUT = 30
 _logger = logging.getLogger(__name__)
 
 
-class StreamTestsMixin(object):
+class StreamTestsMixin:
     def get_ssl_default(self):
         return None
 

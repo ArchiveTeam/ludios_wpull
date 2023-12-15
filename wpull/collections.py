@@ -3,7 +3,7 @@
 import itertools
 
 
-class LinkedListNode(object):
+class LinkedListNode:
     '''A node in a :class:`LinkedList`.
 
     Attributes:
@@ -59,7 +59,7 @@ class LinkedListNode(object):
             old_tail.head = old_head
 
 
-class LinkedList(object):
+class LinkedList:
     '''Doubly linked list.
 
     Attributes:

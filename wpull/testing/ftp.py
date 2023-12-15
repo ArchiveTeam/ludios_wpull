@@ -10,7 +10,7 @@ from wpull.testing.async_ import AsyncTestCase
 _logger = logging.getLogger(__name__)
 
 
-class MockFTPServer(object):
+class MockFTPServer:
     def __init__(self):
         pass
 
@@ -27,7 +27,7 @@ class MockFTPServer(object):
             writer.close()
 
 
-class FTPSession(object):
+class FTPSession:
     def __init__(self, reader, writer):
         self.reader = reader
         self.writer = writer

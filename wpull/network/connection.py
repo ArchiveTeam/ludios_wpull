@@ -18,7 +18,7 @@ from wpull.errors import NetworkError, ConnectionRefused, SSLVerificationError, 
 _logger = logging.getLogger(__name__)
 
 
-class CloseTimer(object):
+class CloseTimer:
     '''Periodic timer to close connections if stalled.'''
     def __init__(self, timeout, connection):
         self._timeout = timeout
@@ -76,7 +76,7 @@ class CloseTimer(object):
         return self._timed_out
 
 
-class DummyCloseTimer(object):
+class DummyCloseTimer:
     '''Dummy close timer.'''
     @contextlib.contextmanager
     def with_timeout(self):
@@ -102,7 +102,7 @@ class ConnectionState(enum.Enum):
     dead = 'dead'
 
 
-class BaseConnection(object):
+class BaseConnection:
     '''Base network stream.
 
     Args:

@@ -24,7 +24,7 @@ class NotInPoolError(Exception):
     pass
 
 
-class RobotsTxtChecker(object):
+class RobotsTxtChecker:
     '''Robots.txt file fetcher and checker.
 
     args:

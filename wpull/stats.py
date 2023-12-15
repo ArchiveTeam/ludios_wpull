@@ -12,7 +12,7 @@ from wpull.network.bandwidth import BandwidthMeter
 _logger = logging.getLogger(__name__)
 
 
-class Statistics(object):
+class Statistics:
     '''Statistics.
 
     Attributes:

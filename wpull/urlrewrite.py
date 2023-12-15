@@ -3,7 +3,7 @@ import re
 from wpull.url import parse_url_or_log, URLInfo
 
 
-class URLRewriter(object):
+class URLRewriter:
     '''Clean up URLs.'''
 
     def __init__(self, hash_fragment: bool = False, session_id: bool = False):

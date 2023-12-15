@@ -61,7 +61,7 @@ Does not include non-printing characters. Meant for ASCII.
 '''
 
 
-class URLInfo(object):
+class URLInfo:
     '''Represent parts of a URL.
 
     Attributes:

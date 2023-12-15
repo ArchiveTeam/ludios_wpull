@@ -15,7 +15,7 @@ import wpull.protocol.ftp.util
 _logger = logging.getLogger(__name__)
 
 
-class Commander(object):
+class Commander:
     '''Helper class that performs typical FTP routines.
 
     Args:

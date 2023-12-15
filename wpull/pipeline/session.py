@@ -16,7 +16,7 @@ _logger = logging.getLogger(__name__)
 _ = gettext.gettext
 
 
-class ItemSession(object):
+class ItemSession:
     '''Item for a URL that needs to processed.'''
     def __init__(self, app_session: AppSession, url_record: URLRecord):
         self.app_session = app_session

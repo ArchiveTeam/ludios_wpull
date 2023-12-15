@@ -30,14 +30,14 @@ _ = gettext.gettext
 _logger = StyleAdapter(logging.getLogger(__name__))
 
 
-class BaseWriter(object, metaclass=abc.ABCMeta):
+class BaseWriter(metaclass=abc.ABCMeta):
     '''Base class for document writers.'''
     @abc.abstractmethod
     def session(self) -> 'BaseWriterSession':
         '''Return a session for a document.'''
 
 
-class BaseWriterSession(object, metaclass=abc.ABCMeta):
+class BaseWriterSession(metaclass=abc.ABCMeta):
     '''Base class for a single document to be written.'''
     @abc.abstractmethod
     def process_request(self, request: BaseRequest) -> BaseRequest:

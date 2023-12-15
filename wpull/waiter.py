@@ -4,7 +4,7 @@ import abc
 import random
 
 
-class Waiter(object, metaclass=abc.ABCMeta):
+class Waiter(metaclass=abc.ABCMeta):
     '''Base class for Waiters.
 
     Waiters are counters that indicate the delay between requests.

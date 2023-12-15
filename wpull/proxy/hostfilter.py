@@ -1,7 +1,7 @@
 '''Host filtering.'''
 
 
-class HostFilter(object):
+class HostFilter:
     '''Accept or reject hostnames.'''
     def __init__(self, accept_domains=None, reject_domains=None,
                  accept_hostnames=None, reject_hostnames=None):

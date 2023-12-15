@@ -16,7 +16,7 @@ _logger = logging.getLogger(__name__)
 _ = gettext.gettext
 
 
-class YoutubeDlCoprocessor(object):
+class YoutubeDlCoprocessor:
     '''youtube-dl coprocessor.'''
     def __init__(self, youtube_dl_path, proxy_address, root_path='.',
                  user_agent=None, warc_recorder=None, inet_family=False,
@@ -56,7 +56,7 @@ class YoutubeDlCoprocessor(object):
         _logger.info(__(_('youtube-dl fetched ‘{url}’.'), url=url))
 
 
-class Session(object):
+class Session:
     '''youtube-dl session.'''
     def __init__(self, proxy_address, youtube_dl_path, root_path, item_session: ItemSession,
                  file_writer_session, user_agent, warc_recorder, inet_family,

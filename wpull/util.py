@@ -213,7 +213,7 @@ def get_exception_message(instance):
         return str(instance)
 
 
-class PickleStream(object):
+class PickleStream:
     '''Pickle stream helper.'''
     def __init__(self, filename=None, file=None, mode='rb',
                  protocol=pickle.DEFAULT_PROTOCOL):

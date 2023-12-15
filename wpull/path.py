@@ -8,7 +8,7 @@ import urllib.parse
 import collections
 
 
-class BasePathNamer(object, metaclass=abc.ABCMeta):
+class BasePathNamer(metaclass=abc.ABCMeta):
     '''Base class for path namers.'''
     @abc.abstractmethod
     def get_filename(self, url_info):

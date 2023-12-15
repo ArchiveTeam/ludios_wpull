@@ -11,7 +11,7 @@ import wpull.testing.async_
 _logger = logging.getLogger(__name__)
 
 
-class MyItem(object):
+class MyItem:
     def __init__(self, value):
         super().__init__()
         self.value = value

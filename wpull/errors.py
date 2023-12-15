@@ -37,7 +37,7 @@ class AuthenticationError(ServerError):
     '''Username or password error.'''
 
 
-class ExitStatus(object):
+class ExitStatus:
     '''Program exit status codes.
 
     Attributes:

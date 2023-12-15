@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.join(
 ))
 
 
-class Mock(object):
+class Mock:
     def __init__(self, *args, **kwargs):
         pass
 

@@ -7,7 +7,7 @@ from wpull.protocol.http.robots import RobotsTxtChecker, NotInPoolError
 import wpull.testing.async_
 
 
-class MockWebClient(object):
+class MockWebClient:
     def __init__(self):
         self.mock_response_callback = None
         self.request = None
@@ -19,7 +19,7 @@ class MockWebClient(object):
         return self.session_obj
 
 
-class MockWebSession(object):
+class MockWebSession:
     def __init__(self, client):
         self.client = client
         self.done_value = None

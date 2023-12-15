@@ -237,7 +237,7 @@ class HTMLScraper(HTMLReader, BaseHTMLScraper):
             return True
 
 
-class ElementWalker(object):
+class ElementWalker:
     LINK_ATTRIBUTES = frozenset([
         'action', 'archive', 'background', 'cite', 'classid',
         'codebase', 'data', 'href', 'longdesc', 'profile', 'src',

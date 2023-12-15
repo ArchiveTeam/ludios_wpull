@@ -7,7 +7,7 @@ import tempfile
 import wpull.util
 
 
-class Body(object):
+class Body:
     '''Represents the document/payload of a request or response.
 
     This class is a wrapper around a file object. Methods are forwarded

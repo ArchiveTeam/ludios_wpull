@@ -118,7 +118,7 @@ class ScrapeResult(dict):
         return frozenset(context for context in self['link_contexts'] if context.linked)
 
 
-class BaseScraper(object):
+class BaseScraper:
     '''Base class for scrapers.'''
     @abc.abstractmethod
     def scrape(self, request, response, link_type=None):

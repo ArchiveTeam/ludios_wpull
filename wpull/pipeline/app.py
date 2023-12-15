@@ -8,7 +8,7 @@ import wpull.version
 import wpull.util
 
 
-class AppSession(object):
+class AppSession:
     def __init__(self, factory: Factory, args, stderr):
         self.default_user_agent = 'Wpull/{0} (gzip)'.format(
             wpull.version.__version__)

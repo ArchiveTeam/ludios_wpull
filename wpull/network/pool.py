@@ -13,7 +13,7 @@ from wpull.network.dns import Resolver, ResolveResult
 _logger = logging.getLogger(__name__)
 
 
-class HostPool(object):
+class HostPool:
     '''Connection pool for a host.
 
     Attributes:
@@ -114,7 +114,7 @@ class HostPool(object):
         self._condition.release()
 
 
-class ConnectionPool(object):
+class ConnectionPool:
     '''Connection pool.
 
     Args:
@@ -313,7 +313,7 @@ class ConnectionPool(object):
         return counter
 
 
-class HappyEyeballsTable(object):
+class HappyEyeballsTable:
     def __init__(self, max_items=100, time_to_live=600):
         '''Happy eyeballs connection cache table.'''
         self._cache = FIFOCache(max_items=max_items, time_to_live=time_to_live)
@@ -333,7 +333,7 @@ class HappyEyeballsTable(object):
         return self._cache.get((addr_1, addr_2))
 
 
-class HappyEyeballsConnection(object):
+class HappyEyeballsConnection:
     '''Wrapper for happy eyeballs connection.'''
     def __init__(self, address, connection_factory, resolver,
                  happy_eyeballs_table, is_ssl=False):
