@@ -24,7 +24,7 @@ dependencies = [
     "html5-parser",
     "lxml",
     "psutil==4.2.0",
-    "sqlalchemy==1.4",
+    "sqlalchemy==2.0.23",
     "tornado==4.5.3",
     "yapsy==1.11.223"
 ]
@@ -35,27 +35,8 @@ docs = [
     "sphinxcontrib-napoleon>=0.2.6,<=0.5.0"
 ]
 
-[tool.setuptools.package-data]
-where = [
-    "cert/ca-bundle.pem",
-    "testing/integration/sample_user_scripts/*.py",
-    "testing/*/*.css",
-    "testing/*/*.htm",
-    "testing/*/*.html",
-    "testing/*/*.txt",
-    "testing/*/*.lua",
-    "testing/*/*.rst",
-    "testing/*/*.js",
-    "testing/*/*.png",
-    "testing/*/*.xml",
-    "testing/*.pem",
-    "driver/*.js",
-    "proxy/proxy.crt",
-    "proxy/proxy.key",
-]
-
-[tool.setuptools.packages.find]
-where = [
+[tool.setuptools]
+packages = [
     "wpull",
     "wpull.application",
     "wpull.application.plugins",
@@ -80,7 +61,6 @@ where = [
     "wpull.thirdparty",
     "wpull.warc",
 ]
-
 
 [project.urls]
 Source = "https://github.com/chfoo/wpull"

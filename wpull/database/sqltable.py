@@ -85,11 +85,11 @@ class BaseSQLURLTable(BaseURLTable):
 
             bind_values = {}
 
-            bind_values['url_string_id'] = select([URLString.id])\
+            bind_values['url_string_id'] = select(URLString.id)\
                 .where(URLString.url == bindparam('url'))
-            bind_values['parent_url_string_id'] = select([URLString.id]) \
+            bind_values['parent_url_string_id'] = select(URLString.id) \
                 .where(URLString.url == bindparam('parent_url'))
-            bind_values['root_url_string_id'] = select([URLString.id]) \
+            bind_values['root_url_string_id'] = select(URLString.id) \
                 .where(URLString.url == bindparam('root_url'))
 
             query = insert(QueuedURL).prefix_with('OR IGNORE').values(bind_values)
@@ -167,10 +167,10 @@ class BaseSQLURLTable(BaseURLTable):
                 values[QueuedURL.try_count] = QueuedURL.try_count + 1
 
             # TODO: rewrite as a join for clarity
-            subquery = select([URLString.id]).where(URLString.url == url)\
+            subquery = select(URLString.id).where(URLString.url == url)\
                 .limit(1)
             query = update(QueuedURL).values(values)\
-                .where(QueuedURL.url_string_id == subquery)
+                .where(QueuedURL.url_string_id == subquery).execution_options(synchronize_session="fetch")
 
             session.execute(query)
 
@@ -187,13 +187,9 @@ class BaseSQLURLTable(BaseURLTable):
             for key, value in kwargs.items():
                 values[getattr(QueuedURL, key)] = value
 
-            # TODO: rewrite as a join for clarity
-            subquery = select([URLString.id]).where(URLString.url == url)\
-                .limit(1)
-            query = update(QueuedURL).values(values)\
-                .where(QueuedURL.url_string_id == subquery)
-
-            session.execute(query)
+            subquery = select(URLString.id).where(URLString.url == url).limit(1).subquery()
+            query = update(QueuedURL).values(values).where(QueuedURL.url_string_id == subquery)
+            session.execute(query.execution_options(synchronize_session="fetch"))
 
     def release(self):
         with self._session() as session:
