@@ -1,6 +1,6 @@
 from wpull.application.builder import Builder
 from wpull.application.options import AppArgumentParser
-from wpull.errors import SSLVerificationError
+from wpull.errors import SSLCertVerificationError
 from wpull.protocol.http.request import Request
 from wpull.protocol.http.web import WebSession
 from wpull.testing.integration.base import HTTPSSimpleAppTestCase
@@ -53,7 +53,7 @@ class TestHTTPSApp(HTTPSSimpleAppTestCase):
 
         class MockWebSession(WebSession):
             async def start(self):
-                raise SSLVerificationError('A very bad certificate!')
+                raise SSLCertVerificationError('A very bad certificate!')
 
         class MockWebClient(builder.factory.class_map['WebClient']):
             def session(self, request):

@@ -12,7 +12,7 @@ from wpull.stats import Statistics
 from wpull.url import URLInfo
 from wpull.backport.logging import StyleAdapter
 from wpull.errors import DNSNotFound, ServerError, ConnectionRefused, \
-    SSLVerificationError, ProtocolError
+    SSLCertVerificationError, ProtocolError
 from wpull.application.hook import HookableMixin, HookDisconnected, Actions, HookStop
 from wpull.pipeline.item import Status, URLRecord
 from wpull.pipeline.session import ItemSession
@@ -342,7 +342,7 @@ class ResultRule(HookableMixin):
             A value from :class:`.hook.Actions`.
         '''
         if not self._ssl_verification and \
-                isinstance(error, SSLVerificationError):
+                isinstance(error, SSLCertVerificationError):
             # Change it into a different error since the user doesn't care
             # about verifying certificates
             self._statistics.increment_error(ProtocolError())
@@ -359,7 +359,7 @@ class ResultRule(HookableMixin):
             item_session.set_status(Status.done)
         elif action == Actions.STOP:
             raise HookStop('Script requested immediate stop.')
-        elif self._ssl_verification and isinstance(error, SSLVerificationError):
+        elif self._ssl_verification and isinstance(error, SSLCertVerificationError):
             raise
         elif isinstance(error, ConnectionRefused) and \
                 not self.retry_connrefused:

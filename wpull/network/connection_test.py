@@ -4,7 +4,7 @@ import socket
 import ssl
 
 import wpull.testing.async_
-from wpull.errors import NetworkError, NetworkTimedOut, SSLVerificationError
+from wpull.errors import NetworkError, NetworkTimedOut, SSLCertVerificationError
 from wpull.network.connection import Connection
 from wpull.testing.badapp import BadAppTestCase, SSLBadAppTestCase
 
@@ -74,7 +74,7 @@ class TestConnection(BadAppTestCase):
         async def mock_func():
             raise ssl.SSLError(1, 'I has a Certificate Error!')
 
-        with self.assertRaises(SSLVerificationError):
+        with self.assertRaises(SSLCertVerificationError):
             await connection.run_network_operation(mock_func())
 
     @wpull.testing.async_.async_test()
@@ -85,7 +85,7 @@ class TestConnection(BadAppTestCase):
         async def mock_func():
             raise ssl.SSLError(1, 'Uh oh! Unknown CA!')
 
-        with self.assertRaises(SSLVerificationError):
+        with self.assertRaises(SSLCertVerificationError):
             await connection.run_network_operation(mock_func())
 
     @wpull.testing.async_.async_test()

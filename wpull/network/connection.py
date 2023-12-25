@@ -12,8 +12,7 @@ import ssl
 import tornado.netutil
 from typing import Optional, Union
 from wpull.backport.logging import BraceMessage as __
-from wpull.errors import NetworkError, ConnectionRefused, SSLVerificationError, \
-    NetworkTimedOut
+from wpull.errors import NetworkError, ConnectionRefused, NetworkTimedOut, SSLCertVerificationError
 
 _logger = logging.getLogger(__name__)
 
@@ -304,10 +303,10 @@ class BaseConnection:
             self.close()
             raise NetworkTimedOut(
                 '{name} timed out.'.format(name=name)) from error
-        except (tornado.netutil.SSLCertificateError, SSLVerificationError) \
+        except (SSLCertVerificationError) \
                 as error:
             self.close()
-            raise SSLVerificationError(
+            raise SSLCertVerificationError(
                 '{name} certificate error: {error}'
                 .format(name=name, error=error)) from error
         except AttributeError as error:
@@ -330,7 +329,7 @@ class BaseConnection:
             #          routines:SSL3_READ_BYTES:tlsv1 alert unknown ca
             error_string = str(error).lower()
             if 'certificate' in error_string or 'unknown ca' in error_string:
-                raise SSLVerificationError(
+                raise SSLCertVerificationError(
                     '{name} certificate error: {error}'
                     .format(name=name, error=error)) from error
 
@@ -466,7 +465,7 @@ class SSLConnection(Connection):
             sock = self.writer.transport.get_extra_info('ssl_object',
                 self.writer.transport.get_extra_info('socket'))
         except AttributeError as error:
-            raise SSLVerificationError('Failed to establish SSL connection; '
+            raise SSLCertVerificationError('Failed to establish SSL connection; '
                                        'server unexpectedly closed') from error
 
         self._verify_cert(sock)
@@ -491,9 +490,9 @@ class SSLConnection(Connection):
             return
 
         if not cert:
-            raise SSLVerificationError('No SSL certificate given')
+            raise SSLCertVerificationError('No SSL certificate given')
 
         try:
             ssl.match_hostname(cert, self._hostname)
         except ssl.CertificateError as error:
-            raise SSLVerificationError('Invalid SSL certificate') from error
+            raise SSLCertVerificationError('Invalid SSL certificate') from error
