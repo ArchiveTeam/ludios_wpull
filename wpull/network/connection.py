@@ -462,37 +462,9 @@ class SSLConnection(Connection):
     async def connect(self):
         result = await super().connect()
         try:
-            sock = self.writer.transport.get_extra_info('ssl_object',
+            self.writer.transport.get_extra_info('ssl_object',
                 self.writer.transport.get_extra_info('socket'))
         except AttributeError as error:
             raise SSLCertVerificationError('Failed to establish SSL connection; '
                                        'server unexpectedly closed') from error
-
-        self._verify_cert(sock)
         return result
-
-    def _verify_cert(self, sock: ssl.SSLSocket):
-        '''Check if certificate matches hostname.'''
-        # Based on tornado.iostream.SSLIOStream
-        # Needed for older OpenSSL (<0.9.8f) versions
-        verify_mode = self._ssl_context.verify_mode
-
-        assert verify_mode in (ssl.CERT_NONE, ssl.CERT_REQUIRED,
-                               ssl.CERT_OPTIONAL), \
-            'Unknown verify mode {}'.format(verify_mode)
-
-        if verify_mode == ssl.CERT_NONE:
-            return
-
-        cert = sock.getpeercert()
-
-        if not cert and verify_mode == ssl.CERT_OPTIONAL:
-            return
-
-        if not cert:
-            raise SSLCertVerificationError('No SSL certificate given')
-
-        try:
-            ssl.match_hostname(cert, self._hostname)
-        except ssl.CertificateError as error:
-            raise SSLCertVerificationError('Invalid SSL certificate') from error
