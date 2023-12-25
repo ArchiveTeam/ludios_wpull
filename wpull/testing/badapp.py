@@ -606,22 +606,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.wfile.write(b'\r\n')
         self.close_connection = True
 
-
-class ConcurrentHTTPServer(socketserver.ThreadingMixIn,
-                           http.server.HTTPServer):
-    daemon_threads = True
-
-    def __init__(self, *args, **kwargs):
-        http.server.HTTPServer.__init__(self, *args, **kwargs)
-#         self.daemon_threads = True
-
-
 class Server(threading.Thread):
     def __init__(self, port=0, enable_ssl=False):
         threading.Thread.__init__(self)
         self.daemon = True
         self._port = port
-        self._server = ConcurrentHTTPServer(
+        self._server = http.server.ThreadingHTTPServer(
             ('localhost', self._port), Handler)
         self._port = self._server.server_address[1]
 
