@@ -8,38 +8,38 @@ class TestURLRewrite(unittest.TestCase):
     def test_rewriter(self):
         rewriter = URLRewriter(hash_fragment=True, session_id=True)
 
-        self.assertEquals(
+        self.assertEqual(
             'http://example.com/',
             rewriter.rewrite(URLInfo.parse('http://example.com/')).url
         )
-        self.assertEquals(
+        self.assertEqual(
             'http://example.com/',
             rewriter.rewrite(URLInfo.parse('http://example.com/#hashtag!')).url
         )
-        self.assertEquals(
+        self.assertEqual(
             'https://groups.google.com/forum/?_escaped_fragment_=forum/python-tulip',
             rewriter.rewrite(
                 URLInfo.parse('https://groups.google.com/forum/#!forum/python-tulip')).url)
-        self.assertEquals(
+        self.assertEqual(
             'https://groups.google.com/forum/?stupid_hash_fragments&_escaped_fragment_=forum/python-tulip',
             rewriter.rewrite(URLInfo.parse(
                 'https://groups.google.com/forum/?stupid_hash_fragments#!forum/python-tulip'
             )).url
         )
-        self.assertEquals(
+        self.assertEqual(
             'https://groups.google.com/forum/?stupid_hash_fragments=farts&_escaped_fragment_=forum/python-tulip',
             rewriter.rewrite(URLInfo.parse(
                 'https://groups.google.com/forum/?stupid_hash_fragments=farts#!forum/python-tulip'
             )).url
         )
 
-        self.assertEquals(
+        self.assertEqual(
             'http://example.com/',
             rewriter.rewrite(URLInfo.parse(
                 'http://example.com/?sid=0123456789abcdefghijklemopqrstuv'
             )).url
         )
-        self.assertEquals(
+        self.assertEqual(
             'http://example.com/?horse=dog&',
             rewriter.rewrite(URLInfo.parse(
                 'http://example.com/?horse=dog&sid=0123456789abcdefghijklemopqrstuv'

@@ -128,8 +128,8 @@ class TestHook(AsyncTestCase):
 
         event.notify('a')
 
-        self.assertEquals(5, callback_result_1)
-        self.assertEquals(7, callback_result_2)
+        self.assertEqual(5, callback_result_1)
+        self.assertEqual(7, callback_result_2)
 
         event.remove_listener('a', callback1)
 
