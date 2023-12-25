@@ -25,7 +25,7 @@ dependencies = [
     "lxml",
     "psutil==4.2.0",
     "sqlalchemy==2.0.23",
-    "tornado==4.5.3",
+    "tornado~=6.4",
     "yapsy==1.11.223"
 ]
 
