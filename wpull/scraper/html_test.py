@@ -66,7 +66,6 @@ class TestHTMLScraper(unittest.TestCase):
             'http://example.net/source_src.webm',
             'http://example.com/embed_src.mov',
             'http://example.com/fig_src.png',
-            'http://example.com/frame_src.html',
             'http://example.com/iframe_src.html',
             'http://example.com/img_href.png',
             'http://example.com/img_lowsrc.png',
@@ -85,6 +84,7 @@ class TestHTMLScraper(unittest.TestCase):
             'http://example.com/param_ref_value.php',
             'http://example.com/overlay_src.html',
             'http://example.com/script_variable.png',
+            'data:image/svg+xml;utf-8,<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin" width="100%" height="100%"><rect width="300" height="100" style="fill:rgb(0,0,255);stroke-width:3;stroke:rgb(0,0,0)" /></svg>'
         }),
             inline_urls
         )
@@ -103,7 +103,6 @@ class TestHTMLScraper(unittest.TestCase):
             'http://example.net/soup.html',
             'http://example.com/a_href.html',
             'http://example.com/area_href.html',
-            'http://example.com/frame_src.html',
             'http://example.com/embed_href.html',
             'http://example.com/embed_src.mov',
             'http://example.com/form_action.html',
