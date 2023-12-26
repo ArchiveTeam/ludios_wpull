@@ -1,3 +1,5 @@
+
+
 # encoding=utf-8
 '''DNS resolution.'''
 import datetime
@@ -200,7 +202,7 @@ class Resolver(HookableMixin):
             families = (socket.AF_INET6, )
 
         for family in families:
-            datetime_now = datetime.datetime.utcnow()
+            datetime_now = datetime.datetime.now(datetime.UTC)
             try:
                 answer = await self._query_dns(host, family)
             except DNSNotFound:
@@ -246,7 +248,7 @@ class Resolver(HookableMixin):
 
         event_loop = asyncio.get_event_loop()
         query = functools.partial(
-            self._dns_resolver.query, host, record_type,
+            self._dns_resolver.resolve, host, record_type,
             source=self._bind_address)
 
         try:
