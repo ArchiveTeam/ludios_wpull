@@ -1,14 +1,10 @@
 import sys
-import tornado.platform.asyncio
 
 from wpull.application.builder import Builder
 from wpull.application.options import AppArgumentParser
 
 
-def main(exit=True, install_tornado_bridge=True, use_signals=True):
-    if install_tornado_bridge:
-        tornado.platform.asyncio.AsyncIOMainLoop().install()
-
+def main(exit=True, use_signals=True):
     arg_parser = AppArgumentParser()
     args = arg_parser.parse_args()
 
