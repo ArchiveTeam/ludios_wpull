@@ -17,7 +17,7 @@ classifiers=[
     'Topic :: Internet :: WWW/HTTP',
     'Topic :: System :: Archiving',
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = [
     "chardet==2.3.0",
     "dnspython",
