@@ -28,6 +28,8 @@ dependencies = [
     "tornado~=6.4",
     # Required due to yapsy 1.12.2 using deprecated modules
     "yapsy @ https://github.com/tibonihoo/yapsy/tarball/master#subdirectory=package",
+    # Required for yapsy during testing
+    "packaging"
 
 ]
 
@@ -38,8 +40,6 @@ docs = [
 ]
 testing = [
     "warcat",
-    # Required for yapsy during testing
-    "packaging"
 ]
 
 [tool.setuptools]
