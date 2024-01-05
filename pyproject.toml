@@ -26,8 +26,9 @@ dependencies = [
     "psutil==4.2.0",
     "sqlalchemy==2.0.23",
     "tornado~=6.4",
-    # Required due to 1.12.2 using deprecated modules
-    "yapsy @ https://github.com/tibonihoo/yapsy/tarball/master#subdirectory=package"
+    # Required due to yapsy 1.12.2 using deprecated modules
+    "yapsy @ https://github.com/tibonihoo/yapsy/tarball/master#subdirectory=package",
+    "packaging"
 ]
 
 [project.optional-dependencies]
