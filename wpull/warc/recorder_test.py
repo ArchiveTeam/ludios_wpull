@@ -107,7 +107,7 @@ class TestWARC(unittest.TestCase, TempDirMixin):
         self.assertIn(b'Content-Type: application/http;msgtype=response',
                       warc_file_content)
         self.assertIn(
-            'Wpull/{0}'.format(wpull.version.__version__).encode('utf-8'),
+            'ludios_wpull/{0}'.format(wpull.version.__version__).encode('utf-8'),
             warc_file_content
         )
         self.assertIn(
@@ -209,7 +209,7 @@ class TestWARC(unittest.TestCase, TempDirMixin):
         self.assertIn(b'Content-Type: text/x-ftp-control-conversation',
                       warc_file_content)
         self.assertIn(
-            'Wpull/{0}'.format(wpull.version.__version__).encode('utf-8'),
+            'ludios_wpull/{0}'.format(wpull.version.__version__).encode('utf-8'),
             warc_file_content
         )
         self.assertIn(

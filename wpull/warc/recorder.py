@@ -78,7 +78,7 @@ class WARCRecorder:
     '''
     CDX_DELIMINATOR = ' '
     '''Default CDX delimiter.'''
-    DEFAULT_SOFTWARE_STRING = 'Wpull/{0} Python/{1}'.format(
+    DEFAULT_SOFTWARE_STRING = 'ludios_wpull/{0} Python/{1}'.format(
         wpull.version.__version__, wpull.util.python_version()
     )
     '''Default software string.'''
