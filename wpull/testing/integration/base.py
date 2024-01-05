@@ -11,6 +11,7 @@ from wpull.testing.badapp import BadAppTestCase
 from wpull.testing.ftp import FTPTestCase
 from wpull.testing.goodapp import GoodAppTestCase
 from wpull.testing.util import TempDirMixin
+# from wpull.testing.async_ import AsyncHTTPSTestCase
 
 
 class AppTestCase(IsolatedAsyncioTestCase, TempDirMixin):

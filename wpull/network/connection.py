@@ -124,7 +124,10 @@ class BaseConnection:
                  timeout: Optional[float]=None,
                  connect_timeout: Optional[float]=None,
                  bind_host: Optional[str]=None,
-                 sock: Optional[socket.socket]=None):
+                 sock: Optional[socket.socket]=None, 
+                 reader = None,
+                 writer = None
+                 ):
         assert len(address) >= 2, 'Expect str & port. Got {}.'.format(address)
         assert '.' in address[0] or ':' in address[0], \
             'Expect numerical address. Got {}.'.format(address[0])
@@ -135,8 +138,8 @@ class BaseConnection:
         self._connect_timeout = connect_timeout
         self._bind_host = bind_host
         self._sock = sock
-        self.reader = None
-        self.writer = None
+        self.reader = reader
+        self.writer = writer
         self._close_timer = None
         self._state = ConnectionState.ready
 
@@ -171,26 +174,23 @@ class BaseConnection:
 
         if self._state != ConnectionState.ready:
             raise Exception('Closed connection must be reset before reusing.')
-
-        if self._sock:
-            connection_future = asyncio.open_connection(
-                sock=self._sock, **self._connection_kwargs()
-            )
-        else:
-            # TODO: maybe we don't want to ignore flow-info and scope-id?
-            host = self._address[0]
-            port = self._address[1]
-
-            connection_future = asyncio.open_connection(
-                host, port, **self._connection_kwargs()
-            )
-
-        self.reader, self.writer = await \
-            self.run_network_operation(
-                connection_future,
-                wait_timeout=self._connect_timeout,
-                name='Connect')
-
+        if self.writer is None:
+            if self._sock:
+                connection_future = asyncio.open_connection(
+                    sock=self._sock, **self._connection_kwargs()
+                )
+            else:
+                # TODO: maybe we don't want to ignore flow-info and scope-id?
+                host = self._address[0]
+                port = self._address[1]
+                connection_future = asyncio.open_connection(
+                    host, port, **self._connection_kwargs()
+                )
+            self.reader, self.writer = await \
+                self.run_network_operation(
+                    connection_future,
+                    wait_timeout=self._connect_timeout,
+                    name='Connect')
         if self._timeout is not None:
             self._close_timer = CloseTimer(self._timeout, self)
         else:
@@ -414,13 +414,12 @@ class Connection(BaseConnection):
 
         Coroutine
         '''
-        sock = self.writer.get_extra_info('socket')
         ssl_conn = SSLConnection(
             self._address,
             ssl_context=ssl_context,
             hostname=self._hostname, timeout=self._timeout,
             connect_timeout=self._connect_timeout, bind_host=self._bind_host,
-            bandwidth_limiter=self._bandwidth_limiter, sock=sock
+            bandwidth_limiter=self._bandwidth_limiter, reader=self.reader, writer=self.writer
         )
 
         await ssl_conn.connect()
@@ -438,7 +437,6 @@ class SSLConnection(Connection):
                  ssl_context: Union[bool, dict, ssl.SSLContext]=True, **kwargs):
         super().__init__(*args, **kwargs)
         self._ssl_context = ssl_context
-
         if self._ssl_context is True:
             self._ssl_context = tornado.netutil.ssl_options_to_context({})
         elif isinstance(self._ssl_context, dict):
@@ -460,6 +458,9 @@ class SSLConnection(Connection):
 
     
     async def connect(self):
+        if self.writer is not None:
+            await self.writer.start_tls(self._ssl_context)
+
         result = await super().connect()
         try:
             self.writer.transport.get_extra_info('ssl_object',

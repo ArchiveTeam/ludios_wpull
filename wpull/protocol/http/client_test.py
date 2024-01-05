@@ -3,7 +3,6 @@ import functools
 import io
 import warnings
 
-import wpull.testing.async_
 from wpull.errors import NetworkError
 from wpull.network.connection import Connection
 from wpull.network.pool import ConnectionPool
@@ -11,6 +10,7 @@ from wpull.protocol.abstract.client import DurationTimeout
 from wpull.protocol.http.client import Client
 from wpull.protocol.http.request import Request
 from wpull.testing.badapp import BadAppTestCase
+from tornado.testing import gen_test
 
 
 class MyException(ValueError):
@@ -18,8 +18,8 @@ class MyException(ValueError):
 
 
 class TestClient(BadAppTestCase):
-    @wpull.testing.async_.async_test()
-    def test_basic(self):
+    @gen_test(timeout=30)
+    async def test_basic(self):
         client = Client()
 
         with client.session() as session:
@@ -38,8 +38,8 @@ class TestClient(BadAppTestCase):
             self.assertTrue(request.address)
             self.assertTrue(response.body)
 
-    @wpull.testing.async_.async_test()
-    def test_client_exception_throw(self):
+    @gen_test(timeout=30)
+    async def test_client_exception_throw(self):
         client = Client()
 
         with client.session() as session:
@@ -48,8 +48,8 @@ class TestClient(BadAppTestCase):
         with self.assertRaises(NetworkError):
             await session.start(request)
 
-    @wpull.testing.async_.async_test()
-    def test_client_duration_timeout(self):
+    @gen_test(timeout=30)
+    async def test_client_duration_timeout(self):
         client = Client()
 
         with self.assertRaises(DurationTimeout), client.session() as session:
@@ -57,8 +57,8 @@ class TestClient(BadAppTestCase):
             await session.start(request)
             await session.download(duration_timeout=0.1)
 
-    @wpull.testing.async_.async_test()
-    def test_client_exception_recovery(self):
+    @gen_test(timeout=30)
+    async def test_client_exception_recovery(self):
         connection_factory = functools.partial(Connection, timeout=2.0)
         connection_pool = ConnectionPool(connection_factory=connection_factory)
         client = Client(connection_pool=connection_pool)
@@ -76,8 +76,8 @@ class TestClient(BadAppTestCase):
                 await session.download()
                 self.assertTrue(session.done())
 
-    @wpull.testing.async_.async_test()
-    def test_client_did_not_complete(self):
+    @gen_test(timeout=30)
+    async def test_client_did_not_complete(self):
         client = Client()
 
         with warnings.catch_warnings(record=True) as warn_list:

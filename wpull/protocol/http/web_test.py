@@ -6,17 +6,16 @@ from wpull.protocol.abstract.client import DurationTimeout
 from wpull.errors import ProtocolError
 from wpull.protocol.http.request import Request
 from wpull.protocol.http.web import WebClient, LoopType
-import wpull.testing.async_
 from wpull.testing.badapp import BadAppTestCase
 from wpull.testing.goodapp import GoodAppTestCase
+from tornado.testing import gen_test
 
 
-DEFAULT_TIMEOUT = 30
 
 
 class TestWebClient(GoodAppTestCase):
-    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
-    def test_basic(self):
+    @gen_test(timeout=30)
+    async def test_basic(self):
         client = WebClient()
         session = client.session(Request(self.get_url('/')))
 
@@ -30,8 +29,8 @@ class TestWebClient(GoodAppTestCase):
         self.assertTrue(session.done())
         self.assertIn(b'Example Site', body.getvalue())
 
-    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
-    def test_redirect(self):
+    @gen_test(timeout=30)
+    async def test_redirect(self):
         client = WebClient()
         session = client.session(Request(self.get_url('/redirect')))
 
@@ -48,8 +47,8 @@ class TestWebClient(GoodAppTestCase):
         self.assertTrue(session.done())
         self.assertEqual(LoopType.normal, session.loop_type())
 
-    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
-    def test_redirect_repeat(self):
+    @gen_test(timeout=30)
+    async def test_redirect_repeat(self):
         client = WebClient()
         session = client.session(Request(self.get_url('/redirect?code=307')))
 
@@ -68,8 +67,8 @@ class TestWebClient(GoodAppTestCase):
 
 
 class TestWebClientBadCase(BadAppTestCase):
-    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
-    def test_bad_redirect(self):
+    @gen_test(timeout=30)
+    async def test_bad_redirect(self):
         client = WebClient()
         session = client.session(Request(self.get_url('/bad_redirect')))
 
@@ -78,8 +77,8 @@ class TestWebClientBadCase(BadAppTestCase):
                 await session.start()
                 await session.download()
 
-    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
-    def test_bad_redirect_ipv6(self):
+    @gen_test(timeout=30)
+    async def test_bad_redirect_ipv6(self):
         client = WebClient()
         session = client.session(Request(self.get_url('/bad_redirect_ipv6')))
 
@@ -88,8 +87,8 @@ class TestWebClientBadCase(BadAppTestCase):
                 await session.start()
                 await session.download()
 
-    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
-    def test_duration_timeout(self):
+    @gen_test(timeout=30)
+    async def test_duration_timeout(self):
         client = WebClient()
         session = client.session(Request(self.get_url('/sleep_long')))
 

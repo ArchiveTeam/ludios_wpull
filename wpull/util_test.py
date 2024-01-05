@@ -92,21 +92,21 @@ class TestUtil(unittest.TestCase):
             self.assertEqual('ValueError', get_exception_message(error))
 
         self.assertEqual(
-            'NoNameservers', get_exception_message(NoNameservers())
+            'All nameservers failed to answer the query.', get_exception_message(NoNameservers())
         )
 
         try:
             raise NoNameservers
         except NoNameservers as error:
             self.assertEqual(
-                'NoNameservers', get_exception_message(error)
+                'All nameservers failed to answer the query.', get_exception_message(error)
             )
 
         try:
             raise NoNameservers()
         except NoNameservers as error:
             self.assertEqual(
-                'NoNameservers', get_exception_message(error)
+                'All nameservers failed to answer the query.', get_exception_message(error)
             )
 
     def test_pickle_stream_filename(self):

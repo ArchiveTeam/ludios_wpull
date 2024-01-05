@@ -4,7 +4,9 @@ import socket
 
 import asyncio
 
-from wpull.testing.async_ import AsyncTestCase
+# from wpull.testing.async_ import AsyncTestCase
+from tornado.testing import AsyncTestCase
+
 
 
 _logger = logging.getLogger(__name__)
@@ -333,17 +335,25 @@ class FTPTestCase(AsyncTestCase):
         return self.sock.getsockname()[1]
 
     def setUp(self):
+        self.event_loop = asyncio.new_event_loop()
+        self.event_loop.set_debug(True)
+        asyncio.set_event_loop(self.event_loop)
+
+        # IsolatedAsyncioTestCase.setUp(self)
         AsyncTestCase.setUp(self)
         self.server = MockFTPServer()
         self.sock = socket.socket()
         self.sock.bind(('127.0.0.1', 0))
-        self.server_handle = self.event_loop.run_until_complete(
+        
+        self.server_handle = self.io_loop.asyncio_loop.run_until_complete(
             asyncio.start_server(self.server, sock=self.sock)
         )
 
     def tearDown(self):
         self.server_handle.close()
         AsyncTestCase.tearDown(self)
+        # IsolatedAsyncioTestCase.tearDown(self)
+
 
     def get_url(self, path, username='', password=''):
         if username or password:

@@ -11,12 +11,12 @@ from wpull.proxy.server import HTTPProxyServer
 import wpull.testing.badapp
 import wpull.testing.goodapp
 import wpull.testing.async_
-
+from tornado.testing import gen_test
 
 
 class Mixin:
-    @wpull.testing.async_.async_test()
-    def test_basic_requests(self):
+    @gen_test(timeout=30)
+    async def test_basic_requests(self):
         proxy_http_client = Client()
         proxy_server = HTTPProxyServer(proxy_http_client)
         proxy_socket, proxy_port = tornado.testing.bind_unused_port()

@@ -7,17 +7,15 @@ from wpull.errors import ProtocolError
 from wpull.protocol.ftp.client import Client
 from wpull.protocol.ftp.request import Request, Command
 from wpull.protocol.ftp.util import FTPServerError
-import wpull.testing.async_
 from wpull.testing.ftp import FTPTestCase
+from tornado.testing import gen_test
 
-
-DEFAULT_TIMEOUT = 30
 _logger = logging.getLogger(__name__)
 
 
 class TestClient(FTPTestCase):
-    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
-    def test_fetch_file(self):
+    @gen_test(timeout=30)
+    async def test_fetch_file(self):
         client = Client()
         file = io.BytesIO()
 
@@ -31,8 +29,8 @@ class TestClient(FTPTestCase):
             response.body.content()
         )
 
-    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
-    def test_duration_timeout(self):
+    @gen_test(timeout=30)
+    async def test_duration_timeout(self):
         client = Client()
         file = io.BytesIO()
 
@@ -41,8 +39,8 @@ class TestClient(FTPTestCase):
                 session.start(Request(self.get_url('/hidden/sleep.txt')))
             await session.download(file, duration_timeout=0.1)
 
-    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
-    def test_fetch_no_file(self):
+    @gen_test(timeout=30)
+    async def test_fetch_no_file(self):
         client = Client()
         file = io.BytesIO()
 
@@ -56,8 +54,8 @@ class TestClient(FTPTestCase):
             else:
                 self.fail()  # pragma: no cover
 
-    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
-    def test_fetch_file_restart(self):
+    @gen_test(timeout=30)
+    async def test_fetch_file_restart(self):
         client = Client()
         file = io.BytesIO()
 
@@ -73,8 +71,8 @@ class TestClient(FTPTestCase):
             response.body.content()
         )
 
-    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
-    def test_fetch_file_restart_not_supported(self):
+    @gen_test(timeout=30)
+    async def test_fetch_file_restart_not_supported(self):
         client = Client()
         file = io.BytesIO()
 
@@ -90,8 +88,8 @@ class TestClient(FTPTestCase):
             response.body.content()
         )
 
-    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
-    def test_fetch_listing(self):
+    @gen_test(timeout=30)
+    async def test_fetch_listing(self):
         client = Client()
         file = io.BytesIO()
         with client.session() as session:
@@ -107,8 +105,8 @@ class TestClient(FTPTestCase):
         self.assertEqual('example (copy).txt', response.files[3].name)
         self.assertEqual('readme.txt', response.files[4].name)
 
-    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
-    def test_fetch_bad_pasv_addr(self):
+    @gen_test(timeout=30)
+    async def test_fetch_bad_pasv_addr(self):
         client = Client()
         file = io.BytesIO()
 
@@ -127,8 +125,8 @@ class TestClient(FTPTestCase):
                 await \
                     session.start(Request(self.get_url('/example (copy).txt')))
 
-    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
-    def test_login_no_password_required(self):
+    @gen_test(timeout=30)
+    async def test_login_no_password_required(self):
         client = Client()
         file = io.BytesIO()
 

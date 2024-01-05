@@ -3,21 +3,21 @@ import logging
 
 import functools
 
-import wpull.testing.async_
 from wpull.backport.logging import BraceMessage as __
 from wpull.network.connection import Connection
 from wpull.protocol.ftp.request import Command
 from wpull.protocol.ftp.stream import ControlStream, DataStream
 from wpull.protocol.ftp.util import parse_address
 from wpull.testing.ftp import FTPTestCase
+from tornado.testing import gen_test
 
 DEFAULT_TIMEOUT = 30
 _logger = logging.getLogger(__name__)
 
 
 class TestStream(FTPTestCase):
-    @wpull.testing.async_.async_test(timeout=DEFAULT_TIMEOUT)
-    def test_control_stream(self):
+    @gen_test(timeout=30)
+    async def test_control_stream(self):
         def log_cb(data_type, data):
             _logger.debug(__('{0}={1}', data_type, data))
 
