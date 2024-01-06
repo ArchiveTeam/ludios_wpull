@@ -154,10 +154,10 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
 
         print(list(os.walk('.')))
         self.assertTrue(os.path.exists(
-            'http/localhost+{0}/index.html'.format(self.get_http_port())
+            'http/127.0.0.1+{0}/index.html'.format(self.get_http_port())
         ))
         self.assertTrue(os.path.exists(
-            'http/localhost+{0}/index.html.orig'.format(
+            'http/127.0.0.1+{0}/index.html.orig'.format(
                 self.get_http_port())
         ))
 
@@ -296,13 +296,12 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
 
         with tempfile.NamedTemporaryFile() as in_file:
             in_file.write(b'# Kittens\n')
-            in_file.write(b'localhost.local')
+            in_file.write(b'127.0.0.1')
             # session cookie, Python style
             in_file.write(b'\tFALSE\t/\tFALSE\t\ttest\tno\n')
             # session cookie, Firefox/Wget/Curl style
             in_file.write(b'\tFALSE\t/\tFALSE\t0\tsessionid\tboxcat\n')
             in_file.flush()
-
             args = arg_parser.parse_args([
                 self.get_url('/cookie'),
                 '--load-cookies', in_file.name,
@@ -323,6 +322,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
                     return
 
                 callback_called = True
+                # Ensure 2 cookies were read into CookieJar from file
                 self.assertEqual(2, len(builder.factory['CookieJar']))
 
             app.event_dispatcher.add_listener(Application.Event.pipeline_end, callback)
@@ -564,7 +564,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
 
         print(list(os.walk('.')))
         self.assertTrue(os.path.exists(
-            'localhost:{0}/static/my_file.txt'.format(
+            '127.0.0.1:{0}/static/my_file.txt'.format(
                 self.get_http_port())
         ))
 
