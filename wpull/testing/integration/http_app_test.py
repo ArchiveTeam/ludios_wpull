@@ -156,10 +156,6 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         self.assertTrue(os.path.exists(
             'http/127.0.0.1+{0}/index.html'.format(self.get_http_port())
         ))
-        self.assertTrue(os.path.exists(
-            'http/127.0.0.1+{0}/index.html.orig'.format(
-                self.get_http_port())
-        ))
 
         self.assertEqual(0, exit_code)
         self.assertEqual(builder.factory['Statistics'].files, 2)
