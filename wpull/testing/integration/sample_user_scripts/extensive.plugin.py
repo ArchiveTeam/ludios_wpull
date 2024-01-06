@@ -27,8 +27,13 @@ class Plugin(WpullPlugin):
     @hook(PluginFunctions.resolve_dns)
     def resolve_dns(self, host: str):
         print('resolve_dns', host)
-        assert host == '127.0.0.1'
-        return '127.0.0.1'
+
+        if host == 'localhost':
+            return '127.0.0.1'
+        elif host == '127.0.0.1':
+            return host
+        else:
+            raise ValueError(f"Unexpected host received for resolution: {host}")
 
     @hook(PluginFunctions.accept_url)
     def accept_url(self, item_session: ItemSession, verdict: bool, reasons: dict):
