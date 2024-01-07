@@ -605,6 +605,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.wfile.write(b'\r\n')
         self.close_connection = True
 
+
 class Server(threading.Thread):
     def __init__(self, port=0, enable_ssl=False):
         threading.Thread.__init__(self)
@@ -617,7 +618,10 @@ class Server(threading.Thread):
         if enable_ssl:
             context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
             print(os.path.join(os.path.dirname(__file__), 'test.pem'))
-            context.load_cert_chain(os.path.join(os.path.dirname(__file__), 'test.pem'))
+            context.load_cert_chain(
+                os.path.join(
+                    os.path.dirname(__file__),
+                    'test.pem'))
             self._server.socket = context.wrap_socket(
                 self._server.socket,
                 server_side=True)
@@ -672,6 +676,8 @@ class SSLBadAppTestCase(BadAppTestCase):
         return 'https'
 
 # Variant using stdlib IsolatedAsyncioTestCase
+
+
 class BadAppTestCase2(IsolatedAsyncioTestCase):
     def setUp(self):
         super().setUp()
@@ -700,7 +706,6 @@ class BadAppTestCase2(IsolatedAsyncioTestCase):
 class SSLBadAppTestCase2(BadAppTestCase2):
     def get_protocol(self):
         return 'https'
-
 
 
 if __name__ == '__main__':

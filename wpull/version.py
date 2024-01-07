@@ -11,7 +11,7 @@
     A tuple in the same format of :data:`sys.version_info`
 '''
 import re
-from importlib.metadata import version  
+from importlib.metadata import version
 
 
 RELEASE_LEVEL_MAP = {

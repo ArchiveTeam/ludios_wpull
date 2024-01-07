@@ -21,7 +21,6 @@ from typing import Any
 #         self.event_loop.close()
 
 
-
 def async_test(func=None, timeout=30):
     # tornado.testing
     def wrap(f):
@@ -39,6 +38,7 @@ def async_test(func=None, timeout=30):
     else:
         # Used like @gen_test(timeout=10)
         return wrap
+
 
 class AsyncHTTPTestCase(unittest.IsolatedAsyncioTestCase):
     # Native unittest based replacement for the deprecated Tornado AsyncHTTPTestCase
@@ -65,7 +65,6 @@ class AsyncHTTPTestCase(unittest.IsolatedAsyncioTestCase):
         """
         raise NotImplementedError()
 
-
     def get_httpserver_options(self) -> dict[str, Any]:
         """May be overridden by subclasses to return additional
         keyword arguments for the server.
@@ -84,18 +83,20 @@ class AsyncHTTPTestCase(unittest.IsolatedAsyncioTestCase):
 
     def get_url(self, path: str) -> str:
         """Returns an absolute url for the given path on the test server."""
-        return "%s://127.0.0.1:%s%s" % (self.get_protocol(), self.get_http_port(), path)
+        return "%s://127.0.0.1:%s%s" % (self.get_protocol(),
+                                        self.get_http_port(), path)
 
     def tearDown(self) -> None:
         self.http_server.stop()
         io_loop = IOLoop.current()
         io_loop.run_sync(
-            self.http_server.close_all_connections, timeout=get_async_test_timeout()
-        )
+            self.http_server.close_all_connections,
+            timeout=get_async_test_timeout())
         self.http_client.close()
         del self.http_server
         del self._app
         super().tearDown()
+
 
 class AsyncHTTPSTestCase(AsyncHTTPTestCase):
     """A test case that starts an HTTPS server.
@@ -104,7 +105,9 @@ class AsyncHTTPSTestCase(AsyncHTTPTestCase):
     """
 
     def get_http_client(self) -> AsyncHTTPClient:
-        return AsyncHTTPClient(force_instance=True, defaults=dict(validate_cert=False))
+        return AsyncHTTPClient(
+            force_instance=True, defaults=dict(
+                validate_cert=False))
 
     def get_httpserver_options(self) -> dict[str, Any]:
         return dict(ssl_options=self.get_ssl_options())
@@ -129,7 +132,6 @@ class AsyncHTTPSTestCase(AsyncHTTPTestCase):
 
     def get_protocol(self) -> str:
         return "https"
-
 
 
 class TornadoAsyncIOLoop(BaseAsyncIOLoop):

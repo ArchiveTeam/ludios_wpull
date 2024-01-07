@@ -8,7 +8,6 @@ import asyncio
 from tornado.testing import AsyncTestCase
 
 
-
 _logger = logging.getLogger(__name__)
 
 
@@ -344,7 +343,7 @@ class FTPTestCase(AsyncTestCase):
         self.server = MockFTPServer()
         self.sock = socket.socket()
         self.sock.bind(('127.0.0.1', 0))
-        
+
         self.server_handle = self.io_loop.asyncio_loop.run_until_complete(
             asyncio.start_server(self.server, sock=self.sock)
         )
@@ -353,7 +352,6 @@ class FTPTestCase(AsyncTestCase):
         self.server_handle.close()
         AsyncTestCase.tearDown(self)
         # IsolatedAsyncioTestCase.tearDown(self)
-
 
     def get_url(self, path, username='', password=''):
         if username or password:
