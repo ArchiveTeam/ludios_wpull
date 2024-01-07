@@ -154,7 +154,12 @@ class ContentDispositionHandler(tornado.web.RequestHandler):
 
 class Always200Handler(tornado.web.RequestHandler):
     def get(self):
-        self.render('always200.html')
+        # Conditional handling required as otherwise when unittest requests the non-existent 
+        # page-requisites, it will return the same root HTML page
+        if self.request.uri == "/always200/":
+                self.render('always200.html')
+        else:
+            self.write(b"")
 
 
 class InfiniteIframeHandler(tornado.web.RequestHandler):

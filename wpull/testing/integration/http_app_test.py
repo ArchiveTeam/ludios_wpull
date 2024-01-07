@@ -13,7 +13,7 @@ from wpull.application.options import AppArgumentParser
 from wpull.errors import ExitStatus
 from wpull.network.dns import Resolver, ResolveResult, AddressInfo
 from wpull.testing.integration.base import HTTPGoodAppTestCase, \
-    tornado_future_adapter
+    tornado_future_adapter, HTTPBadAppTestCase
 from wpull.url import URLInfo
 from tornado.testing import gen_test
 
@@ -206,8 +206,11 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         arg_parser = AppArgumentParser(real_exit=False)
 
         real_stdin = sys.stdin
-        fake_stdin = io.StringIO(self.get_url('/') + '\n')
 
+        # TextIOWrapper is required as it has the "buffer" method unlike StringIO/BytesIO
+        # required to properly emulate stdin 
+        fake_stdin_buff = io.BytesIO((self.get_url('/') + '\n').encode())
+        fake_stdin = io.TextIOWrapper(fake_stdin_buff, encoding='utf-8')
         try:
             sys.stdin = fake_stdin
             args = arg_parser.parse_args([
@@ -218,6 +221,7 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
             exit_code = await app.run()
         finally:
             sys.stdin = real_stdin
+            fake_stdin.close()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(builder.factory['Statistics'].files, 1)
@@ -767,352 +771,352 @@ class TestHTTPGoodApp(HTTPGoodAppTestCase):
         print(builder.factory['URLTable'].get_all())
         self.assertEqual(4, builder.factory['Statistics'].files)
 
-#     @gen_test(timeout=30)
-#     async def test_escaped_fragment_input_url(self):
-#         arg_parser = AppArgumentParser()
-#         args = arg_parser.parse_args([
-#             self.get_url('/escape_from_fragments/#!husky-cat'),
-#             '--escaped-fragment'
-#         ])
-#         builder = Builder(args, unit_test=True)
-
-#         app = builder.build()
-#         exit_code = await app.run()
-
-#         self.assertEqual(0, exit_code)
-#         self.assertEqual(1, builder.factory['Statistics'].files)
-
-#         self.assertTrue(os.path.exists('index.html?_escaped_fragment_=husky-cat'))
-
-#     @gen_test(timeout=30)
-#     async def test_escaped_fragment_recursive(self):
-#         arg_parser = AppArgumentParser()
-#         args = arg_parser.parse_args([
-#             self.get_url('/escape_from_fragments/'),
-#             '-r',
-#             '--escaped-fragment'
-#         ])
-#         builder = Builder(args, unit_test=True)
-
-#         app = builder.build()
-#         exit_code = await app.run()
-
-#         self.assertEqual(0, exit_code)
-#         self.assertEqual(2, builder.factory['Statistics'].files)
-
-#     @gen_test(timeout=30)
-#     async def test_strip_session_id(self):
-#         arg_parser = AppArgumentParser()
-#         args = arg_parser.parse_args([
-#             self.get_url('/forum/'),
-#             '-r',
-#             '--strip-session-id',
-#         ])
-#         builder = Builder(args, unit_test=True)
-
-#         app = builder.build()
-#         exit_code = await app.run()
-
-#         self.assertEqual(0, exit_code)
-#         self.assertEqual(1, builder.factory['Statistics'].files)
-
-#     @gen_test(timeout=30)
-#     async def test_referer_option(self):
-#         arg_parser = AppArgumentParser()
-#         args = arg_parser.parse_args([
-#             self.get_url('/referrer/'),
-#             '-r',
-#             '--referer', 'http://left.shark/'
-#         ])
-#         builder = Builder(args, unit_test=True)
-
-#         app = builder.build()
-#         exit_code = await app.run()
-
-#         self.assertEqual(0, exit_code)
-#         self.assertEqual(2, builder.factory['Statistics'].files)
-
-#     @gen_test(timeout=30)
-#     async def test_referer_option_negative(self):
-#         arg_parser = AppArgumentParser()
-#         args = arg_parser.parse_args([
-#             self.get_url('/referrer/'),
-#             '-r',
-#             '--referer', 'http://superinformation.highway/',
-#             '--tries', '1',
-#             '--waitretry', '.1'
-#         ])
-#         builder = Builder(args, unit_test=True)
-
-#         app = builder.build()
-#         exit_code = await app.run()
-
-#         self.assertEqual(0, exit_code)
-#         self.assertEqual(0, builder.factory['Statistics'].files)
-
-#     @gen_test(timeout=30)
-#     async def test_no_cache_arg(self):
-#         arg_parser = AppArgumentParser()
-#         args = arg_parser.parse_args([
-#             self.get_url('/no-cache'),
-#             '--tries=1'
-#         ])
-#         builder = Builder(args, unit_test=True)
-
-#         app = builder.build()
-#         exit_code = await app.run()
-
-#         self.assertEqual(8, exit_code)
-#         self.assertEqual(0, builder.factory['Statistics'].files)
-
-#         arg_parser = AppArgumentParser()
-#         args = arg_parser.parse_args([
-#             self.get_url('/no-cache'),
-#             '--tries=1',
-#             '--no-cache',
-#         ])
-#         builder = Builder(args, unit_test=True)
+    @gen_test(timeout=30)
+    async def test_escaped_fragment_input_url(self):
+        arg_parser = AppArgumentParser()
+        args = arg_parser.parse_args([
+            self.get_url('/escape_from_fragments/#!husky-cat'),
+            '--escaped-fragment'
+        ])
+        builder = Builder(args, unit_test=True)
+
+        app = builder.build()
+        exit_code = await app.run()
+
+        self.assertEqual(0, exit_code)
+        self.assertEqual(1, builder.factory['Statistics'].files)
+
+        self.assertTrue(os.path.exists('index.html?_escaped_fragment_=husky-cat'))
+
+    @gen_test(timeout=30)
+    async def test_escaped_fragment_recursive(self):
+        arg_parser = AppArgumentParser()
+        args = arg_parser.parse_args([
+            self.get_url('/escape_from_fragments/'),
+            '-r',
+            '--escaped-fragment'
+        ])
+        builder = Builder(args, unit_test=True)
+
+        app = builder.build()
+        exit_code = await app.run()
+
+        self.assertEqual(0, exit_code)
+        self.assertEqual(2, builder.factory['Statistics'].files)
+
+    @gen_test(timeout=30)
+    async def test_strip_session_id(self):
+        arg_parser = AppArgumentParser()
+        args = arg_parser.parse_args([
+            self.get_url('/forum/'),
+            '-r',
+            '--strip-session-id',
+        ])
+        builder = Builder(args, unit_test=True)
+
+        app = builder.build()
+        exit_code = await app.run()
+
+        self.assertEqual(0, exit_code)
+        self.assertEqual(1, builder.factory['Statistics'].files)
+
+    @gen_test(timeout=30)
+    async def test_referer_option(self):
+        arg_parser = AppArgumentParser()
+        args = arg_parser.parse_args([
+            self.get_url('/referrer/'),
+            '-r',
+            '--referer', 'http://left.shark/'
+        ])
+        builder = Builder(args, unit_test=True)
+
+        app = builder.build()
+        exit_code = await app.run()
+
+        self.assertEqual(0, exit_code)
+        self.assertEqual(2, builder.factory['Statistics'].files)
+
+    @gen_test(timeout=30)
+    async def test_referer_option_negative(self):
+        arg_parser = AppArgumentParser()
+        args = arg_parser.parse_args([
+            self.get_url('/referrer/'),
+            '-r',
+            '--referer', 'http://superinformation.highway/',
+            '--tries', '1',
+            '--waitretry', '.1'
+        ])
+        builder = Builder(args, unit_test=True)
+
+        app = builder.build()
+        exit_code = await app.run()
+
+        self.assertEqual(0, exit_code)
+        self.assertEqual(0, builder.factory['Statistics'].files)
+
+    @gen_test(timeout=30)
+    async def test_no_cache_arg(self):
+        arg_parser = AppArgumentParser()
+        args = arg_parser.parse_args([
+            self.get_url('/no-cache'),
+            '--tries=1'
+        ])
+        builder = Builder(args, unit_test=True)
+
+        app = builder.build()
+        exit_code = await app.run()
+
+        self.assertEqual(8, exit_code)
+        self.assertEqual(0, builder.factory['Statistics'].files)
+
+        arg_parser = AppArgumentParser()
+        args = arg_parser.parse_args([
+            self.get_url('/no-cache'),
+            '--tries=1',
+            '--no-cache',
+        ])
+        builder = Builder(args, unit_test=True)
 
-#         app = builder.build()
-#         exit_code = await app.run()
+        app = builder.build()
+        exit_code = await app.run()
 
-#         self.assertEqual(0, exit_code)
-#         self.assertEqual(1, builder.factory['Statistics'].files)
+        self.assertEqual(0, exit_code)
+        self.assertEqual(1, builder.factory['Statistics'].files)
 
-#     @gen_test(timeout=30)
-#     async def test_file_continue(self):
-#         arg_parser = AppArgumentParser()
-#         args = arg_parser.parse_args([self.get_url('/static/my_file.txt'),
-#                                       '--continue', '--debug'])
+    @gen_test(timeout=30)
+    async def test_file_continue(self):
+        arg_parser = AppArgumentParser()
+        args = arg_parser.parse_args([self.get_url('/static/my_file.txt'),
+                                      '--continue', '--debug'])
 
-#         filename = os.path.join(self.temp_dir.name, 'my_file.txt')
+        filename = os.path.join(self.temp_dir.name, 'my_file.txt')
 
-#         with open(filename, 'wb') as out_file:
-#             out_file.write(b'START')
+        with open(filename, 'wb') as out_file:
+            out_file.write(b'START')
 
-#         app = Builder(args, unit_test=True).build()
-#         exit_code = await app.run()
+        app = Builder(args, unit_test=True).build()
+        exit_code = await app.run()
 
-#         self.assertEqual(0, exit_code)
+        self.assertEqual(0, exit_code)
 
-#         with open(filename, 'rb') as in_file:
-#             data = in_file.read()
+        with open(filename, 'rb') as in_file:
+            data = in_file.read()
 
-#             self.assertEqual('54388a281352fdb2cfa66009ac0e35dd8916af7c',
-#                              hashlib.sha1(data).hexdigest())
+            self.assertEqual('54388a281352fdb2cfa66009ac0e35dd8916af7c',
+                             hashlib.sha1(data).hexdigest())
 
-#     @gen_test(timeout=30)
-#     async def test_timestamping_hit(self):
-#         arg_parser = AppArgumentParser()
-#         args = arg_parser.parse_args([
-#             self.get_url('/lastmod'),
-#             '--timestamping'
-#         ])
+    @gen_test(timeout=30)
+    async def test_timestamping_hit(self):
+        arg_parser = AppArgumentParser()
+        args = arg_parser.parse_args([
+            self.get_url('/lastmod'),
+            '--timestamping'
+        ])
 
-#         filename = os.path.join(self.temp_dir.name, 'lastmod')
+        filename = os.path.join(self.temp_dir.name, 'lastmod')
 
-#         with open(filename, 'wb') as out_file:
-#             out_file.write(b'HI')
+        with open(filename, 'wb') as out_file:
+            out_file.write(b'HI')
 
-#         os.utime(filename, (631152000, 631152000))
+        os.utime(filename, (631152000, 631152000))
 
-#         builder = Builder(args, unit_test=True)
-#         app = builder.build()
-#         exit_code = await app.run()
+        builder = Builder(args, unit_test=True)
+        app = builder.build()
+        exit_code = await app.run()
 
-#         self.assertEqual(0, exit_code)
+        self.assertEqual(0, exit_code)
 
-#         with open(filename, 'rb') as in_file:
-#             self.assertEqual(b'HI', in_file.read())
+        with open(filename, 'rb') as in_file:
+            self.assertEqual(b'HI', in_file.read())
 
-#     @gen_test(timeout=30)
-#     async def test_timestamping_miss(self):
-#         arg_parser = AppArgumentParser()
-#         args = arg_parser.parse_args([
-#             self.get_url('/lastmod'),
-#             '--timestamping'
-#         ])
+    @gen_test(timeout=30)
+    async def test_timestamping_miss(self):
+        arg_parser = AppArgumentParser()
+        args = arg_parser.parse_args([
+            self.get_url('/lastmod'),
+            '--timestamping'
+        ])
 
-#         filename = os.path.join(self.temp_dir.name, 'lastmod')
+        filename = os.path.join(self.temp_dir.name, 'lastmod')
 
-#         with open(filename, 'wb') as out_file:
-#             out_file.write(b'HI')
+        with open(filename, 'wb') as out_file:
+            out_file.write(b'HI')
 
-#         os.utime(filename, (636249600, 636249600))
+        os.utime(filename, (636249600, 636249600))
 
-#         builder = Builder(args, unit_test=True)
-#         app = builder.build()
-#         exit_code = await app.run()
-
-#         self.assertEqual(0, exit_code)
-
-#         with open(filename, 'rb') as in_file:
-#             self.assertEqual(b'HELLO', in_file.read())
-
-#     @gen_test(timeout=30)
-#     async def test_timestamping_hit_orig(self):
-#         arg_parser = AppArgumentParser()
-#         args = arg_parser.parse_args([
-#             self.get_url('/lastmod'),
-#             '--timestamping'
-#         ])
-
-#         filename = os.path.join(self.temp_dir.name, 'lastmod')
-#         filename_orig = os.path.join(self.temp_dir.name, 'lastmod')
-
-#         with open(filename, 'wb') as out_file:
-#             out_file.write(b'HI')
-
-#         with open(filename_orig, 'wb') as out_file:
-#             out_file.write(b'HI')
-
-#         os.utime(filename_orig, (631152000, 631152000))
-
-#         builder = Builder(args, unit_test=True)
-#         app = builder.build()
-#         exit_code = await app.run()
-
-#         self.assertEqual(0, exit_code)
-
-#         with open(filename, 'rb') as in_file:
-#             self.assertEqual(b'HI', in_file.read())
-
-#         with open(filename_orig, 'rb') as in_file:
-#             self.assertEqual(b'HI', in_file.read())
-
-
-# class TestHTTPBadApp(HTTPBadAppTestCase):
-#     @gen_test(timeout=30)
-#     async def test_bad_cookie(self):
-#         import http.cookiejar
-#         http.cookiejar.debug = True
-#         arg_parser = AppArgumentParser()
-#         args = arg_parser.parse_args([
-#             self.get_url('/bad_cookie'),
-#         ])
-#         builder = Builder(args, unit_test=True)
-
-#         app = builder.build()
-#         exit_code = await app.run()
-#         self.assertEqual(0, exit_code)
-#         self.assertEqual(1, builder.factory['Statistics'].files)
-
-#         cookies = list(builder.factory['CookieJar'])
-#         _logger.debug('{0}'.format(cookies))
-#         self.assertEqual(4, len(cookies))
-
-#     @gen_test(timeout=30)
-#     async def test_long_cookie(self):
-#         arg_parser = AppArgumentParser()
-#         args = arg_parser.parse_args([
-#             self.get_url('/long_cookie'),
-#         ])
-#         builder = Builder(args, unit_test=True)
-
-#         app = builder.build()
-#         exit_code = await app.run()
-#         self.assertEqual(0, exit_code)
-#         self.assertEqual(1, builder.factory['Statistics'].files)
-
-#         cookies = list(builder.factory['CookieJar'])
-#         _logger.debug('{0}'.format(cookies))
-#         self.assertEqual(0, len(cookies))
-
-#     @gen_test(timeout=30)
-#     async def test_non_http_redirect(self):
-#         arg_parser = AppArgumentParser()
-#         args = arg_parser.parse_args([
-#             self.get_url('/non_http_redirect'),
-#             '--recursive',
-#             '--no-robots'
-#         ])
-#         builder = Builder(args, unit_test=True)
-
-#         app = builder.build()
-#         exit_code = await app.run()
-
-#         self.assertEqual(0, exit_code)
-#         self.assertEqual(0, builder.factory['Statistics'].files)
-
-#     @gen_test(timeout=30)
-#     async def test_bad_redirect(self):
-#         arg_parser = AppArgumentParser()
-#         args = arg_parser.parse_args([
-#             self.get_url('/bad_redirect'),
-#             '--recursive',
-#             '--no-robots',
-#             '--waitretry', '0.1',
-#         ])
-#         builder = Builder(args, unit_test=True)
-
-#         app = builder.build()
-#         exit_code = await app.run()
-
-#         self.assertEqual(7, exit_code)
-#         self.assertEqual(0, builder.factory['Statistics'].files)
-
-#     @gen_test(timeout=30)
-#     async def test_ignore_length(self):
-#         arg_parser = AppArgumentParser()
-#         args = arg_parser.parse_args([
-#             self.get_url('/underrun'),
-#             '--ignore-length',
-#             '--no-robots',
-#         ])
-#         builder = Builder(args, unit_test=True)
-
-#         app = builder.build()
-#         exit_code = await app.run()
-
-#         self.assertEqual(0, exit_code)
-#         self.assertEqual(1, builder.factory['Statistics'].files)
-
-#     # XXX: slow on pypy
-#     @gen_test(timeout=120)
-#     async def test_bad_utf8(self):
-#         arg_parser = AppArgumentParser()
-#         args = arg_parser.parse_args([
-#             self.get_url('/utf8_then_binary/doc.html'),
-#             self.get_url('/utf8_then_binary/doc.xml'),
-#             self.get_url('/utf8_then_binary/doc.css'),
-#             self.get_url('/utf8_then_binary/doc.js'),
-#             '--no-robots',
-#         ])
-#         builder = Builder(args, unit_test=True)
-
-#         app = builder.build()
-#         exit_code = await app.run()
-
-#         self.assertEqual(0, exit_code)
-#         self.assertEqual(4, builder.factory['Statistics'].files)
-
-#     @gen_test(timeout=30)
-#     async def test_no_content(self):
-#         arg_parser = AppArgumentParser()
-#         args = arg_parser.parse_args([
-#             self.get_url('/no_content'),
-#             '--tries=1',
-#         ])
-#         builder = Builder(args, unit_test=True)
-
-#         app = builder.build()
-#         exit_code = await app.run()
-
-#         self.assertEqual(0, exit_code)
-#         self.assertEqual(1, builder.factory['Statistics'].files)
-
-#     @gen_test(timeout=30)
-#     async def test_session_timeout(self):
-#         arg_parser = AppArgumentParser()
-#         args = arg_parser.parse_args([
-#             self.get_url('/sleep_long'),
-#             '--tries=1',
-#             '--session-timeout=0.1'
-#         ])
-#         builder = Builder(args, unit_test=True)
-
-#         app = builder.build()
-#         exit_code = await app.run()
-
-#         self.assertEqual(4, exit_code)
-#         self.assertEqual(0, builder.factory['Statistics'].files)
+        builder = Builder(args, unit_test=True)
+        app = builder.build()
+        exit_code = await app.run()
+
+        self.assertEqual(0, exit_code)
+
+        with open(filename, 'rb') as in_file:
+            self.assertEqual(b'HELLO', in_file.read())
+
+    @gen_test(timeout=30)
+    async def test_timestamping_hit_orig(self):
+        arg_parser = AppArgumentParser()
+        args = arg_parser.parse_args([
+            self.get_url('/lastmod'),
+            '--timestamping'
+        ])
+
+        filename = os.path.join(self.temp_dir.name, 'lastmod')
+        filename_orig = os.path.join(self.temp_dir.name, 'lastmod')
+
+        with open(filename, 'wb') as out_file:
+            out_file.write(b'HI')
+
+        with open(filename_orig, 'wb') as out_file:
+            out_file.write(b'HI')
+
+        os.utime(filename_orig, (631152000, 631152000))
+
+        builder = Builder(args, unit_test=True)
+        app = builder.build()
+        exit_code = await app.run()
+
+        self.assertEqual(0, exit_code)
+
+        with open(filename, 'rb') as in_file:
+            self.assertEqual(b'HI', in_file.read())
+
+        with open(filename_orig, 'rb') as in_file:
+            self.assertEqual(b'HI', in_file.read())
+
+
+class TestHTTPBadApp(HTTPBadAppTestCase):
+    @gen_test(timeout=30)
+    async def test_bad_cookie(self):
+        import http.cookiejar
+        http.cookiejar.debug = True
+        arg_parser = AppArgumentParser()
+        args = arg_parser.parse_args([
+            self.get_url('/bad_cookie'),
+        ])
+        builder = Builder(args, unit_test=True)
+
+        app = builder.build()
+        exit_code = await app.run()
+        self.assertEqual(0, exit_code)
+        self.assertEqual(1, builder.factory['Statistics'].files)
+
+        cookies = list(builder.factory['CookieJar'])
+        _logger.debug('{0}'.format(cookies))
+        self.assertEqual(4, len(cookies))
+
+    @gen_test(timeout=30)
+    async def test_long_cookie(self):
+        arg_parser = AppArgumentParser()
+        args = arg_parser.parse_args([
+            self.get_url('/long_cookie'),
+        ])
+        builder = Builder(args, unit_test=True)
+
+        app = builder.build()
+        exit_code = await app.run()
+        self.assertEqual(0, exit_code)
+        self.assertEqual(1, builder.factory['Statistics'].files)
+
+        cookies = list(builder.factory['CookieJar'])
+        _logger.debug('{0}'.format(cookies))
+        self.assertEqual(0, len(cookies))
+
+    @gen_test(timeout=30)
+    async def test_non_http_redirect(self):
+        arg_parser = AppArgumentParser()
+        args = arg_parser.parse_args([
+            self.get_url('/non_http_redirect'),
+            '--recursive',
+            '--no-robots'
+        ])
+        builder = Builder(args, unit_test=True)
+
+        app = builder.build()
+        exit_code = await app.run()
+
+        self.assertEqual(0, exit_code)
+        self.assertEqual(0, builder.factory['Statistics'].files)
+
+    @gen_test(timeout=30)
+    async def test_bad_redirect(self):
+        arg_parser = AppArgumentParser()
+        args = arg_parser.parse_args([
+            self.get_url('/bad_redirect'),
+            '--recursive',
+            '--no-robots',
+            '--waitretry', '0.1',
+        ])
+        builder = Builder(args, unit_test=True)
+
+        app = builder.build()
+        exit_code = await app.run()
+
+        self.assertEqual(7, exit_code)
+        self.assertEqual(0, builder.factory['Statistics'].files)
+
+    @gen_test(timeout=30)
+    async def test_ignore_length(self):
+        arg_parser = AppArgumentParser()
+        args = arg_parser.parse_args([
+            self.get_url('/underrun'),
+            '--ignore-length',
+            '--no-robots',
+        ])
+        builder = Builder(args, unit_test=True)
+
+        app = builder.build()
+        exit_code = await app.run()
+
+        self.assertEqual(0, exit_code)
+        self.assertEqual(1, builder.factory['Statistics'].files)
+
+    # XXX: slow on pypy
+    @gen_test(timeout=120)
+    async def test_bad_utf8(self):
+        arg_parser = AppArgumentParser()
+        args = arg_parser.parse_args([
+            self.get_url('/utf8_then_binary/doc.html'),
+            self.get_url('/utf8_then_binary/doc.xml'),
+            self.get_url('/utf8_then_binary/doc.css'),
+            self.get_url('/utf8_then_binary/doc.js'),
+            '--no-robots',
+        ])
+        builder = Builder(args, unit_test=True)
+
+        app = builder.build()
+        exit_code = await app.run()
+
+        self.assertEqual(0, exit_code)
+        self.assertEqual(4, builder.factory['Statistics'].files)
+
+    @gen_test(timeout=30)
+    async def test_no_content(self):
+        arg_parser = AppArgumentParser()
+        args = arg_parser.parse_args([
+            self.get_url('/no_content'),
+            '--tries=1',
+        ])
+        builder = Builder(args, unit_test=True)
+
+        app = builder.build()
+        exit_code = await app.run()
+
+        self.assertEqual(0, exit_code)
+        self.assertEqual(1, builder.factory['Statistics'].files)
+
+    @gen_test(timeout=30)
+    async def test_session_timeout(self):
+        arg_parser = AppArgumentParser()
+        args = arg_parser.parse_args([
+            self.get_url('/sleep_long'),
+            '--tries=1',
+            '--session-timeout=0.1'
+        ])
+        builder = Builder(args, unit_test=True)
+
+        app = builder.build()
+        exit_code = await app.run()
+
+        self.assertEqual(4, exit_code)
+        self.assertEqual(0, builder.factory['Statistics'].files)
