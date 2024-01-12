@@ -1,3 +1,5 @@
+ Create pull request Open a pull request that is ready for review
+Create draft pull request Cannot be merged until marked ready for review
 [build-system]
 requires = ["setuptools >= 65.0"]
 build-backend = "setuptools.build_meta"
@@ -23,7 +25,7 @@ dependencies = [
     "dnspython",
     "html5-parser",
     "lxml",
-    "psutil==4.2.0",
+    "psutil~=5.9",
     "sqlalchemy==2.0.23",
     "tornado~=6.4",
     # Required due to yapsy 1.12.2 using deprecated modules
