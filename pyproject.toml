@@ -70,7 +70,7 @@ packages = [
 ]
 
 [project.urls]
-Source = "https://github.com/chfoo/wpull"
+Source = "https://github.com/ArchiveTeam/ludios_wpull"
 
 [project.scripts]
 wpull = "wpull.application.main:main"
