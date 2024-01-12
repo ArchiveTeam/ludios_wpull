@@ -1,5 +1,3 @@
- Create pull request Open a pull request that is ready for review
-Create draft pull request Cannot be merged until marked ready for review
 [build-system]
 requires = ["setuptools >= 65.0"]
 build-backend = "setuptools.build_meta"
