@@ -191,7 +191,7 @@ def _parse_content_type_header(header):
     return media_type.strip(), encoding.strip()
 
     
-class _Ruleset(object):
+class _Ruleset:
     """ _Ruleset represents a set of allow/disallow rules (and possibly a 
     crawl delay) that apply to a set of user agents.
     
@@ -307,7 +307,7 @@ class _Ruleset(object):
         return allowed
 
 
-class RobotExclusionRulesParser(object):
+class RobotExclusionRulesParser:
     """A parser for robots.txt files."""
     def __init__(self):
         self._source_url = ""

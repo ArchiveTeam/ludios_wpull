@@ -3,7 +3,7 @@ import re
 import urllib.parse
 
 from wpull.protocol.abstract.request import SerializableMixin, DictableMixin, \
-    URLPropertyMixin, ProtocolResponseMixin, BaseResponse, BaseRequest
+    URLPropertyMixin, BaseResponse, BaseRequest
 from wpull.errors import ProtocolError
 import wpull.protocol.ftp.util
 

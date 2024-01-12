@@ -1,9 +1,6 @@
 '''FTP service control.'''
 import logging
 
-
-import asyncio
-
 from typing import Sequence, Tuple, Callable, IO
 from typing import Union
 
@@ -18,7 +15,7 @@ import wpull.protocol.ftp.util
 _logger = logging.getLogger(__name__)
 
 
-class Commander(object):
+class Commander:
     '''Helper class that performs typical FTP routines.
 
     Args:
@@ -53,26 +50,26 @@ class Commander(object):
                 reply.code
                 )
 
-    @asyncio.coroutine
-    def read_welcome_message(self):
+    
+    async def read_welcome_message(self):
         '''Read the welcome message.
 
         Coroutine.
         '''
-        reply = yield from self._control_stream.read_reply()
+        reply = await self._control_stream.read_reply()
 
         self.raise_if_not_match(
             'Server ready', ReplyCodes.service_ready_for_new_user, reply)
 
-    @asyncio.coroutine
-    def login(self, username: str='anonymous', password: str='-wpull-lib@'):
+    
+    async def login(self, username: str='anonymous', password: str='-wpull-lib@'):
         '''Log in.
 
         Coroutine.
         '''
-        yield from self._control_stream.write_command(Command('USER', username))
+        await self._control_stream.write_command(Command('USER', username))
 
-        reply = yield from self._control_stream.read_reply()
+        reply = await self._control_stream.read_reply()
 
         if reply.code == ReplyCodes.user_logged_in_proceed:
             return
@@ -80,15 +77,15 @@ class Commander(object):
         self.raise_if_not_match(
             'Login username', ReplyCodes.user_name_okay_need_password, reply)
 
-        yield from self._control_stream.write_command(Command('PASS', password))
+        await self._control_stream.write_command(Command('PASS', password))
 
-        reply = yield from self._control_stream.read_reply()
+        reply = await self._control_stream.read_reply()
 
         self.raise_if_not_match(
             'Login password', ReplyCodes.user_logged_in_proceed, reply)
 
-    @asyncio.coroutine
-    def passive_mode(self) -> Tuple[str, int]:
+    
+    async def passive_mode(self) -> Tuple[str, int]:
         '''Enable passive mode.
 
         Returns:
@@ -96,9 +93,9 @@ class Commander(object):
 
         Coroutine.
         '''
-        yield from self._control_stream.write_command(Command('PASV'))
+        await self._control_stream.write_command(Command('PASV'))
 
-        reply = yield from self._control_stream.read_reply()
+        reply = await self._control_stream.read_reply()
 
         self.raise_if_not_match(
             'Passive mode', ReplyCodes.entering_passive_mode, reply)
@@ -108,8 +105,8 @@ class Commander(object):
         except ValueError as error:
             raise ProtocolError(str(error)) from error
 
-    @asyncio.coroutine
-    def setup_data_stream(
+    
+    async def setup_data_stream(
             self,
             connection_factory: Callable[[tuple], Connection],
             data_stream_factory: Callable[[Connection], DataStream]=DataStream) -> \
@@ -128,27 +125,27 @@ class Commander(object):
         Returns:
             DataStream
         '''
-        yield from self._control_stream.write_command(Command('TYPE', 'I'))
-        reply = yield from self._control_stream.read_reply()
+        await self._control_stream.write_command(Command('TYPE', 'I'))
+        reply = await self._control_stream.read_reply()
 
         self.raise_if_not_match('Binary mode', ReplyCodes.command_okay, reply)
 
-        address = yield from self.passive_mode()
+        address = await self.passive_mode()
 
-        connection = yield from connection_factory(address)
+        connection = await connection_factory(address)
 
         # TODO: unit test for following line for connections that have
         # the same port over time but within pool cleaning intervals
         connection.reset()
 
-        yield from connection.connect()
+        await connection.connect()
 
         data_stream = data_stream_factory(connection)
 
         return data_stream
 
-    @asyncio.coroutine
-    def begin_stream(self, command: Command) -> Reply:
+    
+    async def begin_stream(self, command: Command) -> Reply:
         '''Start sending content on the data stream.
 
         Args:
@@ -160,8 +157,8 @@ class Commander(object):
         Returns:
             The begin reply.
         '''
-        yield from self._control_stream.write_command(command)
-        reply = yield from self._control_stream.read_reply()
+        await self._control_stream.write_command(command)
+        reply = await self._control_stream.read_reply()
 
         self.raise_if_not_match(
             'Begin stream',
@@ -174,8 +171,8 @@ class Commander(object):
 
         return reply
 
-    @asyncio.coroutine
-    def read_stream(self, file: IO, data_stream: DataStream) -> Reply:
+    
+    async def read_stream(self, file: IO, data_stream: DataStream) -> Reply:
         '''Read from the data stream.
 
         Args:
@@ -188,9 +185,9 @@ class Commander(object):
             Reply: The final reply.
         '''
 
-        yield from data_stream.read_file(file=file)
+        await data_stream.read_file(file=file)
 
-        reply = yield from self._control_stream.read_reply()
+        reply = await self._control_stream.read_reply()
 
         self.raise_if_not_match(
             'End stream',
@@ -202,15 +199,15 @@ class Commander(object):
 
         return reply
 
-    @asyncio.coroutine
-    def size(self, filename: str) -> int:
+    
+    async def size(self, filename: str) -> int:
         '''Get size of file.
 
         Coroutine.
         '''
-        yield from self._control_stream.write_command(Command('SIZE', filename))
+        await self._control_stream.write_command(Command('SIZE', filename))
 
-        reply = yield from self._control_stream.read_reply()
+        reply = await self._control_stream.read_reply()
 
         self.raise_if_not_match('File size', ReplyCodes.file_status, reply)
 
@@ -219,14 +216,14 @@ class Commander(object):
         except ValueError:
             return
 
-    @asyncio.coroutine
-    def restart(self, offset: int):
+    
+    async def restart(self, offset: int):
         '''Send restart command.
 
         Coroutine.
         '''
-        yield from self._control_stream.write_command(Command('REST', str(offset)))
+        await self._control_stream.write_command(Command('REST', str(offset)))
 
-        reply = yield from self._control_stream.read_reply()
+        reply = await self._control_stream.read_reply()
 
         self.raise_if_not_match('Restart', ReplyCodes.requested_file_action_pending_further_information, reply)

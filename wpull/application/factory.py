@@ -3,7 +3,7 @@
 import collections
 
 
-class Factory(collections.Mapping, object):
+class Factory(collections.abc.Mapping):
     '''Allows selection of classes and keeps track of instances.
 
     This class behaves like a mapping. Keys are names of classes and values are

@@ -1,6 +1,5 @@
 import gettext
 import logging
-import asyncio
 import os
 import ssl
 import tempfile
@@ -17,8 +16,8 @@ _ = gettext.gettext
 
 
 class SSLContextTask(ItemTask[AppSession]):
-    @asyncio.coroutine
-    def process(self, session: AppSession):
+    
+    async def process(self, session: AppSession):
         session.ssl_context = self._build_ssl_context(session)
 
     @classmethod

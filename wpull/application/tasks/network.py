@@ -1,7 +1,6 @@
 import functools
 import gettext
 import logging
-import asyncio
 
 from wpull.backport.logging import BraceMessage as __
 from wpull.network.connection import Connection, SSLConnection
@@ -15,8 +14,7 @@ _ = gettext.gettext
 
 
 class NetworkSetupTask(ItemTask[AppSession]):
-    @asyncio.coroutine
-    def process(self, session: AppSession):
+    async def process(self, session: AppSession):
         self._build_resolver(session)
         self._build_connection_pool(session)
 

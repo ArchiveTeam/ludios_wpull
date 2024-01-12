@@ -111,7 +111,7 @@ class BetterMozillaCookieJar(http.cookiejar.FileCookieJar):
 
         line = ""
         try:
-            while 1:
+            while True:
                 line = f.readline()
                 if line == "":
                     break
@@ -175,8 +175,10 @@ class BetterMozillaCookieJar(http.cookiejar.FileCookieJar):
 
     def save(self, filename=None, ignore_discard=False, ignore_expires=False):
         if filename is None:
-            if self.filename is not None: filename = self.filename
-            else: raise ValueError(http.cookiejar.MISSING_FILENAME_TEXT)
+            if self.filename is not None:
+                filename = self.filename
+            else:
+                raise ValueError(http.cookiejar.MISSING_FILENAME_TEXT)
 
         with open(filename, "w") as f:
             f.write(self.header)

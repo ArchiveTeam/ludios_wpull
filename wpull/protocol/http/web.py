@@ -6,8 +6,6 @@ import gettext
 import logging
 import http.client
 
-import asyncio
-
 from typing import Optional, Callable, IO
 from wpull.errors import ProtocolError
 from wpull.protocol.http.client import Client
@@ -32,7 +30,7 @@ class LoopType(enum.Enum):
     '''Response to a HTTP authentication.'''
 
 
-class WebSession(object):
+class WebSession:
     '''A web session.'''
     def __init__(self, request: Request,
                  http_client: Client,
@@ -92,8 +90,8 @@ class WebSession(object):
                 self._current_session.SessionEvent.end_session, error=error)
             self._current_session.recycle()
 
-    @asyncio.coroutine
-    def start(self):
+    
+    async def start(self):
         '''Begin fetching the next request.'''
         self._current_session = session = self._http_client.session()
 
@@ -104,14 +102,14 @@ class WebSession(object):
                 request.url_info.hostname_with_port in self._hostnames_with_auth:
             self._add_basic_auth_header(request)
 
-        response = yield from session.start(request)
+        response = await session.start(request)
 
         self._process_response(response)
 
         return response
 
-    @asyncio.coroutine
-    def download(self, file: Optional[IO[bytes]]=None,
+    
+    async def download(self, file: Optional[IO[bytes]]=None,
                  duration_timeout: Optional[float]=None):
         '''Download content.
 
@@ -127,7 +125,7 @@ class WebSession(object):
 
         Coroutine.
         '''
-        yield from \
+        await \
             self._current_session.download(file, duration_timeout=duration_timeout)
 
     def _process_response(self, response: Response):
@@ -225,7 +223,7 @@ class WebSession(object):
             request.fields['Authorization'] = 'Basic {}'.format(auth_string)
 
 
-class WebClient(object):
+class WebClient:
     '''A web client handles redirects, cookies, basic authentication.
 
     Args:
@@ -284,14 +282,14 @@ class WebClient(object):
                     request = session.next_request()
                     print(request)
 
-                    response = yield from session.start()
+                    response = await session.start()
                     print(response)
 
                     if session.done():
                         with open('myfile.html') as file:
-                            yield from session.download(file)
+                            await session.download(file)
                     else:
-                        yield from session.download()
+                        await session.download()
 
         Returns:
             WebSession

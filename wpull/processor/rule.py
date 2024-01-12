@@ -1,5 +1,4 @@
 '''Fetching rules.'''
-import asyncio
 import logging
 import random
 
@@ -13,7 +12,7 @@ from wpull.stats import Statistics
 from wpull.url import URLInfo
 from wpull.backport.logging import StyleAdapter
 from wpull.errors import DNSNotFound, ServerError, ConnectionRefused, \
-    SSLVerificationError, ProtocolError
+    SSLCertVerificationError, ProtocolError
 from wpull.application.hook import HookableMixin, HookDisconnected, Actions, HookStop
 from wpull.pipeline.item import Status, URLRecord
 from wpull.pipeline.session import ItemSession
@@ -43,8 +42,7 @@ class FetchRule(HookableMixin):
 
         self.hook_dispatcher.register(PluginFunctions.accept_url)
 
-    @asyncio.coroutine
-    def consult_robots_txt(self, request: HTTPRequest) -> bool:
+    async def consult_robots_txt(self, request: HTTPRequest) -> bool:
         '''Consult by fetching robots.txt as needed.
 
         Args:
@@ -59,7 +57,7 @@ class FetchRule(HookableMixin):
         if not self._robots_txt_checker:
             return True
 
-        result = yield from self._robots_txt_checker.can_fetch(request)
+        result = await self._robots_txt_checker.can_fetch(request)
         return result
 
     def consult_helix_fossil(self) -> bool:
@@ -157,8 +155,7 @@ class FetchRule(HookableMixin):
         '''
         return verdict
 
-    @asyncio.coroutine
-    def check_initial_web_request(self, item_session: ItemSession, request: HTTPRequest) -> Tuple[bool, str]:
+    async def check_initial_web_request(self, item_session: ItemSession, request: HTTPRequest) -> Tuple[bool, str]:
         '''Check robots.txt, URL filters, and scripting hook.
 
         Returns:
@@ -169,7 +166,7 @@ class FetchRule(HookableMixin):
         verdict, reason, test_info = self.consult_filters(item_session.request.url_info, item_session.url_record)
 
         if verdict and self._robots_txt_checker:
-            can_fetch = yield from self.consult_robots_txt(request)
+            can_fetch = await self.consult_robots_txt(request)
 
             if not can_fetch:
                 verdict = False
@@ -345,7 +342,7 @@ class ResultRule(HookableMixin):
             A value from :class:`.hook.Actions`.
         '''
         if not self._ssl_verification and \
-                isinstance(error, SSLVerificationError):
+                isinstance(error, SSLCertVerificationError):
             # Change it into a different error since the user doesn't care
             # about verifying certificates
             self._statistics.increment_error(ProtocolError())
@@ -362,7 +359,7 @@ class ResultRule(HookableMixin):
             item_session.set_status(Status.done)
         elif action == Actions.STOP:
             raise HookStop('Script requested immediate stop.')
-        elif self._ssl_verification and isinstance(error, SSLVerificationError):
+        elif self._ssl_verification and isinstance(error, SSLCertVerificationError):
             raise
         elif isinstance(error, ConnectionRefused) and \
                 not self.retry_connrefused:

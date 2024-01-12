@@ -17,8 +17,7 @@ _ = gettext.gettext
 
 
 class ResmonSetupTask(ItemTask[AppSession]):
-    @asyncio.coroutine
-    def process(self, session: AppSession):
+    async def process(self, session: AppSession):
         if not wpull.resmon.psutil:
             return
 
@@ -36,8 +35,7 @@ class ResmonSetupTask(ItemTask[AppSession]):
 
 
 class ResmonSleepTask(ItemTask[ItemSession]):
-    @asyncio.coroutine
-    def process(self, session: ItemSession):
+    async def process(self, session: ItemSession):
         resource_monitor = session.app_session.factory.get('ResourceMonitor')
 
         if not resource_monitor:
@@ -49,16 +47,15 @@ class ResmonSleepTask(ItemTask[ItemSession]):
             use_log = False
         else:
             use_log = True
-            yield from resmon_semaphore.acquire()
+            await resmon_semaphore.acquire()
 
-        yield from self._polling_sleep(resource_monitor, log=use_log)
+        await self._polling_sleep(resource_monitor, log=use_log)
 
         if use_log:
             resmon_semaphore.release()
 
     @classmethod
-    @asyncio.coroutine
-    def _polling_sleep(cls, resource_monitor, log=False):
+    async def _polling_sleep(cls, resource_monitor, log=False):
         for counter in itertools.count():
             resource_info = resource_monitor.check()
 
@@ -83,4 +80,4 @@ class ResmonSleepTask(ItemTask[ItemSession]):
 
                 _logger.warning(_('Waiting for operator to clear situation.'))
 
-            yield from asyncio.sleep(60)
+            await asyncio.sleep(60)

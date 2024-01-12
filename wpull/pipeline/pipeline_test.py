@@ -1,17 +1,16 @@
 import asyncio
 import logging
 
-from typing import Optional, List, Iterable
+from typing import Optional, Iterable
 
 from wpull.pipeline.pipeline import ItemTask, ItemSource, Pipeline, ItemQueue, \
     PipelineSeries
-from wpull.testing.async_ import AsyncTestCase
-import wpull.testing.async_
+from tornado.testing import AsyncTestCase, gen_test
 
 _logger = logging.getLogger(__name__)
 
 
-class MyItem(object):
+class MyItem:
     def __init__(self, value):
         super().__init__()
         self.value = value
@@ -30,8 +29,7 @@ class MySource(ItemSource[MyItem]):
         self._items = list(items)
         self._test_error = test_error
 
-    @asyncio.coroutine
-    def get_item(self) -> Optional[MyItem]:
+    async def get_item(self) -> Optional[MyItem]:
         if self._items:
             if self._test_error and len(self._items) == 1:
                 raise MyItemSourceError()
@@ -63,8 +61,7 @@ class MyItemTask(ItemTask[MyItem]):
     def item_count(self):
         return self._item_count
 
-    @asyncio.coroutine
-    def process(self, work_item: MyItem):
+    async def process(self, work_item: MyItem):
         self._item_count += 1
 
         if self._test_error and self._item_count == 3:
@@ -79,9 +76,9 @@ class MyItemTask(ItemTask[MyItem]):
         work_item.processed_value = work_item.value * 2
 
         if work_item.value % 2 == 0:
-            yield from asyncio.sleep(0.01)
+            await asyncio.sleep(0.01)
         else:
-            yield from asyncio.sleep(0.1)
+            await asyncio.sleep(0.1)
 
         self._current_work -= 1
 
@@ -94,74 +91,74 @@ class TestPipeline(AsyncTestCase):
         for item in items:
             self.assertEqual(item.value * 2, item.processed_value)
 
-    @wpull.testing.async_.async_test()
-    def test_simple_items(self):
+    @gen_test(timeout=30)
+    async def test_simple_items(self):
         items = self._new_items(4)
         pipeline = Pipeline(MySource(items), [MyItemTask()])
 
-        yield from pipeline.process()
+        await pipeline.process()
 
         self._check_item_values(items)
 
-    @wpull.testing.async_.async_test()
-    def test_item_source_error(self):
+    @gen_test(timeout=30)
+    async def test_item_source_error(self):
         items = self._new_items(4)
         pipeline = Pipeline(MySource(items, test_error=True), [MyItemTask()])
 
         with self.assertRaises(MyItemSourceError):
-            yield from pipeline.process()
+            await pipeline.process()
 
-    @wpull.testing.async_.async_test()
-    def test_item_task_error(self):
+    @gen_test(timeout=30)
+    async def test_item_task_error(self):
         items = self._new_items(4)
         pipeline = Pipeline(MySource(items), [MyItemTask(test_error=True)])
 
         with self.assertRaises(MyItemTaskError):
-            yield from pipeline.process()
+            await pipeline.process()
 
-    @wpull.testing.async_.async_test()
-    def test_concurrency_under(self):
+    @gen_test(timeout=30)
+    async def test_concurrency_under(self):
         items = self._new_items(100)
         item_queue = ItemQueue()
         task = MyItemTask()
         pipeline = Pipeline(MySource(items), [task], item_queue)
         pipeline.concurrency = 2
 
-        yield from pipeline.process()
+        await pipeline.process()
 
         self._check_item_values(items)
         self.assertEqual(2, task.peak_work)
 
-    @wpull.testing.async_.async_test()
-    def test_concurrency_equal(self):
+    @gen_test(timeout=30)
+    async def test_concurrency_equal(self):
         items = self._new_items(100)
         item_queue = ItemQueue()
         task = MyItemTask()
         pipeline = Pipeline(MySource(items), [task], item_queue)
         pipeline.concurrency = 100
 
-        yield from pipeline.process()
+        await pipeline.process()
 
         self._check_item_values(items)
         self.assertGreaterEqual(100, task.peak_work)
         self.assertLessEqual(10, task.peak_work)
 
-    @wpull.testing.async_.async_test()
-    def test_concurrency_over(self):
+    @gen_test(timeout=30)
+    async def test_concurrency_over(self):
         items = self._new_items(100)
         item_queue = ItemQueue()
         task = MyItemTask()
         pipeline = Pipeline(MySource(items), [task], item_queue)
         pipeline.concurrency = 200
 
-        yield from pipeline.process()
+        await pipeline.process()
 
         self._check_item_values(items)
         self.assertGreaterEqual(100, task.peak_work)
         self.assertLessEqual(10, task.peak_work)
 
-    @wpull.testing.async_.async_test()
-    def test_stopping(self):
+    @gen_test(timeout=30)
+    async def test_stopping(self):
         items = self._new_items(10)
         task = MyItemTask()
         pipeline = Pipeline(MySource(items), [task])
@@ -172,12 +169,12 @@ class TestPipeline(AsyncTestCase):
 
         task.callback = task_callback
 
-        yield from pipeline.process()
+        await pipeline.process()
 
         self.assertIsNone(items[-1].processed_value)
 
-    @wpull.testing.async_.async_test()
-    def test_concurrency_step_up(self):
+    @gen_test(timeout=30)
+    async def test_concurrency_step_up(self):
         items = self._new_items(100)
         task = MyItemTask()
         pipeline = Pipeline(MySource(items), [task], ItemQueue())
@@ -189,13 +186,13 @@ class TestPipeline(AsyncTestCase):
 
         task.callback = task_callback
 
-        yield from pipeline.process()
+        await pipeline.process()
 
         self._check_item_values(items)
         self.assertEqual(10, task.peak_work)
 
-    @wpull.testing.async_.async_test()
-    def test_concurrency_step_down(self):
+    @gen_test(timeout=30)
+    async def test_concurrency_step_down(self):
         items = self._new_items(100)
         task = MyItemTask()
         pipeline = Pipeline(MySource(items), [task], ItemQueue())
@@ -214,13 +211,13 @@ class TestPipeline(AsyncTestCase):
 
         task.callback = task_callback
 
-        yield from pipeline.process()
+        await pipeline.process()
 
         self._check_item_values(items)
         self.assertEqual(1, task.peak_work)
 
-    @wpull.testing.async_.async_test()
-    def test_concurrency_zero(self):
+    @gen_test(timeout=30)
+    async def test_concurrency_zero(self):
         items = self._new_items(100)
         task = MyItemTask()
         pipeline = Pipeline(MySource(items), [task], ItemQueue())
@@ -239,7 +236,7 @@ class TestPipeline(AsyncTestCase):
 
         task.callback = task_callback
 
-        yield from pipeline.process()
+        await pipeline.process()
 
         self._check_item_values(items)
         self.assertEqual(10, task.peak_work)

@@ -3,12 +3,12 @@ import os
 from wpull.application.builder import Builder
 from wpull.application.options import AppArgumentParser
 from wpull.testing.integration.base import HTTPGoodAppTestCase
-import wpull.testing.async_
+from tornado.testing import gen_test
 
 
 class TestScriptGoodApp(HTTPGoodAppTestCase):
-    @wpull.testing.async_.async_test()
-    def test_app_empty_plugin_script(self):
+    @gen_test(timeout=30)
+    async def test_app_empty_plugin_script(self):
         arg_parser = AppArgumentParser()
         filename = os.path.join(os.path.dirname(__file__),
                                 'sample_user_scripts', 'boring.plugin.py')
@@ -18,12 +18,12 @@ class TestScriptGoodApp(HTTPGoodAppTestCase):
         ])
         builder = Builder(args, unit_test=True)
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
 
-    @wpull.testing.async_.async_test()
-    def test_app_python_plugin_script(self):
+    @gen_test(timeout=30)
+    async def test_app_python_plugin_script(self):
         arg_parser = AppArgumentParser()
         filename = os.path.join(os.path.dirname(__file__),
                                 'sample_user_scripts', 'extensive.plugin.py')
@@ -41,7 +41,7 @@ class TestScriptGoodApp(HTTPGoodAppTestCase):
         builder = Builder(args, unit_test=True)
     
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
         print(list(os.walk('.')))
     
         self.assertEqual(42, exit_code)
@@ -56,8 +56,8 @@ class TestScriptGoodApp(HTTPGoodAppTestCase):
         # duration should be virtually 0 but account for slowness on travis ci
         self.assertGreater(10.0, stats.duration)
     
-    @wpull.testing.async_.async_test()
-    def test_app_python_script_stop(self):
+    @gen_test(timeout=30)
+    async def test_app_python_script_stop(self):
         arg_parser = AppArgumentParser()
         filename = os.path.join(os.path.dirname(__file__),
                                 'sample_user_scripts', 'stopper.plugin.py')
@@ -67,6 +67,6 @@ class TestScriptGoodApp(HTTPGoodAppTestCase):
         ])
         builder = Builder(args, unit_test=True)
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
     
         self.assertEqual(1, exit_code)

@@ -61,7 +61,7 @@ def event(name: Any):
     return _plugin_attach_decorator(name, category=PluginFunctionCategory.event)
 
 
-class InterfaceRegistry(collections.Mapping):
+class InterfaceRegistry(collections.abc.Mapping):
     def __init__(self):
         super().__init__()
         self._interfaces = {}

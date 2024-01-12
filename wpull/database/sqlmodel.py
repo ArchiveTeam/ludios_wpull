@@ -105,7 +105,7 @@ class QueuedURL(DBBase):
         last_primary_key = session.query(func.max(QueuedURL.id)).scalar() or 0
 
         def get_urls():
-            query = select([URLString.url]).where(
+            query = select(URLString.url).where(
                 and_(QueuedURL.id > last_primary_key,
                      QueuedURL.url_string_id == URLString.id)
             )
@@ -153,7 +153,7 @@ class WARCVisit(DBBase):
 
     @classmethod
     def get_revisit_id(cls, session, url, payload_digest):
-        query = select([WARCVisit.warc_id]).where(
+        query = select(WARCVisit.warc_id).where(
             and_(
                 WARCVisit.url == url,
                 WARCVisit.payload_digest == payload_digest

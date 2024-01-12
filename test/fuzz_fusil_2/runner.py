@@ -8,7 +8,6 @@ Install dependencies via pip::
 '''
 import os.path
 import random
-import sys
 
 from fusil.application import Application
 from fusil.process.create import ProjectProcess

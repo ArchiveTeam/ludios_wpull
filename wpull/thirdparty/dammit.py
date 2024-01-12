@@ -13,7 +13,6 @@ import codecs
 from html.entities import codepoint2name
 import re
 import logging
-import string
 
 # Import a library to autodetect character encodings.
 chardet_type = None
@@ -49,7 +48,7 @@ xml_encoding_re = re.compile(
 html_meta_re = re.compile(
     '<\s*meta[^>]+charset\s*=\s*["\']?([^>]*?)[ /;\'">]'.encode(), re.I)
 
-class EntitySubstitution(object):
+class EntitySubstitution:
 
     """Substitute XML or HTML entities for the corresponding characters."""
 

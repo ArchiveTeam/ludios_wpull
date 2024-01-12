@@ -1,6 +1,7 @@
 # encoding=utf-8
 '''Exceptions.'''
 
+import ssl
 
 class ServerError(ValueError):
     '''Server issued an error.'''
@@ -10,11 +11,8 @@ class ProtocolError(ValueError):
     '''A protocol was not followed.'''
 
 
-class SSLVerificationError(OSError):
+class SSLCertVerificationError(ssl.SSLCertVerificationError):
     '''A problem occurred validating SSL certificates.'''
-
-
-SSLVerficationError = SSLVerificationError
 
 
 class NetworkError(OSError):
@@ -37,7 +35,7 @@ class AuthenticationError(ServerError):
     '''Username or password error.'''
 
 
-class ExitStatus(object):
+class ExitStatus:
     '''Program exit status codes.
 
     Attributes:
@@ -66,7 +64,7 @@ class ExitStatus(object):
 ERROR_PRIORITIES = (
     ServerError,
     ProtocolError,
-    SSLVerificationError,
+    SSLCertVerificationError,
     AuthenticationError,
     DNSNotFound,
     ConnectionRefused,

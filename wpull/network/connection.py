@@ -10,16 +10,14 @@ import socket
 import ssl
 
 import tornado.netutil
-from tornado.netutil import SSLCertificateError
 from typing import Optional, Union
 from wpull.backport.logging import BraceMessage as __
-from wpull.errors import NetworkError, ConnectionRefused, SSLVerificationError, \
-    NetworkTimedOut
+from wpull.errors import NetworkError, ConnectionRefused, NetworkTimedOut, SSLCertVerificationError
 
 _logger = logging.getLogger(__name__)
 
 
-class CloseTimer(object):
+class CloseTimer:
     '''Periodic timer to close connections if stalled.'''
     def __init__(self, timeout, connection):
         self._timeout = timeout
@@ -77,7 +75,7 @@ class CloseTimer(object):
         return self._timed_out
 
 
-class DummyCloseTimer(object):
+class DummyCloseTimer:
     '''Dummy close timer.'''
     @contextlib.contextmanager
     def with_timeout(self):
@@ -103,7 +101,7 @@ class ConnectionState(enum.Enum):
     dead = 'dead'
 
 
-class BaseConnection(object):
+class BaseConnection:
     '''Base network stream.
 
     Args:
@@ -126,7 +124,10 @@ class BaseConnection(object):
                  timeout: Optional[float]=None,
                  connect_timeout: Optional[float]=None,
                  bind_host: Optional[str]=None,
-                 sock: Optional[socket.socket]=None):
+                 sock: Optional[socket.socket]=None, 
+                 reader = None,
+                 writer = None
+                 ):
         assert len(address) >= 2, 'Expect str & port. Got {}.'.format(address)
         assert '.' in address[0] or ':' in address[0], \
             'Expect numerical address. Got {}.'.format(address[0])
@@ -137,8 +138,8 @@ class BaseConnection(object):
         self._connect_timeout = connect_timeout
         self._bind_host = bind_host
         self._sock = sock
-        self.reader = None
-        self.writer = None
+        self.reader = reader
+        self.writer = writer
         self._close_timer = None
         self._state = ConnectionState.ready
 
@@ -166,33 +167,30 @@ class BaseConnection(object):
         '''Return the state of this connection.'''
         return self._state
 
-    @asyncio.coroutine
-    def connect(self):
+    
+    async def connect(self):
         '''Establish a connection.'''
         _logger.debug(__('Connecting to {0}.', self._address))
 
         if self._state != ConnectionState.ready:
             raise Exception('Closed connection must be reset before reusing.')
-
-        if self._sock:
-            connection_future = asyncio.open_connection(
-                sock=self._sock, **self._connection_kwargs()
-            )
-        else:
-            # TODO: maybe we don't want to ignore flow-info and scope-id?
-            host = self._address[0]
-            port = self._address[1]
-
-            connection_future = asyncio.open_connection(
-                host, port, **self._connection_kwargs()
-            )
-
-        self.reader, self.writer = yield from \
-            self.run_network_operation(
-                connection_future,
-                wait_timeout=self._connect_timeout,
-                name='Connect')
-
+        if self.writer is None:
+            if self._sock:
+                connection_future = asyncio.open_connection(
+                    sock=self._sock, **self._connection_kwargs()
+                )
+            else:
+                # TODO: maybe we don't want to ignore flow-info and scope-id?
+                host = self._address[0]
+                port = self._address[1]
+                connection_future = asyncio.open_connection(
+                    host, port, **self._connection_kwargs()
+                )
+            self.reader, self.writer = await \
+                self.run_network_operation(
+                    connection_future,
+                    wait_timeout=self._connect_timeout,
+                    name='Connect')
         if self._timeout is not None:
             self._close_timer = CloseTimer(self._timeout, self)
         else:
@@ -229,8 +227,8 @@ class BaseConnection(object):
         self.close()
         self._state = ConnectionState.ready
 
-    @asyncio.coroutine
-    def write(self, data: bytes, drain: bool=True):
+    
+    async def write(self, data: bytes, drain: bool=True):
         '''Write data.'''
         assert self._state == ConnectionState.created, \
             'Expect conn created. Got {}.'.format(self._state)
@@ -241,16 +239,16 @@ class BaseConnection(object):
             fut = self.writer.drain()
 
             if fut:
-                yield from self.run_network_operation(
+                await self.run_network_operation(
                     fut, close_timeout=self._timeout, name='Write')
 
-    @asyncio.coroutine
-    def read(self, amount: int=-1) -> bytes:
+    
+    async def read(self, amount: int=-1) -> bytes:
         '''Read data.'''
         assert self._state == ConnectionState.created, \
             'Expect conn created. Got {}.'.format(self._state)
 
-        data = yield from \
+        data = await \
             self.run_network_operation(
                 self.reader.read(amount),
                 close_timeout=self._timeout,
@@ -258,14 +256,14 @@ class BaseConnection(object):
 
         return data
 
-    @asyncio.coroutine
-    def readline(self) -> bytes:
+    
+    async def readline(self) -> bytes:
         '''Read a line of data.'''
         assert self._state == ConnectionState.created, \
             'Expect conn created. Got {}.'.format(self._state)
 
         with self._close_timer.with_timeout():
-            data = yield from \
+            data = await \
                 self.run_network_operation(
                     self.reader.readline(),
                     close_timeout=self._timeout,
@@ -273,8 +271,8 @@ class BaseConnection(object):
 
         return data
 
-    @asyncio.coroutine
-    def run_network_operation(self, task, wait_timeout=None,
+    
+    async def run_network_operation(self, task, wait_timeout=None,
                               close_timeout=None,
                               name='Network operation'):
         '''Run the task and raise appropriate exceptions.
@@ -288,7 +286,7 @@ class BaseConnection(object):
         try:
             if close_timeout is not None:
                 with self._close_timer.with_timeout():
-                    data = yield from task
+                    data = await task
 
                 if self._close_timer.is_timeout():
                     raise NetworkTimedOut(
@@ -296,19 +294,19 @@ class BaseConnection(object):
                 else:
                     return data
             elif wait_timeout is not None:
-                data = yield from asyncio.wait_for(task, wait_timeout)
+                data = await asyncio.wait_for(task, wait_timeout)
                 return data
             else:
-                return (yield from task)
+                return (await task)
 
         except asyncio.TimeoutError as error:
             self.close()
             raise NetworkTimedOut(
                 '{name} timed out.'.format(name=name)) from error
-        except (tornado.netutil.SSLCertificateError, SSLVerificationError) \
+        except (SSLCertVerificationError) \
                 as error:
             self.close()
-            raise SSLVerificationError(
+            raise SSLCertVerificationError(
                 '{name} certificate error: {error}'
                 .format(name=name, error=error)) from error
         except AttributeError as error:
@@ -331,7 +329,7 @@ class BaseConnection(object):
             #          routines:SSL3_READ_BYTES:tlsv1 alert unknown ca
             error_string = str(error).lower()
             if 'certificate' in error_string or 'unknown ca' in error_string:
-                raise SSLVerificationError(
+                raise SSLCertVerificationError(
                     '{name} certificate error: {error}'
                     .format(name=name, error=error)) from error
 
@@ -395,9 +393,9 @@ class Connection(BaseConnection):
     def proxied(self, value):
         self._proxied = value
 
-    @asyncio.coroutine
-    def read(self, amount: int=-1) -> bytes:
-        data = yield from super().read(amount)
+    
+    async def read(self, amount: int=-1) -> bytes:
+        data = await super().read(amount)
 
         if self._bandwidth_limiter:
             self._bandwidth_limiter.feed(len(data))
@@ -405,27 +403,26 @@ class Connection(BaseConnection):
             sleep_time = self._bandwidth_limiter.sleep_time()
             if sleep_time:
                 _logger.debug('Sleep %s', sleep_time)
-                yield from asyncio.sleep(sleep_time)
+                await asyncio.sleep(sleep_time)
 
         return data
 
-    @asyncio.coroutine
-    def start_tls(self, ssl_context: Union[bool, dict, ssl.SSLContext]=True) \
+    
+    async def start_tls(self, ssl_context: Union[bool, dict, ssl.SSLContext]=True) \
             -> 'SSLConnection':
         '''Start client TLS on this connection and return SSLConnection.
 
         Coroutine
         '''
-        sock = self.writer.get_extra_info('socket')
         ssl_conn = SSLConnection(
             self._address,
             ssl_context=ssl_context,
             hostname=self._hostname, timeout=self._timeout,
             connect_timeout=self._connect_timeout, bind_host=self._bind_host,
-            bandwidth_limiter=self._bandwidth_limiter, sock=sock
+            bandwidth_limiter=self._bandwidth_limiter, reader=self.reader, writer=self.writer
         )
 
-        yield from ssl_conn.connect()
+        await ssl_conn.connect()
 
         return ssl_conn
 
@@ -440,7 +437,6 @@ class SSLConnection(Connection):
                  ssl_context: Union[bool, dict, ssl.SSLContext]=True, **kwargs):
         super().__init__(*args, **kwargs)
         self._ssl_context = ssl_context
-
         if self._ssl_context is True:
             self._ssl_context = tornado.netutil.ssl_options_to_context({})
         elif isinstance(self._ssl_context, dict):
@@ -460,41 +456,16 @@ class SSLConnection(Connection):
 
             return kwargs
 
-    @asyncio.coroutine
-    def connect(self):
-        result = yield from super().connect()
+    
+    async def connect(self):
+        if self.writer is not None:
+            await self.writer.start_tls(self._ssl_context)
+
+        result = await super().connect()
         try:
-            sock = self.writer.transport.get_extra_info('ssl_object',
+            self.writer.transport.get_extra_info('ssl_object',
                 self.writer.transport.get_extra_info('socket'))
         except AttributeError as error:
-            raise SSLVerificationError('Failed to establish SSL connection; '
+            raise SSLCertVerificationError('Failed to establish SSL connection; '
                                        'server unexpectedly closed') from error
-
-        self._verify_cert(sock)
         return result
-
-    def _verify_cert(self, sock: ssl.SSLSocket):
-        '''Check if certificate matches hostname.'''
-        # Based on tornado.iostream.SSLIOStream
-        # Needed for older OpenSSL (<0.9.8f) versions
-        verify_mode = self._ssl_context.verify_mode
-
-        assert verify_mode in (ssl.CERT_NONE, ssl.CERT_REQUIRED,
-                               ssl.CERT_OPTIONAL), \
-            'Unknown verify mode {}'.format(verify_mode)
-
-        if verify_mode == ssl.CERT_NONE:
-            return
-
-        cert = sock.getpeercert()
-
-        if not cert and verify_mode == ssl.CERT_OPTIONAL:
-            return
-
-        if not cert:
-            raise SSLVerificationError('No SSL certificate given')
-
-        try:
-            ssl.match_hostname(cert, self._hostname)
-        except ssl.CertificateError as error:
-            raise SSLVerificationError('Invalid SSL certificate') from error

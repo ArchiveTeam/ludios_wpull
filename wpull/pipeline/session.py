@@ -1,4 +1,3 @@
-import asyncio
 import gettext
 import logging
 
@@ -10,15 +9,14 @@ from wpull.pipeline.item import URLRecord, Status, URLResult, URLProperties, \
     URLData, LinkType
 from wpull.pipeline.pipeline import ItemSource
 from wpull.backport.logging import BraceMessage as __
-from wpull.protocol.abstract.request import URLPropertyMixin, \
-    ProtocolResponseMixin, BaseResponse, BaseRequest
+from wpull.protocol.abstract.request import BaseResponse, BaseRequest
 from wpull.url import parse_url_or_log
 
 _logger = logging.getLogger(__name__)
 _ = gettext.gettext
 
 
-class ItemSession(object):
+class ItemSession:
     '''Item for a URL that needs to processed.'''
     def __init__(self, app_session: AppSession, url_record: URLRecord):
         self.app_session = app_session
@@ -182,8 +180,7 @@ class URLItemSource(ItemSource[ItemSession]):
     def __init__(self, app_session: AppSession):
         self._app_session = app_session
 
-    @asyncio.coroutine
-    def get_item(self) -> Optional[ItemSession]:
+    async def get_item(self) -> Optional[ItemSession]:
         try:
             url_record = self._app_session.factory['URLTable'].check_out(Status.todo)
         except NotFound:

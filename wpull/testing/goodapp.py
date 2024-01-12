@@ -11,7 +11,6 @@ from tornado.testing import AsyncHTTPTestCase, AsyncHTTPSTestCase
 from tornado.web import HTTPError
 import tornado.web
 
-from wpull.testing.async_ import AsyncTestCase
 
 
 _logger = logging.getLogger(__name__)
@@ -134,8 +133,11 @@ class SomePageHandler(tornado.web.RequestHandler):
 
 class BasicAuthHandler(tornado.web.RequestHandler):
     def get(self):
-        _logger.debug('Authorization: %s', self.request.headers.get('Authorization'))
-        if self.request.headers.get('Authorization') == 'Basic cm9vdDpzbWF1Zw==':
+        _logger.debug(
+            'Authorization: %s',
+            self.request.headers.get('Authorization'))
+        if self.request.headers.get(
+                'Authorization') == 'Basic cm9vdDpzbWF1Zw==':
             self.write(b'Welcome. The Krabby Patty Secret formula is:')
         else:
             raise HTTPError(401)
@@ -152,7 +154,12 @@ class ContentDispositionHandler(tornado.web.RequestHandler):
 
 class Always200Handler(tornado.web.RequestHandler):
     def get(self):
-        self.render('always200.html')
+        # Conditional handling required as otherwise when unittest requests the non-existent 
+        # page-requisites, it will return the same root HTML page
+        if self.request.uri == "/always200/":
+                self.render('always200.html')
+        else:
+            self.write(b"")
 
 
 class InfiniteIframeHandler(tornado.web.RequestHandler):
@@ -233,16 +240,8 @@ class GoodApp(tornado.web.Application):
         )
 
 
-class GoodAppTestCase(AsyncTestCase, AsyncHTTPTestCase):
-    def get_new_ioloop(self):
-        tornado.ioloop.IOLoop.configure(
-            'wpull.testing.async_.TornadoAsyncIOLoop',
-            event_loop=self.event_loop)
-        ioloop = tornado.ioloop.IOLoop()
-        return ioloop
-
+class GoodAppTestCase(AsyncHTTPTestCase):
     def setUp(self):
-        AsyncTestCase.setUp(self)
         AsyncHTTPTestCase.setUp(self)
         # Wait for the app to start up properly (for good luck).
         time.sleep(0.5)
@@ -251,23 +250,14 @@ class GoodAppTestCase(AsyncTestCase, AsyncHTTPTestCase):
         return GoodApp()
 
 
-class GoodAppHTTPSTestCase(AsyncTestCase, AsyncHTTPSTestCase):
-    def get_new_ioloop(self):
-        tornado.ioloop.IOLoop.configure(
-            'wpull.testing.async_.TornadoAsyncIOLoop',
-            event_loop=self.event_loop)
-        ioloop = tornado.ioloop.IOLoop()
-        return ioloop
-
+class GoodAppHTTPSTestCase(AsyncHTTPSTestCase):
     def setUp(self):
-        AsyncTestCase.setUp(self)
         AsyncHTTPSTestCase.setUp(self)
         # Wait for the app to start up properly (for good luck).
         time.sleep(0.5)
 
     def get_app(self):
         return GoodApp()
-
 
 
 if __name__ == '__main__':

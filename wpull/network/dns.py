@@ -1,3 +1,5 @@
+
+
 # encoding=utf-8
 '''DNS resolution.'''
 import datetime
@@ -57,7 +59,7 @@ class DNSInfo(_DNSInfo):
         ))
 
 
-class ResolveResult(object):
+class ResolveResult:
     '''DNS resolution information.'''
     def __init__(self, address_infos: List[AddressInfo],
                  dns_infos: Optional[List[DNSInfo]]=None):
@@ -152,8 +154,7 @@ class Resolver(HookableMixin):
         '''Return a default cache'''
         return FIFOCache(max_items=100, time_to_live=3600)
 
-    @asyncio.coroutine
-    def resolve(self, host: str) -> ResolveResult:
+    async def resolve(self, host: str) -> ResolveResult:
         '''Resolve hostname.
 
         Args:
@@ -201,9 +202,9 @@ class Resolver(HookableMixin):
             families = (socket.AF_INET6, )
 
         for family in families:
-            datetime_now = datetime.datetime.utcnow()
+            datetime_now = datetime.datetime.now(datetime.UTC)
             try:
-                answer = yield from self._query_dns(host, family)
+                answer = await self._query_dns(host, family)
             except DNSNotFound:
                 continue
             else:
@@ -220,7 +221,7 @@ class Resolver(HookableMixin):
             else:
                 family = socket.AF_INET6
 
-            results = yield from self._getaddrinfo(host, family)
+            results = await self._getaddrinfo(host, family)
             address_infos.extend(self._convert_addrinfo(results))
 
         _logger.debug(__('Resolved addresses: {0}.', address_infos))
@@ -237,8 +238,7 @@ class Resolver(HookableMixin):
 
         return resolve_result
 
-    @asyncio.coroutine
-    def _query_dns(self, host: str, family: int=socket.AF_INET) \
+    async def _query_dns(self, host: str, family: int=socket.AF_INET) \
             -> dns.resolver.Answer:
         '''Query DNS using Python.
 
@@ -248,11 +248,11 @@ class Resolver(HookableMixin):
 
         event_loop = asyncio.get_event_loop()
         query = functools.partial(
-            self._dns_resolver.query, host, record_type,
+            self._dns_resolver.resolve, host, record_type,
             source=self._bind_address)
 
         try:
-            answer = yield from event_loop.run_in_executor(None, query)
+            answer = await event_loop.run_in_executor(None, query)
         except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer) as error:
             # dnspython doesn't raise an instance with a message, so use the
             # class name instead.
@@ -268,8 +268,7 @@ class Resolver(HookableMixin):
         else:
             return answer
 
-    @asyncio.coroutine
-    def _getaddrinfo(self, host: str, family: int=socket.AF_UNSPEC) \
+    async def _getaddrinfo(self, host: str, family: int=socket.AF_UNSPEC) \
             -> List[tuple]:
         '''Query DNS using system resolver.
 
@@ -283,7 +282,7 @@ class Resolver(HookableMixin):
             query = asyncio.wait_for(query, self._timeout)
 
         try:
-            results = yield from query
+            results = await query
         except socket.error as error:
             if error.errno in (
                     socket.EAI_FAIL,

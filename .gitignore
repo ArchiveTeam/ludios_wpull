@@ -71,3 +71,5 @@ freezer/pyinstaller/wpull_env
 freezer/pyinstaller/wpull.spec
 
 *.orig
+venv
+.ruff_cache

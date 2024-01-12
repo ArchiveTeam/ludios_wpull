@@ -31,7 +31,7 @@ def convert_http_request(request, referrer_host=None):
     return new_request
 
 
-class HTTPResponseInfoWrapper(object):
+class HTTPResponseInfoWrapper:
     '''Wraps a HTTP Response.
 
     Args:
@@ -53,7 +53,7 @@ class HTTPResponseInfoWrapper(object):
             return email.message_from_string(str(self._response.fields))
 
 
-class CookieJarWrapper(object):
+class CookieJarWrapper:
     '''Wraps a CookieJar.
 
     Args:

@@ -1,5 +1,4 @@
 '''Proxy support for HTTP requests.'''
-import asyncio
 import base64
 import io
 import logging
@@ -49,13 +48,13 @@ class HTTPProxyConnectionPool(ConnectionPool):
 
         self._connection_map = {}
 
-    @asyncio.coroutine
-    def acquire(self, host, port, use_ssl=False, host_key=None):
-        yield from self.acquire_proxy(host, port, use_ssl=use_ssl,
+    
+    async def acquire(self, host, port, use_ssl=False, host_key=None):
+        await self.acquire_proxy(host, port, use_ssl=use_ssl,
                                       host_key=host_key)
 
-    @asyncio.coroutine
-    def acquire_proxy(self, host, port, use_ssl=False, host_key=None,
+    
+    async def acquire_proxy(self, host, port, use_ssl=False, host_key=None,
                       tunnel=True):
         '''Check out a connection.
 
@@ -65,7 +64,7 @@ class HTTPProxyConnectionPool(ConnectionPool):
         Coroutine.
         '''
         if self._host_filter and not self._host_filter.test(host):
-            connection = yield from \
+            connection = await \
                 super().acquire(host, port, use_ssl, host_key)
 
             return connection
@@ -73,7 +72,7 @@ class HTTPProxyConnectionPool(ConnectionPool):
         host_key = host_key or (host, port, use_ssl)
         proxy_host, proxy_port = self._proxy_address
 
-        connection = yield from super().acquire(
+        connection = await super().acquire(
             proxy_host, proxy_port, self._proxy_ssl, host_key=host_key
         )
         connection.proxied = True
@@ -82,13 +81,13 @@ class HTTPProxyConnectionPool(ConnectionPool):
 
         if connection.closed():
             _logger.debug('Connecting to proxy.')
-            yield from connection.connect()
+            await connection.connect()
 
             if tunnel:
-                yield from self._establish_tunnel(connection, (host, port))
+                await self._establish_tunnel(connection, (host, port))
 
             if use_ssl:
-                ssl_connection = yield from connection.start_tls(self._ssl_context)
+                ssl_connection = await connection.start_tls(self._ssl_context)
                 ssl_connection.proxied = True
                 ssl_connection.tunneled = True
 
@@ -104,17 +103,17 @@ class HTTPProxyConnectionPool(ConnectionPool):
         else:
             return connection
 
-    @asyncio.coroutine
-    def release(self, proxy_connection):
+    
+    async def release(self, proxy_connection):
         connection = self._connection_map.pop(proxy_connection, proxy_connection)
-        yield from super().release(connection)
+        await super().release(connection)
 
     def no_wait_release(self, proxy_connection):
         connection = self._connection_map.pop(proxy_connection, proxy_connection)
         super().no_wait_release(connection)
 
-    @asyncio.coroutine
-    def _establish_tunnel(self, connection, address):
+    
+    async def _establish_tunnel(self, connection, address):
         '''Establish a TCP tunnel.
 
         Coroutine.
@@ -128,15 +127,15 @@ class HTTPProxyConnectionPool(ConnectionPool):
         stream = Stream(connection, keep_alive=True)
 
         _logger.debug('Sending Connect.')
-        yield from stream.write_request(request)
+        await stream.write_request(request)
 
         _logger.debug('Read proxy response.')
-        response = yield from stream.read_response()
+        response = await stream.read_response()
 
         if response.status_code != 200:
             debug_file = io.BytesIO()
             _logger.debug('Read proxy response body.')
-            yield from stream.read_body(request, response, file=debug_file)
+            await stream.read_body(request, response, file=debug_file)
 
             debug_file.seek(0)
             _logger.debug(ascii(debug_file.read()))

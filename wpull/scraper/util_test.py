@@ -81,7 +81,6 @@ class TestUtil(unittest.TestCase):
         self.assertTrue(is_unlikely_link('/'))
         self.assertTrue(is_unlikely_link('//'))
         self.assertTrue(is_unlikely_link('application/json'))
-        self.assertTrue(is_unlikely_link('application/javascript'))
         self.assertTrue(is_unlikely_link('text/javascript'))
         self.assertTrue(is_unlikely_link('text/plain'))
         self.assertTrue(is_unlikely_link('/\\/'))

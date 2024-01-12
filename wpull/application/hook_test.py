@@ -1,11 +1,10 @@
 import asyncio
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 from wpull.application.hook import HookDispatcher, HookAlreadyConnectedError, \
     HookDisconnected, EventDispatcher, HookableMixin
 from wpull.application.plugin import WpullPlugin, event, hook
-from wpull.testing.async_ import AsyncTestCase
-import wpull.testing.async_
+from tornado.testing import gen_test, AsyncTestCase
 
 
 class MyClass(HookableMixin):
@@ -44,8 +43,8 @@ class MyPluginEventAsHook(WpullPlugin):
 
 
 class TestHook(AsyncTestCase):
-    @wpull.testing.async_.async_test()
-    def test_hook_dispatcher(self):
+    @gen_test(timeout=30)
+    async def test_hook_dispatcher(self):
         hook = HookDispatcher()
 
         hook.register('a')
@@ -77,13 +76,13 @@ class TestHook(AsyncTestCase):
 
         hook.register('b')
 
-        @asyncio.coroutine
-        def my_callback_2():
-            yield from asyncio.sleep(0)
+        
+        async def my_callback_2():
+            await asyncio.sleep(0)
             return 9
 
         hook.connect('b', my_callback_2)
-        result = yield from hook.call_async('b')
+        result = await hook.call_async('b')
 
         self.assertEqual(9, result)
 
@@ -128,8 +127,8 @@ class TestHook(AsyncTestCase):
 
         event.notify('a')
 
-        self.assertEquals(5, callback_result_1)
-        self.assertEquals(7, callback_result_2)
+        self.assertEqual(5, callback_result_1)
+        self.assertEqual(7, callback_result_2)
 
         event.remove_listener('a', callback1)
 

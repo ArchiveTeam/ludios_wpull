@@ -11,6 +11,7 @@
     A tuple in the same format of :data:`sys.version_info`
 '''
 import re
+from importlib.metadata import version
 
 
 RELEASE_LEVEL_MAP = {
@@ -32,5 +33,6 @@ def get_version_tuple(string):
     return major, minor, patch, level, serial
 
 
-__version__ = '3.0.9'
+__version__ = version("wpull")
+
 version_info = get_version_tuple(__version__)

@@ -3,7 +3,7 @@
 import zlib
 
 
-class SimpleGzipDecompressor(object):
+class SimpleGzipDecompressor:
     """Streaming gzip decompressor.
 
     The interface is like that of `zlib.decompressobj` (without some of the

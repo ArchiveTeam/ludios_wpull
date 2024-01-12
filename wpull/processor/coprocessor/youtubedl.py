@@ -2,12 +2,8 @@ import contextlib
 import gettext
 import glob
 import logging
-import os
 import tempfile
 import subprocess
-
-
-import asyncio
 
 from wpull.backport.logging import BraceMessage as __
 from wpull.document.html import HTMLReader
@@ -20,7 +16,7 @@ _logger = logging.getLogger(__name__)
 _ = gettext.gettext
 
 
-class YoutubeDlCoprocessor(object):
+class YoutubeDlCoprocessor:
     '''youtube-dl coprocessor.'''
     def __init__(self, youtube_dl_path, proxy_address, root_path='.',
                  user_agent=None, warc_recorder=None, inet_family=False,
@@ -37,8 +33,8 @@ class YoutubeDlCoprocessor(object):
         assert isinstance(proxy_address[0], str), proxy_address
         assert isinstance(proxy_address[1], int), proxy_address
 
-    @asyncio.coroutine
-    def process(self, item_session: ItemSession, request, response, file_writer_session):
+    
+    async def process(self, item_session: ItemSession, request, response, file_writer_session):
         if response.status_code != 200:
             return
 
@@ -55,12 +51,12 @@ class YoutubeDlCoprocessor(object):
         _logger.info(__(_('youtube-dl fetching ‘{url}’.'), url=url))
 
         with contextlib.closing(session):
-            yield from session.run()
+            await session.run()
 
         _logger.info(__(_('youtube-dl fetched ‘{url}’.'), url=url))
 
 
-class Session(object):
+class Session:
     '''youtube-dl session.'''
     def __init__(self, proxy_address, youtube_dl_path, root_path, item_session: ItemSession,
                  file_writer_session, user_agent, warc_recorder, inet_family,
@@ -77,8 +73,8 @@ class Session(object):
         self._inet_family = inet_family
         self._check_certificate = check_certificate
 
-    @asyncio.coroutine
-    def run(self):
+    
+    async def run(self):
         host, port = self._proxy_address
         url = self._item_session.url_record.url
         self._path_prefix, output_template = self._get_output_template()
@@ -111,8 +107,8 @@ class Session(object):
             stdout_callback=self._stdout_callback,
         )
 
-        yield from youtube_dl_process.start()
-        yield from youtube_dl_process.process.wait()
+        await youtube_dl_process.start()
+        await youtube_dl_process.process.wait()
 
         if self._warc_recorder:
             self._write_warc_metadata()
@@ -133,12 +129,12 @@ class Session(object):
 
         return path, '{}.%(id)s.%(format_id)s.%(ext)s'.format(path)
 
-    @asyncio.coroutine
-    def _stderr_callback(self, line):
+    
+    async def _stderr_callback(self, line):
         _logger.warning(line.decode('utf-8', 'replace').rstrip())
 
-    @asyncio.coroutine
-    def _stdout_callback(self, line):
+    
+    async def _stdout_callback(self, line):
         _logger.info(line.decode('utf-8', 'replace').rstrip())
 
     def _write_warc_metadata(self):

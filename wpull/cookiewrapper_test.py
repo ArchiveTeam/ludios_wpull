@@ -1,5 +1,4 @@
 # encoding=utf-8
-import sys
 import unittest
 
 from wpull.protocol.http.request import Request, Response

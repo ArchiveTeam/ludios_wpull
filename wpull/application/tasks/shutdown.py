@@ -1,21 +1,14 @@
-import datetime
 import gettext
 import logging
 
-import asyncio
 
 from wpull.application.app import Application
 from wpull.application.hook import HookableMixin
 from wpull.application.plugin import PluginFunctions, hook_interface
 from wpull.backport.logging import BraceMessage as __
 from wpull.pipeline.pipeline import ItemTask
-import wpull.string
-import wpull.url
-import wpull.util
-import wpull.warc
 from wpull.stats import Statistics
 from wpull.pipeline.app import AppSession
-import wpull.application.hook
 from wpull.application.hook import HookDisconnected
 
 
@@ -24,13 +17,13 @@ _ = gettext.gettext
 
 
 class BackgroundAsyncCleanupTask(ItemTask[AppSession]):
-    @asyncio.coroutine
-    def process(self, session: AppSession):
+    
+    async def process(self, session: AppSession):
         for server in session.async_servers:
             server.close()
 
         for task in session.background_async_tasks:
-            yield from task
+            await task
 
 
 class AppStopTask(ItemTask[AppSession], HookableMixin):
@@ -38,8 +31,8 @@ class AppStopTask(ItemTask[AppSession], HookableMixin):
         super().__init__()
         self.hook_dispatcher.register(PluginFunctions.exit_status)
 
-    @asyncio.coroutine
-    def process(self, session: AppSession):
+    
+    async def process(self, session: AppSession):
         statistics = session.factory['Statistics']
         app = session.factory['Application']
         self._update_exit_code_from_stats(statistics, app)
@@ -76,7 +69,7 @@ class AppStopTask(ItemTask[AppSession], HookableMixin):
 
 
 class CookieJarTeardownTask(ItemTask[AppSession]):
-    @asyncio.coroutine
-    def process(self, session: AppSession):
+    
+    async def process(self, session: AppSession):
         if 'CookieJarWrapper' in session.factory:
             session.factory['CookieJarWrapper'].close()

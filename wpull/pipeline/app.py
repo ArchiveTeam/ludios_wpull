@@ -8,7 +8,7 @@ import wpull.version
 import wpull.util
 
 
-class AppSession(object):
+class AppSession:
     def __init__(self, factory: Factory, args, stderr):
         self.default_user_agent = 'Wpull/{0} (gzip)'.format(
             wpull.version.__version__)
@@ -31,8 +31,7 @@ class AppSource(ItemSource[AppSession]):
     def __init__(self, session: AppSession):
         self._source = session
 
-    @asyncio.coroutine
-    def get_item(self) -> Optional[AppSession]:
+    async def get_item(self) -> Optional[AppSession]:
         item = self._source
         self._source = None
         return item

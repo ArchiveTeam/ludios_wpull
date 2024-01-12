@@ -5,7 +5,6 @@ from typing import cast, Optional
 
 from wpull.application.hook import Actions
 from wpull.application.plugin import WpullPlugin, hook, PluginFunctions, event
-from wpull.network.dns import ResolveResult
 from wpull.pipeline.app import AppSession
 from wpull.pipeline.item import URLRecord
 from wpull.pipeline.session import ItemSession
@@ -28,8 +27,13 @@ class Plugin(WpullPlugin):
     @hook(PluginFunctions.resolve_dns)
     def resolve_dns(self, host: str):
         print('resolve_dns', host)
-        assert host == 'localhost'
-        return '127.0.0.1'
+
+        if host == 'localhost':
+            return '127.0.0.1'
+        elif host == '127.0.0.1':
+            return host
+        else:
+            raise ValueError(f"Unexpected host received for resolution: {host}")
 
     @hook(PluginFunctions.accept_url)
     def accept_url(self, item_session: ItemSession, verdict: bool, reasons: dict):

@@ -1,0 +1,77 @@
+[build-system]
+requires = ["setuptools >= 65.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wpull"
+description = "Wget-compatible web downloader and crawler."
+authors = [{name = "Christopher Foo", email = "chris.foo@gmail.com"}]
+readme = "README.orig.rst"
+version = "5.0.0a"
+license = { file = "LICENSE.txt" }
+classifiers=[
+    'Development Status :: 5 - Production/Stable',
+    'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+    'Programming Language :: Python :: 3',
+    'Topic :: Internet :: File Transfer Protocol (FTP)',
+    'Topic :: Internet :: WWW/HTTP',
+    'Topic :: System :: Archiving',
+]
+requires-python = ">=3.12"
+dependencies = [
+    "chardet==2.3.0",
+    "dnspython",
+    "html5-parser",
+    "lxml",
+    "psutil==4.2.0",
+    "sqlalchemy==2.0.23",
+    "tornado~=6.4",
+    # Required due to yapsy 1.12.2 using deprecated modules
+    "yapsy @ https://github.com/tibonihoo/yapsy/tarball/master#subdirectory=package",
+    # Required for yapsy during testing
+    "packaging"
+
+]
+
+[project.optional-dependencies]
+docs = [
+    "sphinx-argparse<=0.1.15",
+    "sphinxcontrib-napoleon>=0.2.6,<=0.5.0",
+]
+testing = [
+    "warcat",
+]
+
+[tool.setuptools]
+packages = [
+    "wpull",
+    "wpull.application",
+    "wpull.application.plugins",
+    "wpull.application.tasks",
+    "wpull.backport",
+    "wpull.database",
+    "wpull.document",
+    "wpull.document.htmlparse",
+    "wpull.driver",
+    "wpull.network",
+    "wpull.pipeline",
+    "wpull.processor",
+    "wpull.processor.coprocessor",
+    "wpull.protocol.abstract",
+    "wpull.protocol.ftp",
+    "wpull.protocol.ftp.ls",
+    "wpull.protocol.http",
+    "wpull.proxy",
+    "wpull.scraper",
+    "wpull.testing",
+    "wpull.testing.integration",
+    "wpull.thirdparty",
+    "wpull.warc",
+]
+
+[project.urls]
+Source = "https://github.com/chfoo/wpull"
+
+[project.scripts]
+wpull = "wpull.application.main:main"
+wpull4 = "wpull.application.main:main"

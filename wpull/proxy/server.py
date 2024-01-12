@@ -3,13 +3,9 @@
 import enum
 import gettext
 import logging
-import ssl
 import os
-import socket
-
 import asyncio
 
-import errno
 
 from wpull.application.hook import HookableMixin, HookDisconnected
 from wpull.backport.logging import BraceMessage as __
@@ -51,8 +47,8 @@ class HTTPProxyServer(HookableMixin):
         self.event_dispatcher.register(self.Event.begin_session)
         self.event_dispatcher.register(self.Event.end_session)
 
-    @asyncio.coroutine
-    def __call__(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
+    
+    async def __call__(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
         '''Handle a request
 
         Coroutine.'''
@@ -62,7 +58,7 @@ class HTTPProxyServer(HookableMixin):
         is_error = False
 
         try:
-            yield from session()
+            await session()
         except Exception as error:
             if not isinstance(error, StopIteration):
                 error = True
@@ -111,21 +107,21 @@ class HTTPProxySession(HookableMixin):
         self.event_dispatcher.register(self.Event.server_end_response)
         self.event_dispatcher.register(self.Event.server_response_error)
 
-    @asyncio.coroutine
-    def __call__(self):
+    
+    async def __call__(self):
         '''Process a connection session.'''
         _logger.debug('Begin session.')
 
         while True:
-            request = yield from self._read_request_header()
+            request = await self._read_request_header()
 
             if not request:
                 return
 
-            yield from self._process_request(request)
+            await self._process_request(request)
 
-    @asyncio.coroutine
-    def _process_request(self, request: Request):
+    
+    async def _process_request(self, request: Request):
         _logger.debug(__('Got request {0}', request))
 
         if request.method == 'CONNECT':
@@ -162,7 +158,7 @@ class HTTPProxySession(HookableMixin):
                 request.body = self._reader
 
             try:
-                response = yield from session.start(request)
+                response = await session.start(request)
             except NetworkError as error:
                 _logger.debug('Upstream error', exc_info=True)
                 self._write_error_response()
@@ -183,16 +179,16 @@ class HTTPProxySession(HookableMixin):
 
             try:
                 self._writer.write(response.to_bytes())
-                yield from self._writer.drain()
+                await self._writer.drain()
 
                 session.event_dispatcher.add_listener(
                     Session.Event.response_data,
                     self._writer.write
                 )
 
-                yield from session.download(file=response.body, raw=True)
+                await session.download(file=response.body, raw=True)
 
-                yield from self._writer.drain()
+                await self._writer.drain()
             except NetworkError as error:
                 _logger.debug('Upstream error', exc_info=True)
                 self.event_dispatcher.notify(self.Event.server_response_error, error)
@@ -202,12 +198,12 @@ class HTTPProxySession(HookableMixin):
 
         _logger.debug('Response done.')
 
-    @asyncio.coroutine
-    def _read_request_header(self) -> Request:
+    
+    async def _read_request_header(self) -> Request:
         request = Request()
 
         for dummy in range(100):
-            line = yield from self._reader.readline()
+            line = await self._reader.readline()
 
             _logger.debug(__('Got line {0}', line))
 

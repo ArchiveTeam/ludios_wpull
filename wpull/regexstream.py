@@ -1,7 +1,7 @@
 '''Regular expression streams.'''
 
 
-class RegexStream(object):
+class RegexStream:
     '''Streams file with regular expressions.
 
     Args:

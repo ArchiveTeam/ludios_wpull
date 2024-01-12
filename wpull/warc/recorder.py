@@ -1,6 +1,5 @@
 import textwrap
 from tempfile import NamedTemporaryFile
-import contextlib
 import gettext
 import glob
 import gzip
@@ -10,7 +9,8 @@ import os.path
 import re
 import shutil
 
-import namedlist
+from typing import Optional
+from dataclasses import dataclass
 
 from wpull.backport.logging import StyleAdapter
 from wpull.namevalue import NameValueRecord
@@ -23,6 +23,7 @@ from wpull.protocol.http.client import Client as HTTPClient
 from wpull.protocol.http.client import Session as HTTPSession
 from wpull.protocol.http.request import Request as HTTPRequest
 from wpull.protocol.http.request import Response as HTTPResponse
+from wpull.database.sqltable import URLTable
 import wpull.util
 import wpull.version
 
@@ -31,22 +32,21 @@ _logger = StyleAdapter(logging.getLogger(__name__))
 _ = gettext.gettext
 
 
-WARCRecorderParams = namedlist.namedtuple(
-    'WARCRecorderParamsType',
-    [
-        ('compress', True),
-        ('extra_fields', None),
-        ('temp_dir', './'),
-        ('log', True),
-        ('appending', False),
-        ('digests', True),
-        ('cdx', None),
-        ('max_size', None),
-        ('move_to', None),
-        ('url_table', None),
-        ('software_string', None)
-    ]
-)
+# TODO: Upgrade typing syntax once required Python version is 3.10+
+@dataclass
+class WARCRecorderParams:
+    compress: bool = True
+    extra_fields: Optional[list] = None
+    temp_dir: str = './'
+    log: bool = True
+    appending: bool = False
+    digests: bool = True
+    cdx: Optional[list] = None
+    max_size: Optional[int] = None
+    move_to: Optional[str] = None
+    url_table: Optional[URLTable] = None
+    software_string: Optional[str]  = None
+
 ''':class:`WARCRecorder` parameters.
 
 Args:
@@ -62,14 +62,14 @@ Args:
         ``name-00000.ext`` and the log file will be in ``name-meta.ext``.
     move_to (str): If provided, completed WARC files and CDX files will be
         moved to the given directory
-    url_table (:class:`.database.URLTable`): If given, then ``revist``
+    url_table (:class:`.database.URLTable`): If given, then ``revisit``
         records will be written.
     software_string (str): The value for the ``software`` field in the
         Warcinfo record.
 '''
 
 
-class WARCRecorder(object):
+class WARCRecorder:
     '''Record to WARC file.
 
     Args:
@@ -78,7 +78,7 @@ class WARCRecorder(object):
     '''
     CDX_DELIMINATOR = ' '
     '''Default CDX delimiter.'''
-    DEFAULT_SOFTWARE_STRING = 'Wpull/{0} Python/{1}'.format(
+    DEFAULT_SOFTWARE_STRING = 'ludios_wpull/{0} Python/{1}'.format(
         wpull.version.__version__, wpull.util.python_version()
     )
     '''Default software string.'''
@@ -498,7 +498,7 @@ class WARCRecorder(object):
             return match.group(1)
 
 
-class BaseWARCRecorderSession(object):
+class BaseWARCRecorderSession:
     '''Base WARC recorder session.'''
     def __init__(self, recorder, temp_dir=None, url_table=None):
         self._recorder = recorder

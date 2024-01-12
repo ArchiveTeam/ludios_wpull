@@ -11,8 +11,8 @@ import asyncio
 
 from wpull.backport.logging import StyleAdapter
 from wpull.errors import ServerError, ExitStatus, ProtocolError, \
-    SSLVerificationError, DNSNotFound, ConnectionRefused, NetworkError, \
-    AuthenticationError
+    DNSNotFound, ConnectionRefused, NetworkError, \
+    AuthenticationError, SSLCertVerificationError
 from wpull.application.hook import  HookStop, HookableMixin
 from wpull.pipeline.pipeline import PipelineSeries
 
@@ -36,7 +36,7 @@ class Application(HookableMixin):
         (AuthenticationError, ExitStatus.authentication_failure),
         (ServerError, ExitStatus.server_error),
         (ProtocolError, ExitStatus.protocol_error),
-        (SSLVerificationError, ExitStatus.ssl_verification_error),
+        (SSLCertVerificationError, ExitStatus.ssl_verification_error),
         (DNSNotFound, ExitStatus.network_failure),
         (ConnectionRefused, ExitStatus.network_failure),
         (NetworkError, ExitStatus.network_failure),
@@ -50,7 +50,7 @@ class Application(HookableMixin):
 
     EXPECTED_EXCEPTIONS = (
         ServerError, ProtocolError,
-        SSLVerificationError, DNSNotFound,
+        SSLCertVerificationError, DNSNotFound,
         ConnectionRefused, NetworkError,
         OSError, IOError,
         HookStop, StopIteration, SystemExit, KeyboardInterrupt,
@@ -138,8 +138,8 @@ class Application(HookableMixin):
         asyncio.get_event_loop().close()
         return exit_status
 
-    @asyncio.coroutine
-    def run(self):
+    
+    async def run(self):
         if self._state != ApplicationState.ready:
             raise RuntimeError('Application is not ready')
 
@@ -154,7 +154,7 @@ class Application(HookableMixin):
             self.event_dispatcher.notify(self.Event.pipeline_begin, pipeline)
 
             try:
-                yield from pipeline.process()
+                await pipeline.process()
             except Exception as error:
                 if isinstance(error, StopIteration):
                     raise

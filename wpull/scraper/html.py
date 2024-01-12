@@ -1,5 +1,4 @@
 '''HTML link extractor.'''
-import collections
 import gettext
 import itertools
 import logging
@@ -12,7 +11,7 @@ from wpull.backport.logging import StyleAdapter
 from wpull.document.html import HTMLReader
 from wpull.document.util import detect_response_encoding
 from wpull.pipeline.item import LinkType
-from wpull.scraper.base import BaseHTMLScraper, ScrapeResult, LinkContext
+from wpull.scraper.base import BaseHTMLScraper, ScrapeResult, LinkContext, LinkInfo
 from wpull.scraper.util import urljoin_safe, clean_link_soup, parse_refresh, \
     is_likely_inline, is_likely_link, is_unlikely_link, identify_link_type
 from wpull.url import percent_decode
@@ -21,42 +20,7 @@ _ = gettext.gettext
 _logger = StyleAdapter(logging.getLogger(__name__))
 
 
-_BaseLinkInfo = collections.namedtuple(
-    'LinkInfoType',
-    [
-        'element', 'tag', 'attrib', 'link',
-        'inline', 'linked', 'base_link', 'value_type',
-        'link_type'
-    ]
-)
 
-class LinkInfo(_BaseLinkInfo):
-    def __hash__(self):
-        return self.link.__hash__()
-
-'''Information about a link in a lxml document.  Comparable on link only.
-
-Attributes:
-    element: An instance of :class:`.document.HTMLReadElement`.
-    tag (str): The element tag name.
-    attrib (str, None): If ``str``, the name of the attribute. Otherwise,
-        the link was found in ``element.text``.
-    link (str): The link found.
-    inline (bool): Whether the link is an embedded object (like images or
-        stylesheets).
-    linked (bool): Whether the link is a link to another page.
-    base_link (str, None): The base URL.
-    value_type (str): Indicates how the link was found. Possible values are
-
-        * ``plain``: The link was found plainly in an attribute value.
-        * ``list``: The link was found in a space separated list.
-        * ``css``: The link was found in a CSS text.
-        * ``refresh``: The link was found in a refresh meta string.
-        * ``script``: The link was found in JavaScript text.
-        * ``srcset``: The link was found in a ``srcset`` attribute.
-
-    link_type: A value from :class:`item.LinkInfo`.
-'''
 
 
 class HTMLScraper(HTMLReader, BaseHTMLScraper):
@@ -273,7 +237,7 @@ class HTMLScraper(HTMLReader, BaseHTMLScraper):
             return True
 
 
-class ElementWalker(object):
+class ElementWalker:
     LINK_ATTRIBUTES = frozenset([
         'action', 'archive', 'background', 'cite', 'classid',
         'codebase', 'data', 'href', 'longdesc', 'profile', 'src',

@@ -1,6 +1,5 @@
 # encoding=utf-8
 
-import copy
 import unittest
 from wpull.body import Body
 

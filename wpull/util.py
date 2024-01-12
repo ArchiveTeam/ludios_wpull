@@ -135,7 +135,7 @@ def rewrap_bytes(data):
     Intended to rewrap base64 content.
     '''
     return b'\n'.join(
-        data[index:index+70] for index in range(0, len(data), 70)
+        data[index:index + 70] for index in range(0, len(data), 70)
     )
 
 
@@ -213,7 +213,7 @@ def get_exception_message(instance):
         return str(instance)
 
 
-class PickleStream(object):
+class PickleStream:
     '''Pickle stream helper.'''
     def __init__(self, filename=None, file=None, mode='rb',
                  protocol=pickle.DEFAULT_PROTOCOL):

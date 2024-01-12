@@ -231,7 +231,7 @@ def identify_link_type(filename):
 
     if mime_type == 'text/css':
         return LinkType.css
-    elif mime_type == 'application/javascript':
+    elif mime_type == 'text/javascript':
         return LinkType.javascript
     elif mime_type == 'text/html' or mime_type.endswith('xml'):
         return LinkType.html

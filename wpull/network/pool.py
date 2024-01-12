@@ -13,7 +13,7 @@ from wpull.network.dns import Resolver, ResolveResult
 _logger = logging.getLogger(__name__)
 
 
-class HostPool(object):
+class HostPool:
     '''Connection pool for a host.
 
     Attributes:
@@ -37,8 +37,8 @@ class HostPool(object):
         '''Return whether the pool is empty.'''
         return not self.ready and not self.busy
 
-    @asyncio.coroutine
-    def clean(self, force: bool=False):
+    
+    async def clean(self, force: bool=False):
         '''Clean closed connections.
 
         Args:
@@ -46,7 +46,7 @@ class HostPool(object):
 
         Coroutine.
         '''
-        with (yield from self._lock):
+        async with self._lock:
             for connection in tuple(self.ready):
                 if force or connection.closed():
                     connection.close()
@@ -69,15 +69,15 @@ class HostPool(object):
         '''Return total number of connections.'''
         return len(self.ready) + len(self.busy)
 
-    @asyncio.coroutine
-    def acquire(self) -> Connection:
+    
+    async def acquire(self) -> Connection:
         '''Register and return a connection.
 
         Coroutine.
         '''
         assert not self._closed
 
-        yield from self._condition.acquire()
+        await self._condition.acquire()
 
         while True:
             if self.ready:
@@ -87,15 +87,15 @@ class HostPool(object):
                 connection = self._connection_factory()
                 break
             else:
-                yield from self._condition.wait()
+                await self._condition.wait()
 
         self.busy.add(connection)
         self._condition.release()
 
         return connection
 
-    @asyncio.coroutine
-    def release(self, connection: Connection, reuse: bool=True):
+    
+    async def release(self, connection: Connection, reuse: bool=True):
         '''Unregister a connection.
 
         Args:
@@ -104,7 +104,7 @@ class HostPool(object):
 
         Coroutine.
         '''
-        yield from self._condition.acquire()
+        await self._condition.acquire()
         self.busy.remove(connection)
 
         if reuse:
@@ -114,7 +114,7 @@ class HostPool(object):
         self._condition.release()
 
 
-class ConnectionPool(object):
+class ConnectionPool:
     '''Connection pool.
 
     Args:
@@ -149,8 +149,8 @@ class ConnectionPool(object):
     def host_pools(self) -> Mapping[tuple, HostPool]:
         return self._host_pools
 
-    @asyncio.coroutine
-    def acquire(self, host: str, port: int, use_ssl: bool=False,
+    
+    async def acquire(self, host: str, port: int, use_ssl: bool=False,
                 host_key: Optional[Any]=None) \
             -> Union[Connection, SSLConnection]:
         '''Return an available connection.
@@ -167,7 +167,7 @@ class ConnectionPool(object):
         assert isinstance(port, int), 'Expect int. Got {}'.format(type(port))
         assert not self._closed
 
-        yield from self._process_no_wait_releases()
+        await self._process_no_wait_releases()
 
         if use_ssl:
             connection_factory = functools.partial(
@@ -184,7 +184,7 @@ class ConnectionPool(object):
 
         key = host_key or (host, port, use_ssl)
 
-        with (yield from self._host_pools_lock):
+        async with self._host_pools_lock:
             if key not in self._host_pools:
                 host_pool = self._host_pools[key] = HostPool(
                     connection_factory,
@@ -197,7 +197,7 @@ class ConnectionPool(object):
 
         _logger.debug('Check out %s', key)
 
-        connection = yield from host_pool.acquire()
+        connection = await host_pool.acquire()
         connection.key = key
 
         # TODO: Verify this assert is always true
@@ -205,13 +205,13 @@ class ConnectionPool(object):
         # assert key in self._host_pools
         # assert self._host_pools[key] == host_pool
 
-        with (yield from self._host_pools_lock):
+        async with self._host_pools_lock:
             self._host_pool_waiters[key] -= 1
 
         return connection
 
-    @asyncio.coroutine
-    def release(self, connection: Connection):
+    
+    async def release(self, connection: Connection):
         '''Put a connection back in the pool.
 
         Coroutine.
@@ -223,10 +223,10 @@ class ConnectionPool(object):
 
         _logger.debug('Check in %s', key)
 
-        yield from host_pool.release(connection)
+        await host_pool.release(connection)
 
         force = self.count() > self._max_count
-        yield from self.clean(force=force)
+        await self.clean(force=force)
 
     def no_wait_release(self, connection: Connection):
         '''Synchronous version of :meth:`release`.'''
@@ -236,8 +236,8 @@ class ConnectionPool(object):
         )
         self._release_tasks.add(release_task)
 
-    @asyncio.coroutine
-    def _process_no_wait_releases(self):
+    
+    async def _process_no_wait_releases(self):
         '''Process check in tasks.'''
         while True:
             try:
@@ -245,22 +245,22 @@ class ConnectionPool(object):
             except KeyError:
                 return
             else:
-                yield from release_task
+                await release_task
 
-    @asyncio.coroutine
-    def session(self, host: str, port: int, use_ssl: bool=False):
+    
+    async def session(self, host: str, port: int, use_ssl: bool=False):
         '''Return a context manager that returns a connection.
 
         Usage::
 
-            session = yield from connection_pool.session('example.com', 80)
+            session = await connection_pool.session('example.com', 80)
             with session as connection:
                 connection.write(b'blah')
                 connection.close()
 
         Coroutine.
         '''
-        connection = yield from self.acquire(host, port, use_ssl)
+        connection = await self.acquire(host, port, use_ssl)
 
         @contextlib.contextmanager
         def context_wrapper():
@@ -271,8 +271,8 @@ class ConnectionPool(object):
 
         return context_wrapper()
 
-    @asyncio.coroutine
-    def clean(self, force: bool=False):
+    
+    async def clean(self, force: bool=False):
         '''Clean all closed connections.
 
         Args:
@@ -282,9 +282,9 @@ class ConnectionPool(object):
         '''
         assert not self._closed
 
-        with (yield from self._host_pools_lock):
+        async with self._host_pools_lock:
             for key, pool in tuple(self._host_pools.items()):
-                yield from pool.clean(force=force)
+                await pool.clean(force=force)
 
                 if not self._host_pool_waiters[key] and pool.empty():
                     del self._host_pools[key]
@@ -313,7 +313,7 @@ class ConnectionPool(object):
         return counter
 
 
-class HappyEyeballsTable(object):
+class HappyEyeballsTable:
     def __init__(self, max_items=100, time_to_live=600):
         '''Happy eyeballs connection cache table.'''
         self._cache = FIFOCache(max_items=max_items, time_to_live=time_to_live)
@@ -333,7 +333,7 @@ class HappyEyeballsTable(object):
         return self._cache.get((addr_1, addr_2))
 
 
-class HappyEyeballsConnection(object):
+class HappyEyeballsConnection:
     '''Wrapper for happy eyeballs connection.'''
     def __init__(self, address, connection_factory, resolver,
                  happy_eyeballs_table, is_ssl=False):
@@ -366,40 +366,40 @@ class HappyEyeballsConnection(object):
         if self._active_connection:
             self._active_connection.reset()
 
-    @asyncio.coroutine
-    def connect(self):
+    
+    async def connect(self):
         if self._active_connection:
-            yield from self._active_connection.connect()
+            await self._active_connection.connect()
             return
 
-        result = yield from self._resolver.resolve(self._address[0])
+        result = await self._resolver.resolve(self._address[0])
 
         primary_host, secondary_host = self._get_preferred_host(result)
 
         if not secondary_host:
             self._primary_connection = self._active_connection = \
                 self._connection_factory((primary_host, self._address[1]))
-            yield from self._primary_connection.connect()
+            await self._primary_connection.connect()
         else:
-            yield from self._connect_dual_stack(
+            await self._connect_dual_stack(
                 (primary_host, self._address[1]),
                 (secondary_host, self._address[1])
             )
 
-    @asyncio.coroutine
-    def _connect_dual_stack(self, primary_address, secondary_address):
+    
+    async def _connect_dual_stack(self, primary_address, secondary_address):
         '''Connect using happy eyeballs.'''
         self._primary_connection = self._connection_factory(primary_address)
         self._secondary_connection = self._connection_factory(secondary_address)
 
-        @asyncio.coroutine
-        def connect_primary():
-            yield from self._primary_connection.connect()
+        
+        async def connect_primary():
+            await self._primary_connection.connect()
             return self._primary_connection
 
-        @asyncio.coroutine
-        def connect_secondary():
-            yield from self._secondary_connection.connect()
+        
+        async def connect_secondary():
+            await self._secondary_connection.connect()
             return self._secondary_connection
 
         primary_fut = connect_primary()
@@ -410,7 +410,7 @@ class HappyEyeballsConnection(object):
         for fut in asyncio.as_completed((primary_fut, secondary_fut)):
             if not self._active_connection:
                 try:
-                    self._active_connection = yield from fut
+                    self._active_connection = await fut
                 except NetworkError:
                     if not failed:
                         _logger.debug('Original dual stack exception', exc_info=True)
@@ -421,10 +421,10 @@ class HappyEyeballsConnection(object):
                     _logger.debug('Got first of dual stack.')
 
             else:
-                @asyncio.coroutine
-                def cleanup():
+                
+                async def cleanup():
                     try:
-                        conn = yield from fut
+                        conn = await fut
                     except NetworkError:
                         pass
                     else:

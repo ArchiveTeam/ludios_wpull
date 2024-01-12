@@ -16,11 +16,10 @@ import threading
 import time
 import zlib
 
-import tornado.ioloop
-from tornado.testing import AsyncTestCase as TornadoAsyncTestCase
+from tornado.testing import AsyncTestCase
+from unittest import IsolatedAsyncioTestCase
 
 from gzip import GzipFile
-from wpull.testing.async_ import AsyncTestCase
 
 
 _logger = logging.getLogger(__name__)
@@ -464,9 +463,15 @@ class Handler(http.server.BaseHTTPRequestHandler):
         )
         self.send_header('Set-cookie', 'COOKIES')
         self.send_header('Set-cookie', 'test=valid')
-        self.send_header('Set-cookie', 'bad=date?; Expires=Sit, 28 Dec 2024 01:59:61 GMT')
-        self.send_header('Set-cookie', 'bad=date?; Expires=Sat, 28 Dec-2024 01:59:61 GMT')
-        self.send_header('Set-cookie', '; Expires=Thu, 01 Jan 1970 00:00:10 GMT')
+        self.send_header(
+            'Set-cookie',
+            'bad=date?; Expires=Sit, 28 Dec 2024 01:59:61 GMT')
+        self.send_header(
+            'Set-cookie',
+            'bad=date?; Expires=Sat, 28 Dec-2024 01:59:61 GMT')
+        self.send_header(
+            'Set-cookie',
+            '; Expires=Thu, 01 Jan 1970 00:00:10 GMT')
         self.send_header('Content-length', '0')
         self.end_headers()
 
@@ -530,7 +535,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         )
         self.send_header('Content-Length', 0)
         self.end_headers()
-        
+
     def bad_redirect_ipv6(self):
         self.send_response(303)
         self.send_header(
@@ -601,28 +606,24 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.close_connection = True
 
 
-class ConcurrentHTTPServer(socketserver.ThreadingMixIn,
-                           http.server.HTTPServer):
-    daemon_threads = True
-
-    def __init__(self, *args, **kwargs):
-        http.server.HTTPServer.__init__(self, *args, **kwargs)
-#         self.daemon_threads = True
-
-
 class Server(threading.Thread):
     def __init__(self, port=0, enable_ssl=False):
         threading.Thread.__init__(self)
         self.daemon = True
         self._port = port
-        self._server = ConcurrentHTTPServer(
+        self._server = http.server.ThreadingHTTPServer(
             ('localhost', self._port), Handler)
         self._port = self._server.server_address[1]
 
         if enable_ssl:
-            self._server.socket = ssl.wrap_socket(
+            context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+            print(os.path.join(os.path.dirname(__file__), 'test.pem'))
+            context.load_cert_chain(
+                os.path.join(
+                    os.path.dirname(__file__),
+                    'test.pem'))
+            self._server.socket = context.wrap_socket(
                 self._server.socket,
-                certfile=os.path.join(os.path.dirname(__file__), 'test.pem'),
                 server_side=True)
 
         _logger.debug(
@@ -636,6 +637,7 @@ class Server(threading.Thread):
 
     def stop(self):
         _logger.debug('Server stopping...')
+        self._server.socket.close()
         self._server.shutdown()
         _logger.debug('Server stopped.')
 
@@ -644,17 +646,9 @@ class Server(threading.Thread):
         return self._port
 
 
-class BadAppTestCase(AsyncTestCase, TornadoAsyncTestCase):
-    def get_new_ioloop(self):
-        tornado.ioloop.IOLoop.configure(
-            'wpull.testing.async_.TornadoAsyncIOLoop',
-            event_loop=self.event_loop)
-        ioloop = tornado.ioloop.IOLoop()
-        return ioloop
-
+class BadAppTestCase(AsyncTestCase):
     def setUp(self):
         AsyncTestCase.setUp(self)
-        TornadoAsyncTestCase.setUp(self)
         self.http_server = Server(enable_ssl=self.get_protocol() == 'https')
         self.http_server.start()
         self.http_server.started_event.wait(timeout=5.0)
@@ -675,12 +669,44 @@ class BadAppTestCase(AsyncTestCase, TornadoAsyncTestCase):
         self.http_server.stop()
         self.http_server.join(timeout=5)
         AsyncTestCase.tearDown(self)
-        TornadoAsyncTestCase.tearDown(self)
 
 
 class SSLBadAppTestCase(BadAppTestCase):
     def get_protocol(self):
         return 'https'
+
+# Variant using stdlib IsolatedAsyncioTestCase
+
+
+class BadAppTestCase2(IsolatedAsyncioTestCase):
+    def setUp(self):
+        super().setUp()
+        self.http_server = Server(enable_ssl=self.get_protocol() == 'https')
+        self.http_server.start()
+        self.http_server.started_event.wait(timeout=5.0)
+        self._port = self.http_server.port
+
+    def get_http_port(self):
+        return self._port
+
+    def get_protocol(self):
+        return 'http'
+
+    def get_url(self, path):
+        # from tornado.testing
+        return '%s://localhost:%s%s' % (self.get_protocol(),
+                                        self.get_http_port(), path)
+
+    def tearDown(self):
+        self.http_server.stop()
+        self.http_server.join(timeout=5)
+        super().tearDown()
+
+
+class SSLBadAppTestCase2(BadAppTestCase2):
+    def get_protocol(self):
+        return 'https'
+
 
 if __name__ == '__main__':
     server = Server(8888)

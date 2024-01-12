@@ -4,13 +4,13 @@ import abc
 import fnmatch
 import re
 
-from typing import List, Iterator
+from typing import Iterator
 
 from wpull.pipeline.item import URLRecord
 from wpull.url import URLInfo, schemes_similar, is_subdir
 
 
-class BaseURLFilter(object, metaclass=abc.ABCMeta):
+class BaseURLFilter(metaclass=abc.ABCMeta):
     '''Base class for URL filters.
 
     The Processor uses filters to determine whether a URL should be downloaded.
@@ -140,7 +140,7 @@ class HostnameFilter(BaseURLFilter):
 
     def test(self, url_info, url_table_record):
         test_domain = url_info.hostname
-        if self._accepted and not test_domain in self._accepted:
+        if self._accepted and test_domain not in self._accepted:
             return False
 
         if self._rejected and test_domain in self._rejected:

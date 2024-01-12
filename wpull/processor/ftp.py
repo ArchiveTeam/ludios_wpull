@@ -9,7 +9,7 @@ import posixpath
 import tempfile
 import urllib.parse
 
-import namedlist
+from dataclasses import dataclass
 from typing import cast
 
 from wpull.backport.logging import StyleAdapter
@@ -27,7 +27,7 @@ from wpull.protocol.ftp.request import Request, ListingResponse, Response
 from wpull.protocol.ftp.util import FTPServerError
 from wpull.scraper.util import urljoin_safe
 from wpull.url import parse_url_or_log, URLInfo
-from wpull.writer import NullWriter, BaseFileWriter
+from wpull.writer import BaseFileWriter
 
 _logger = StyleAdapter(logging.getLogger(__name__))
 _ = gettext.gettext
@@ -35,15 +35,14 @@ _ = gettext.gettext
 GLOB_CHARS = frozenset('[]*?')
 
 
-FTPProcessorFetchParams = namedlist.namedtuple(
-    'FTPProcessorFetchParamsType',
-    [
-        ('remove_listing', True),
-        ('glob', True),
-        ('preserve_permissions', False),
-        ('retr_symlinks', True),
-    ]
-)
+@dataclass
+class FTPProcessorFetchParams:
+    remove_listing: bool = True
+    glob: bool = True
+    preserve_permissions: bool = False
+    retr_symlinks: bool = True
+
+
 '''FTPProcessorFetchParams
 
 Args:
@@ -93,11 +92,10 @@ class FTPProcessor(BaseProcessor):
         '''
         return self._listing_cache
 
-    @asyncio.coroutine
-    def process(self, item_session: ItemSession):
+    async def process(self, item_session: ItemSession):
         session = FTPProcessorSession(self, item_session)
         try:
-            return (yield from session.process())
+            return (await session.process())
         finally:
             session.close()
 
@@ -123,8 +121,7 @@ class FTPProcessorSession(BaseProcessorSession):
     def close(self):
         pass
 
-    @asyncio.coroutine
-    def process(self):
+    async def process(self):
         '''Process.
 
         Coroutine.
@@ -144,15 +141,15 @@ class FTPProcessorSession(BaseProcessorSession):
             is_file = False
             self._glob_pattern = urllib.parse.unquote(filename)
         else:
-            is_file = yield from self._prepare_request_file_vs_dir(request)
+            is_file = await self._prepare_request_file_vs_dir(request)
 
             self._file_writer_session.process_request(request)
 
-        wait_time = yield from self._fetch(request, is_file)
+        wait_time = await self._fetch(request, is_file)
 
         if wait_time:
             _logger.debug('Sleeping {0}.', wait_time)
-            yield from asyncio.sleep(wait_time)
+            await asyncio.sleep(wait_time)
 
     def _add_request_password(self, request: Request):
         if self._fetch_rule.ftp_login:
@@ -166,8 +163,7 @@ class FTPProcessorSession(BaseProcessorSession):
 
         return directory_request
 
-    @asyncio.coroutine
-    def _prepare_request_file_vs_dir(self, request: Request) -> bool:
+    async def _prepare_request_file_vs_dir(self, request: Request) -> bool:
         '''Check if file, modify request, and return whether is a file.
 
         Coroutine.
@@ -180,7 +176,7 @@ class FTPProcessorSession(BaseProcessorSession):
             is_file = 'unknown'
 
         if is_file == 'unknown':
-            files = yield from self._fetch_parent_path(request)
+            files = await self._fetch_parent_path(request)
 
             if not files:
                 return True
@@ -204,8 +200,7 @@ class FTPProcessorSession(BaseProcessorSession):
 
         return is_file
 
-    @asyncio.coroutine
-    def _fetch_parent_path(self, request: Request, use_cache: bool=True):
+    async def _fetch_parent_path(self, request: Request, use_cache: bool=True):
         '''Fetch parent directory and return list FileEntry.
 
         Coroutine.
@@ -224,7 +219,7 @@ class FTPProcessorSession(BaseProcessorSession):
 
         with self._processor.ftp_client.session() as session:
             try:
-                yield from session.start_listing(directory_request)
+                await session.start_listing(directory_request)
             except FTPServerError:
                 _logger.debug('Got an error. Assume is file.')
 
@@ -239,7 +234,7 @@ class FTPProcessorSession(BaseProcessorSession):
             )
 
             with temp_file as file:
-                directory_response = yield from session.download_listing(
+                directory_response = await session.download_listing(
                     file, duration_timeout=self._fetch_rule.duration_timeout)
 
         if use_cache:
@@ -248,8 +243,7 @@ class FTPProcessorSession(BaseProcessorSession):
 
         return directory_response.files
 
-    @asyncio.coroutine
-    def _fetch(self, request: Request, is_file: bool):
+    async def _fetch(self, request: Request, is_file: bool):
         '''Fetch the request
 
         Coroutine.
@@ -262,9 +256,9 @@ class FTPProcessorSession(BaseProcessorSession):
         try:
             with self._processor.ftp_client.session() as session:
                 if is_file:
-                    response = yield from session.start(request)
+                    response = await session.start(request)
                 else:
-                    response = yield from session.start_listing(request)
+                    response = await session.start_listing(request)
 
                 self._item_session.response = response
 
@@ -285,10 +279,10 @@ class FTPProcessorSession(BaseProcessorSession):
                 duration_timeout = self._fetch_rule.duration_timeout
 
                 if is_file:
-                    yield from session.download(
+                    await session.download(
                         response.body, duration_timeout=duration_timeout)
                 else:
-                    yield from session.download_listing(
+                    await session.download_listing(
                         response.body, duration_timeout=duration_timeout)
 
         except HookPreResponseBreak:
@@ -319,7 +313,7 @@ class FTPProcessorSession(BaseProcessorSession):
             if is_file and \
                     self._processor.fetch_params.preserve_permissions and \
                     hasattr(response.body, 'name'):
-                yield from self._apply_unix_permissions(request, response)
+                await self._apply_unix_permissions(request, response)
 
             response.body.close()
 
@@ -410,13 +404,12 @@ class FTPProcessorSession(BaseProcessorSession):
                 symlink_target=link_target
             )
 
-    @asyncio.coroutine
-    def _apply_unix_permissions(self, request: Request, response: Response):
+    async def _apply_unix_permissions(self, request: Request, response: Response):
         '''Fetch and apply Unix permissions.
 
         Coroutine.
         '''
-        files = yield from self._fetch_parent_path(request)
+        files = await self._fetch_parent_path(request)
 
         if not files:
             return

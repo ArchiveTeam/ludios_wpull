@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.join(
 ))
 
 
-class Mock(object):
+class Mock:
     def __init__(self, *args, **kwargs):
         pass
 
@@ -72,10 +72,7 @@ extensions = [
     'sphinxarg.ext',
 ]
 
-if sphinx.version_info >= (1, 3):
-    extensions.append('sphinx.ext.napoleon')
-else:
-    extensions.append('sphinxcontrib.napoleon',)
+extensions.append('sphinx.ext.napoleon')
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

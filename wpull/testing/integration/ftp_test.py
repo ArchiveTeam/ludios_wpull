@@ -4,12 +4,13 @@ import os
 from wpull.application.builder import Builder
 from wpull.application.options import AppArgumentParser
 from wpull.testing.integration.base import FTPAppTestCase
-import wpull.testing.async_
+from tornado.testing import gen_test
+
 
 
 class TestFTPApp(FTPAppTestCase):
-    @wpull.testing.async_.async_test()
-    def test_basic(self):
+    @gen_test(timeout=30)
+    async def test_basic(self):
         arg_parser = AppArgumentParser()
         args = arg_parser.parse_args([
             self.get_url('/'),
@@ -17,13 +18,13 @@ class TestFTPApp(FTPAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(0, builder.factory['Statistics'].files)
 
-    @wpull.testing.async_.async_test()
-    def test_login(self):
+    @gen_test(timeout=30)
+    async def test_login(self):
         arg_parser = AppArgumentParser()
         args = arg_parser.parse_args([
             self.get_url('/example (copy).txt'),
@@ -33,13 +34,13 @@ class TestFTPApp(FTPAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
 
-    @wpull.testing.async_.async_test()
-    def test_login_fail(self):
+    @gen_test(timeout=30)
+    async def test_login_fail(self):
         arg_parser = AppArgumentParser()
         args = arg_parser.parse_args([
             self.get_url('/example (copy).txt'),
@@ -50,13 +51,13 @@ class TestFTPApp(FTPAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(6, exit_code)
         self.assertEqual(0, builder.factory['Statistics'].files)
 
-    @wpull.testing.async_.async_test()
-    def test_args(self):
+    @gen_test(timeout=30)
+    async def test_args(self):
         arg_parser = AppArgumentParser()
         args = arg_parser.parse_args([
             self.get_url('/'),
@@ -73,7 +74,7 @@ class TestFTPApp(FTPAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(8, exit_code)
         self.assertEqual(6, builder.factory['Statistics'].files)
@@ -96,8 +97,8 @@ class TestFTPApp(FTPAppTestCase):
                           .encode('utf-8'),
                           data)
 
-    @wpull.testing.async_.async_test()
-    def test_retr_symlinks_off(self):
+    @gen_test(timeout=30)
+    async def test_retr_symlinks_off(self):
         arg_parser = AppArgumentParser()
         args = arg_parser.parse_args([
             self.get_url('/'),
@@ -110,7 +111,7 @@ class TestFTPApp(FTPAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
 
@@ -120,8 +121,8 @@ class TestFTPApp(FTPAppTestCase):
         self.assertTrue(os.path.exists('readme.txt'))
         self.assertTrue(os.path.islink('readme.txt'))
 
-    @wpull.testing.async_.async_test()
-    def test_file_vs_directory(self):
+    @gen_test(timeout=30)
+    async def test_file_vs_directory(self):
         arg_parser = AppArgumentParser()
         args = arg_parser.parse_args([
             self.get_url('/example2💎'),
@@ -134,14 +135,14 @@ class TestFTPApp(FTPAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
         print(list(os.walk('.')))
 
         self.assertEqual(0, exit_code)
         self.assertTrue(os.path.exists('example2💎/.listing'))
 
-    @wpull.testing.async_.async_test()
-    def test_invalid_char_dir_list(self):
+    @gen_test(timeout=30)
+    async def test_invalid_char_dir_list(self):
         arg_parser = AppArgumentParser()
         args = arg_parser.parse_args([
             self.get_url('/hidden/invalid_chars/'),
@@ -151,14 +152,14 @@ class TestFTPApp(FTPAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
         print(list(os.walk('.')))
 
         self.assertEqual(0, exit_code)
         self.assertTrue(os.path.exists('.listing'))
 
-    @wpull.testing.async_.async_test()
-    def test_globbing(self):
+    @gen_test(timeout=30)
+    async def test_globbing(self):
         arg_parser = AppArgumentParser()
         args = arg_parser.parse_args([
             self.get_url('/read*.txt'),
@@ -166,14 +167,14 @@ class TestFTPApp(FTPAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
         print(list(os.walk('.')))
 
         self.assertEqual(0, exit_code)
         self.assertEqual(1, builder.factory['Statistics'].files)
 
-    @wpull.testing.async_.async_test()
-    def test_no_globbing(self):
+    @gen_test(timeout=30)
+    async def test_no_globbing(self):
         arg_parser = AppArgumentParser()
         args = arg_parser.parse_args([
             self.get_url('/read*.txt'),
@@ -183,14 +184,14 @@ class TestFTPApp(FTPAppTestCase):
         builder = Builder(args, unit_test=True)
 
         app = builder.build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
         print(list(os.walk('.')))
 
         self.assertEqual(8, exit_code)
         self.assertEqual(0, builder.factory['Statistics'].files)
 
-    @wpull.testing.async_.async_test()
-    def test_file_continue(self):
+    @gen_test(timeout=30)
+    async def test_file_continue(self):
         arg_parser = AppArgumentParser()
         args = arg_parser.parse_args([self.get_url('/example (copy).txt'),
                                       '--continue', '--debug'])
@@ -201,7 +202,7 @@ class TestFTPApp(FTPAppTestCase):
             out_file.write(b'The')
 
         app = Builder(args, unit_test=True).build()
-        exit_code = yield from app.run()
+        exit_code = await app.run()
 
         self.assertEqual(0, exit_code)
 

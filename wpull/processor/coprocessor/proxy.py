@@ -1,8 +1,7 @@
 import gettext
 import logging
-from http.cookiejar import CookieJar
 
-from typing import Optional, cast
+from typing import cast
 
 import wpull.string
 from wpull.application.hook import Actions
@@ -32,7 +31,7 @@ class ProxyItemSession(ItemSession):
         self.set_status(Status.skipped)
 
 
-class ProxyCoprocessor(object):
+class ProxyCoprocessor:
     '''Proxy coprocessor.'''
     def __init__(self, app_session: AppSession):
         self._app_session = app_session
@@ -47,7 +46,7 @@ class ProxyCoprocessor(object):
         ProxyCoprocessorSession(self._app_session, session)
 
 
-class ProxyCoprocessorSession(object):
+class ProxyCoprocessorSession:
     def __init__(self, app_session: AppSession,
                  http_proxy_session: HTTPProxySession):
         self._app_session = app_session

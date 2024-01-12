@@ -1,8 +1,6 @@
 '''RPC processes.'''
 
-import abc
 import gettext
-import json
 import logging
 import subprocess
 import atexit
@@ -18,7 +16,7 @@ _ = gettext.gettext
 _logger = logging.getLogger(__name__)
 
 
-class Process(object):
+class Process:
     '''Subprocess wrapper.'''
     def __init__(self, proc_args, stdout_callback=None, stderr_callback=None):
         self._proc_args = proc_args
@@ -33,8 +31,8 @@ class Process(object):
         '''Return the underlying process.'''
         return self._process
 
-    @asyncio.coroutine
-    def start(self, use_atexit=True):
+    
+    async def start(self, use_atexit=True):
         '''Start the executable.
 
         Args:
@@ -51,7 +49,7 @@ class Process(object):
             stderr=subprocess.PIPE,
             *self._proc_args
         )
-        self._process = yield from process_future
+        self._process = await process_future
 
         self._stderr_reader = asyncio.ensure_future(self._read_stderr())
         self._stdout_reader = asyncio.ensure_future(self._read_stdout())
@@ -92,12 +90,12 @@ class Process(object):
             if error.errno != errno.ESRCH:
                 raise
 
-    @asyncio.coroutine
-    def _read_stdout(self):
+    
+    async def _read_stdout(self):
         '''Continuously read the stdout for messages.'''
         try:
             while self._process.returncode is None:
-                line = yield from self._process.stdout.readline()
+                line = await self._process.stdout.readline()
 
                 _logger.debug('Read stdout line %s', repr(line))
 
@@ -105,24 +103,24 @@ class Process(object):
                     break
 
                 if self._stdout_callback:
-                    yield from self._stdout_callback(line)
+                    await self._stdout_callback(line)
 
         except Exception:
             _logger.exception('Unhandled read stdout exception.')
             raise
 
-    @asyncio.coroutine
-    def _read_stderr(self):
+    
+    async def _read_stderr(self):
         '''Continuously read stderr for error messages.'''
         try:
             while self._process.returncode is None:
-                line = yield from self._process.stderr.readline()
+                line = await self._process.stderr.readline()
 
                 if not line:
                     break
 
                 if self._stderr_callback:
-                    yield from self._stderr_callback(line)
+                    await self._stderr_callback(line)
 
         except Exception:
             _logger.exception('Unhandled read stderr exception.')

@@ -34,7 +34,7 @@ Attributes:
 '''
 
 
-class ResourceMonitor(object):
+class ResourceMonitor:
     '''Monitor available resources such as disk space and memory.
 
     Args:

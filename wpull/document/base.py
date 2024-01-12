@@ -2,7 +2,7 @@
 import abc
 
 
-class VeryFalseType(object):
+class VeryFalseType:
     def __bool__(self):
         return False
 
@@ -11,7 +11,7 @@ VeryFalse = VeryFalseType()
 '''Document is not definitely supported.'''
 
 
-class BaseDocumentDetector(object, metaclass=abc.ABCMeta):
+class BaseDocumentDetector(metaclass=abc.ABCMeta):
     '''Base class for classes that detect document types.'''
 
     @classmethod
@@ -96,7 +96,7 @@ class BaseDocumentDetector(object, metaclass=abc.ABCMeta):
         raise NotImplementedError()  # optional override
 
 
-class BaseTextStreamReader(object, metaclass=abc.ABCMeta):
+class BaseTextStreamReader(metaclass=abc.ABCMeta):
     '''Base class for document readers that filters link and non-link text.'''
     @abc.abstractmethod
     def iter_text(self, file, encoding=None):
@@ -129,7 +129,7 @@ class BaseTextStreamReader(object, metaclass=abc.ABCMeta):
             return [item[0] for item in self.iter_text(file, encoding) if item[1]]
 
 
-class BaseExtractiveReader(object, metaclass=abc.ABCMeta):
+class BaseExtractiveReader(metaclass=abc.ABCMeta):
     '''Base class for document readers that can only extract links.'''
     def iter_links(self, file, encoding=None):
         '''Return links from file.
@@ -139,7 +139,7 @@ class BaseExtractiveReader(object, metaclass=abc.ABCMeta):
         '''
 
 
-class BaseHTMLReader(object, metaclass=abc.ABCMeta):
+class BaseHTMLReader(metaclass=abc.ABCMeta):
     '''Base class for document readers for handling SGML-like documents.'''
 
     @abc.abstractmethod

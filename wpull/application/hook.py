@@ -5,11 +5,9 @@ See :ref:`scripting-hooks` for an introduction.
 '''
 import collections.abc
 import enum
-import functools
 import gettext
 import logging
 
-import asyncio
 
 from typing import Optional, Iterable
 
@@ -88,14 +86,14 @@ class HookDispatcher(collections.abc.Mapping):
         else:
             raise HookDisconnected('No callback is connected.')
 
-    @asyncio.coroutine
-    def call_async(self, name: str, *args, **kwargs):
+    
+    async def call_async(self, name: str, *args, **kwargs):
         '''Invoke the callback.'''
         if self._event_dispatcher is not None:
             self._event_dispatcher.notify(name, *args, **kwargs)
 
         if self._callbacks[name]:
-            return (yield from self._callbacks[name](*args, **kwargs))
+            return (await self._callbacks[name](*args, **kwargs))
         else:
             raise HookDisconnected('No callback is connected.')
 
@@ -149,7 +147,7 @@ class EventDispatcher(collections.abc.Mapping):
         return name in self._callbacks
 
 
-class HookableMixin(object):
+class HookableMixin:
     _plugins = [] # type: Iterable[WpullPlugin]
 
     def __init__(self):

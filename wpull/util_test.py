@@ -56,7 +56,7 @@ class TestUtil(unittest.TestCase):
         self.assertFalse(is_ascii('😤'))
 
     def test_close_on_error(self):
-        class MyObject(object):
+        class MyObject:
             def __init__(self):
                 self.closed = False
 
@@ -92,21 +92,21 @@ class TestUtil(unittest.TestCase):
             self.assertEqual('ValueError', get_exception_message(error))
 
         self.assertEqual(
-            'NoNameservers', get_exception_message(NoNameservers())
+            'All nameservers failed to answer the query.', get_exception_message(NoNameservers())
         )
 
         try:
             raise NoNameservers
         except NoNameservers as error:
             self.assertEqual(
-                'NoNameservers', get_exception_message(error)
+                'All nameservers failed to answer the query.', get_exception_message(error)
             )
 
         try:
             raise NoNameservers()
         except NoNameservers as error:
             self.assertEqual(
-                'NoNameservers', get_exception_message(error)
+                'All nameservers failed to answer the query.', get_exception_message(error)
             )
 
     def test_pickle_stream_filename(self):
@@ -136,4 +136,3 @@ class TestUtil(unittest.TestCase):
 
             for num, obj in enumerate(stream.iter_load()):
                 self.assertEqual(num, obj)
-

@@ -1,9 +1,6 @@
 # encoding=utf-8
 '''Statistics.'''
 import logging
-import os
-import shelve
-import tempfile
 import time
 from collections import Counter
 from typing import Optional
@@ -15,7 +12,7 @@ from wpull.network.bandwidth import BandwidthMeter
 _logger = logging.getLogger(__name__)
 
 
-class Statistics(object):
+class Statistics:
     '''Statistics.
 
     Attributes:
@@ -29,7 +26,7 @@ class Statistics(object):
         bandwidth_meter (:class:`.network.BandwidthMeter`): The bandwidth
             meter.
     '''
-    def __init__(self, url_table: Optional[BaseURLTable]=None):
+    def __init__(self, url_table: Optional[BaseURLTable] = None):
         self.start_time = None
         self.stop_time = None
         self.files = 0
@@ -71,7 +68,7 @@ class Statistics(object):
 
         if self.quota and self._url_table is not None:
             return self.size >= self.quota and \
-                   self._url_table.get_root_url_todo_count() == 0
+                self._url_table.get_root_url_todo_count() == 0
 
     def increment_error(self, error: Exception):
         '''Increment the error counter preferring base exceptions.'''

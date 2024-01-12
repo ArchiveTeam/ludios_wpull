@@ -21,7 +21,7 @@ from wpull.namevalue import NameValueRecord
 import wpull.util
 
 
-class WARCRecord(object):
+class WARCRecord:
     '''A record in a WARC file.
 
     Attributes:

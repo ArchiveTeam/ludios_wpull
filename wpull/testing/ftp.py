@@ -4,23 +4,23 @@ import socket
 
 import asyncio
 
-from wpull.testing.async_ import AsyncTestCase
+# from wpull.testing.async_ import AsyncTestCase
+from tornado.testing import AsyncTestCase
 
 
 _logger = logging.getLogger(__name__)
 
 
-class MockFTPServer(object):
+class MockFTPServer:
     def __init__(self):
         pass
 
-    @asyncio.coroutine
-    def __call__(self, reader, writer):
+    async def __call__(self, reader, writer):
         _logger.debug('New session')
         session = FTPSession(reader, writer)
 
         try:
-            yield from session.process()
+            await session.process()
         except Exception:
             _logger.exception('Server error')
             writer.close()
@@ -28,7 +28,7 @@ class MockFTPServer(object):
             writer.close()
 
 
-class FTPSession(object):
+class FTPSession:
     def __init__(self, reader, writer):
         self.reader = reader
         self.writer = writer
@@ -47,7 +47,7 @@ class FTPSession(object):
                   'drw-r--r-- 1 smaug smaug 0 Apr 01 00:00 example2💎\r\n'
                   '-rw-r--r-- 1 smaug smaug 42 Apr 01 00:00 example (copy).txt\r\n'
                   'lrwxrwxrwx 1 smaug smaug 4 Apr 01 00:00 readme.txt -> example (copy).txt\r\n'
-                 ).encode('utf-8')),
+                  ).encode('utf-8')),
             '/example (copy).txt':
                 ('file',
                  'The real treasure is in Smaug’s heart 💗.\n'.encode('utf-8')),
@@ -63,9 +63,9 @@ class FTPSession(object):
             '/example2💎':
                 ('dir', b'trash.txt',
                  ('02-09-2010  03:00PM                      13 trash.txt\r\n'
-                 ).encode('utf-8'),
+                  ).encode('utf-8'),
                  b'type=file; trash.txt\n'
-                ),
+                 ),
             '/example2💎/trash.txt':
                 ('file', b'hello dragon!'),
             '/hidden/sleep.txt':
@@ -79,22 +79,22 @@ class FTPSession(object):
         self.evil_flags = set()
         self.restart_value = None
 
-    @asyncio.coroutine
-    def process(self):
+    async def process(self):
         self.writer.write(b'220-Welcome to Smaug\'s FTP server\r\n')
         self.writer.write(b'220 Please upload your treasures now.\r\n')
 
         while True:
-            yield from self.writer.drain()
+            await self.writer.drain()
             _logger.debug('Await command')
-            line = yield from self.reader.readline()
+            line = await self.reader.readline()
 
             if line[-1:] != b'\n':
                 _logger.debug('Connection closed')
                 return
 
             try:
-                command, arg = line.decode('utf-8', errors='replace').split(' ', 1)
+                command, arg = line.decode(
+                    'utf-8', errors='replace').split(' ', 1)
             except ValueError:
                 command = line.decode('utf-8', errors='replace').strip()
                 arg = ''
@@ -141,10 +141,9 @@ class FTPSession(object):
                         not self._current_password:
                     self.writer.write(b'530 Login required\r\n')
                 else:
-                    yield from func()
+                    await func()
 
-    @asyncio.coroutine
-    def _cmd_user(self):
+    async def _cmd_user(self):
         self._current_username = self.arg
 
         if self._current_username == 'no_password_required':
@@ -153,8 +152,7 @@ class FTPSession(object):
         else:
             self.writer.write(b'331 Password required\r\n')
 
-    @asyncio.coroutine
-    def _cmd_pass(self):
+    async def _cmd_pass(self):
         if self._current_username == 'anonymous':
             self.writer.write(b'230 Log in OK\r\n')
             self._current_password = self.arg
@@ -164,8 +162,7 @@ class FTPSession(object):
         else:
             self.writer.write(b'530 Password incorrect\r\n')
 
-    @asyncio.coroutine
-    def _cmd_pasv(self):
+    async def _cmd_pasv(self):
         sock = socket.socket()
         sock.bind(('127.0.0.1', 0))
 
@@ -173,7 +170,7 @@ class FTPSession(object):
             self.data_reader = data_reader
             self.data_writer = data_writer
 
-        self.data_server = yield from \
+        self.data_server = await \
             asyncio.start_server(data_server_cb, sock=sock)
         port = sock.getsockname()[1]
 
@@ -181,24 +178,23 @@ class FTPSession(object):
         small_port_num = port & 0xff
 
         if 'bad_pasv_addr' in self.evil_flags:
-            self.writer.write(b'227 Now passive mode (127,0,0,WOW,SO,UNEXPECT)\r\n')
+            self.writer.write(
+                b'227 Now passive mode (127,0,0,WOW,SO,UNEXPECT)\r\n')
         else:
             self.writer.write('227 Now passive mode (127,0,0,1,{},{})\r\n'
                               .format(big_port_num, small_port_num)
                               .encode('utf-8'))
 
-    @asyncio.coroutine
-    def _wait_data_writer(self):
+    async def _wait_data_writer(self):
         for dummy in range(50):
             if not self.data_writer:
-                yield from asyncio.sleep(0.1)
+                await asyncio.sleep(0.1)
             else:
                 return
         raise Exception('Time out')
 
-    @asyncio.coroutine
-    def _cmd_nlst(self):
-        yield from self._wait_data_writer()
+    async def _cmd_nlst(self):
+        await self._wait_data_writer()
 
         if not self.data_writer:
             self.writer.write(b'227 Use PORT or PASV first\r\n')
@@ -218,9 +214,8 @@ class FTPSession(object):
             self.writer.write(b'226 End listings\r\n')
             self.data_server.close()
 
-    @asyncio.coroutine
-    def _cmd_list(self):
-        yield from self._wait_data_writer()
+    async def _cmd_list(self):
+        await self._wait_data_writer()
 
         if not self.data_writer:
             self.writer.write(b'227 Use PORT or PASV first\r\n')
@@ -239,9 +234,8 @@ class FTPSession(object):
             self.writer.write(b'226 End listings\r\n')
             self.data_server.close()
 
-    @asyncio.coroutine
-    def _cmd_mlsd(self):
-        yield from self._wait_data_writer()
+    async def _cmd_mlsd(self):
+        await self._wait_data_writer()
 
         info = self.routes.get(self.path)
 
@@ -266,9 +260,8 @@ class FTPSession(object):
             self.writer.write(b'226 End listings\r\n')
             self.data_server.close()
 
-    @asyncio.coroutine
-    def _cmd_retr(self):
-        yield from self._wait_data_writer()
+    async def _cmd_retr(self):
+        await self._wait_data_writer()
 
         info = self.routes.get(self.path)
 
@@ -278,7 +271,7 @@ class FTPSession(object):
             self.writer.write(b'150 Begin data\r\n')
 
             if self.path == '/hidden/sleep.txt':
-                yield from asyncio.sleep(2)
+                await asyncio.sleep(2)
 
             self.data_writer.write(info[1][self.restart_value or 0:])
             self.restart_value = None
@@ -292,8 +285,7 @@ class FTPSession(object):
         else:
             self.writer.write(b'550 File error\r\n')
 
-    @asyncio.coroutine
-    def _cmd_size(self):
+    async def _cmd_size(self):
         info = self.routes.get(self.path)
 
         if info and info[0] == 'file' and self.path == '/example.txt':
@@ -305,8 +297,7 @@ class FTPSession(object):
         else:
             self.writer.write(b'550 Unknown command\r\n')
 
-    @asyncio.coroutine
-    def _cmd_rest(self):
+    async def _cmd_rest(self):
         try:
             self.restart_value = int(self.arg)
 
@@ -319,26 +310,22 @@ class FTPSession(object):
             self.restart_value = None
             self.writer.write(b'550 What?\r\n')
 
-    @asyncio.coroutine
-    def _cmd_cwd(self):
+    async def _cmd_cwd(self):
         if self.arg in ('example1', 'example2💎', '/'):
             self.writer.write(b'250 Changed directory\r\n')
         else:
             self.writer.write(b'550 Change directory error\r\n')
 
-    @asyncio.coroutine
-    def _cmd_type(self):
+    async def _cmd_type(self):
         if self.arg == 'I':
             self.writer.write(b'200 Now binary mode\r\n')
         else:
             self.writer.write(b'500 Unknown type\r\n')
 
-    @asyncio.coroutine
-    def _cmd_pwd(self):
+    async def _cmd_pwd(self):
         self.writer.write(b'257 /\r\n')
 
-    @asyncio.coroutine
-    def _cmd_evil_bad_pasv_addr(self):
+    async def _cmd_evil_bad_pasv_addr(self):
         self.evil_flags.add('bad_pasv_addr')
 
 
@@ -347,17 +334,24 @@ class FTPTestCase(AsyncTestCase):
         return self.sock.getsockname()[1]
 
     def setUp(self):
+        self.event_loop = asyncio.new_event_loop()
+        self.event_loop.set_debug(True)
+        asyncio.set_event_loop(self.event_loop)
+
+        # IsolatedAsyncioTestCase.setUp(self)
         AsyncTestCase.setUp(self)
         self.server = MockFTPServer()
         self.sock = socket.socket()
         self.sock.bind(('127.0.0.1', 0))
-        self.server_handle = self.event_loop.run_until_complete(
+
+        self.server_handle = self.io_loop.asyncio_loop.run_until_complete(
             asyncio.start_server(self.server, sock=self.sock)
         )
 
     def tearDown(self):
         self.server_handle.close()
         AsyncTestCase.tearDown(self)
+        # IsolatedAsyncioTestCase.tearDown(self)
 
     def get_url(self, path, username='', password=''):
         if username or password:

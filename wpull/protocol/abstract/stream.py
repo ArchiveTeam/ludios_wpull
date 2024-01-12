@@ -1,8 +1,6 @@
 '''Abstract stream classes'''
 import functools
 
-import asyncio
-
 from typing import Callable
 
 import wpull.util
@@ -10,18 +8,17 @@ import wpull.util
 
 def close_stream_on_error(func):
     '''Decorator to close stream on error.'''
-    @asyncio.coroutine
     @functools.wraps(func)
-    def wrapper(self, *args, **kwargs):
+    async def wrapper(self, *args, **kwargs):
         with wpull.util.close_on_error(self.close):
-            return (yield from func(self, *args, **kwargs))
+            return (await func(self, *args, **kwargs))
     return wrapper
 
 
 DataEventCallback = Callable[[bytes], None]
 
 
-class DataEventDispatcher(object):
+class DataEventDispatcher:
     def __init__(self):
         self._read_listeners = set()
         self._write_listeners = set()

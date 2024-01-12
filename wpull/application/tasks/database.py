@@ -1,7 +1,6 @@
 import codecs
 import gettext
 import itertools
-import asyncio
 import logging
 import sys
 
@@ -18,8 +17,8 @@ _logger = logging.getLogger(__name__)
 
 
 class DatabaseSetupTask(ItemTask[AppSession]):
-    @asyncio.coroutine
-    def process(self, session: AppSession):
+    
+    async def process(self, session: AppSession):
         if session.args.database_uri:
             session.factory.class_map[
                 'URLTableImplementation'] = GenericSQLURLTable
@@ -37,8 +36,8 @@ class DatabaseSetupTask(ItemTask[AppSession]):
 
 
 class InputURLTask(ItemTask[AppSession]):
-    @asyncio.coroutine
-    def process(self, session: AppSession):
+    
+    async def process(self, session: AppSession):
         url_table = session.factory['URLTable']
         url_count = 0
 

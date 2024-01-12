@@ -4,7 +4,7 @@ import abc
 from wpull.url import URLInfo
 
 
-class DictableMixin(object):
+class DictableMixin:
     @abc.abstractmethod
     def to_dict(self):
         '''Convert to a dict suitable for JSON.'''
@@ -16,7 +16,7 @@ class DictableMixin(object):
             return instance.to_dict()
 
 
-class SerializableMixin(object):
+class SerializableMixin:
     '''Serialize and unserialize methods.'''
     @abc.abstractmethod
     def to_bytes(self):
@@ -27,7 +27,7 @@ class SerializableMixin(object):
         '''Parse from HTTP bytes.'''
 
 
-class URLPropertyMixin(object):
+class URLPropertyMixin:
     '''Provide URL as a property.
 
     Attributes:
@@ -60,7 +60,7 @@ class URLPropertyMixin(object):
         self._url = url_info.url
 
 
-class ProtocolResponseMixin(object):
+class ProtocolResponseMixin:
     '''Protocol abstraction for response objects.'''
     @abc.abstractproperty
     def protocol(self):

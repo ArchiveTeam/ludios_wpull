@@ -134,7 +134,7 @@ class TestString(unittest.TestCase):
         nums = itertools.chain(
             (-93334, -1, 0, 1, 100, 1023, 1024, 1025,),
             [10 ** expo for expo in range(1, 16)]
-            )
+        )
 
         for num in nums:
             format_size(num)

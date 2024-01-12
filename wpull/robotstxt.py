@@ -10,7 +10,7 @@ _logger = logging.getLogger(__name__)
 _ = gettext.gettext
 
 
-class RobotsTxtPool(object):
+class RobotsTxtPool:
     '''Pool of robots.txt parsers.'''
     def __init__(self):
         self._parsers = {}
