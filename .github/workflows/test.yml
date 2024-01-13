@@ -28,7 +28,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install --no-binary lxml lxml
           pip install coverage
-          pip install .
+          pip install .["testing"]
       - name: Run unittests with coverage report
         # continue-on-error: true
         run: |
