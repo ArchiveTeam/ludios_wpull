@@ -39,8 +39,7 @@ docs = [
     "sphinxcontrib-napoleon>=0.2.6,<=0.5.0",
 ]
 testing = [
-    "warcat",
-    "distutils"
+    "warcat"
 ]
 
 [tool.setuptools]
