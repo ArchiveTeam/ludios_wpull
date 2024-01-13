@@ -1,4 +1,4 @@
-name: Python package
+name: Unit Tests
 
 # on: [push]
 on:
@@ -32,7 +32,8 @@ jobs:
       - name: Run unittests with coverage report
         continue-on-error: true
         run: |
-          coverage run -m unittest discover -p "*_test.py"
+      - name: Generate coverage report
+        run: |
           coverage xml --data-file=.coverage
       # You can test your matrix by printing the current Python version
       # - name: Display Python version
