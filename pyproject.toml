@@ -39,7 +39,7 @@ docs = [
     "sphinxcontrib-napoleon>=0.2.6,<=0.5.0",
 ]
 testing = [
-    "warcat",
+    "warcat"
 ]
 
 [tool.setuptools]
@@ -74,4 +74,9 @@ Source = "https://github.com/ArchiveTeam/ludios_wpull"
 
 [project.scripts]
 wpull = "wpull.application.main:main"
-wpull4 = "wpull.application.main:main"
+wpull5 = "wpull.application.main:main"
+
+[tool.coverage.run]
+omit = [
+    "index_html.generated.py"
+]

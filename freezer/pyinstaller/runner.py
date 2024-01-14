@@ -2,7 +2,7 @@
 import copy
 import subprocess
 import sys
-import distutils.util
+import sysconfig
 import platform
 import os.path
 import os
@@ -88,7 +88,7 @@ def main():
     print('Zip.')
     wpull_version = run_env_py(['wpull', '--version'], get_output=True)\
         .decode('ascii').strip()
-    platform_string = distutils.util.get_platform()
+    platform_string = sysconfig.get_platform()
     python_version = platform.python_version()
     date_string = time.strftime('%Y%m%d%H%M%S', time.gmtime())
     zip_name = 'wpull-{}-{}-{}-{}'.format(

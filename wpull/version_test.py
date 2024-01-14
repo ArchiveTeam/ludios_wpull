@@ -1,5 +1,5 @@
 # encoding=utf-8
-from distutils.version import StrictVersion
+from packaging.version import parse
 import unittest
 
 import wpull.version
@@ -8,7 +8,7 @@ from wpull.version import get_version_tuple
 
 class TestVersion(unittest.TestCase):
     def test_valid_version_str(self):
-        StrictVersion(wpull.version.__version__)
+        parse(wpull.version.__version__)
 
     def test_version_string_buidler(self):
         self.assertEqual(
