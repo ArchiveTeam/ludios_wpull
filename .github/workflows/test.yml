@@ -6,11 +6,12 @@ on:
         branches:
             - master
             - main
+permissions:
+  pull-requests: write
 jobs:
   testing:
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
+
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
