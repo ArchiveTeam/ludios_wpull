@@ -19,7 +19,7 @@ classifiers=[
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "chardet~=5",
+    "chardet",
     "dnspython",
     "html5-parser",
     "lxml",
