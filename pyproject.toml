@@ -7,7 +7,7 @@ name = "wpull"
 description = "Wget-compatible web downloader and crawler."
 authors = [{name = "Christopher Foo", email = "chris.foo@gmail.com"}]
 readme = "README.orig.rst"
-version = "5.0.2a"
+version = "5.0.3"
 license = { file = "LICENSE.txt" }
 classifiers=[
     'Development Status :: 5 - Production/Stable',
