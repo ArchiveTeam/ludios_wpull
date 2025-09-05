@@ -24,7 +24,7 @@ dependencies = [
     "html5-parser",
     "lxml",
     "psutil~=5.9",
-    "sqlalchemy==2.0.23",
+    "sqlalchemy~=2.0.0",
     "tornado~=6.4",
     # Required due to yapsy 1.12.2 using deprecated modules
     "yapsy @ https://github.com/tibonihoo/yapsy/tarball/master#subdirectory=package",
