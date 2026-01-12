@@ -224,7 +224,10 @@ def identify_link_type(filename):
     Returns:
         str: A value from :class:`.item.LinkType`.
     '''
-    mime_type = mimetypes.guess_type(filename)[0]
+    try:
+        mime_type = mimetypes.guess_type(filename)[0]
+    except ValueError:
+        return
 
     if not mime_type:
         return
