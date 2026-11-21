@@ -27,7 +27,7 @@ dependencies = [
     "sqlalchemy~=2.0.0",
     "tornado~=6.4",
     # Required due to yapsy 1.12.2 using deprecated modules
-    "yapsy @ https://github.com/tibonihoo/yapsy/tarball/master#subdirectory=package",
+    "yapsy @ https://github.com/tibonihoo/yapsy/archive/refs/heads/master.zip#subdirectory=package",
     # Required for yapsy during testing
     "packaging"
 
