@@ -1,3 +1,5 @@
+import base64
+import hashlib
 import logging
 import os.path
 import subprocess
@@ -157,6 +159,59 @@ class TestWARC(unittest.TestCase, TempDirMixin):
         self.assertIn(b'KITTEH DOGE', data)
 
         self.validate_warc(warc_filename)
+
+    def test_response_payload_offset_with_normalized_header(self):
+        '''Payload digests must be computed from the captured HTTP head.
+
+        Parsing normalizes header whitespace, so ``Response.to_bytes()`` can be
+        shorter than the head actually received. Using its length as the
+        payload offset computes the digest over the wrong bytes.
+        '''
+        file_prefix = 'offset'
+        warc_filename = file_prefix + '.warc'
+
+        warc_recorder = WARCRecorder(
+            file_prefix, params=WARCRecorderParams(compress=False, log=False)
+        )
+        request = HTTPRequest('http://example.com/')
+        request.address = ('0.0.0.0', 80)
+
+        raw_head = (
+            b'HTTP/1.1 200 OK\r\n'
+            b'Server: nginx\r\n'
+            b'Transfer-Encoding:  chunked\r\n'
+            b'\r\n'
+        )
+        raw_body = b'00000005\r\nKITTEH\r\n00000000\r\n\r\n'
+
+        response = HTTPResponse()
+        response.parse(raw_head)
+        response.body = Body()
+        with wpull.util.reset_file_offset(response.body):
+            response.body.write(raw_body)
+
+        # The double space is normalized away when the head is re-serialized.
+        self.assertEqual(len(raw_head) - 1, len(response.to_bytes()))
+
+        session = warc_recorder.new_http_recorder_session()
+        session.begin_request(request)
+        session.request_data(request.to_bytes())
+        session.end_request(request)
+        session.begin_response(response)
+        session.response_data(raw_head)
+        session.response_data(raw_body)
+        session.end_response(response)
+        session.close()
+        warc_recorder.close()
+
+        expected = base64.b32encode(hashlib.sha1(raw_body).digest()).decode()
+        with open(warc_filename, 'rb') as in_file:
+            content = in_file.read()
+
+        self.assertIn(
+            'WARC-Payload-Digest: sha1:{0}'.format(expected).encode('ascii'),
+            content
+        )
 
     def test_warc_recorder_ftp(self):
         file_prefix = 'asdf'
