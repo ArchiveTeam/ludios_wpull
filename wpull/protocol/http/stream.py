@@ -1,6 +1,7 @@
 # encoding=utf8
 '''HTML protocol streamers.'''
 import gettext
+import hashlib
 import http.client
 import itertools
 import logging
@@ -184,6 +185,9 @@ class Stream:
 
         Coroutine.
         '''
+        if getattr(response, 'hash_payload', False):
+            response.payload_hasher = hashlib.sha1()
+
         if is_no_body(request, response):
             return
 
@@ -226,6 +230,7 @@ class Stream:
                 break
 
             self._data_event_dispatcher.notify_read(data)
+            self._hash_payload(response, data)
 
             content_data = self._decompress_data(data)
 
@@ -284,6 +289,7 @@ class Stream:
                 self.close()
 
             self._data_event_dispatcher.notify_read(data)
+            self._hash_payload(response, data)
 
             content_data = self._decompress_data(data)
 
@@ -334,6 +340,8 @@ class Stream:
                         file.write(data)
 
                     break
+
+                self._hash_payload(response, content)
 
                 content = self._decompress_data(content)
 
@@ -392,6 +400,17 @@ class Stream:
             self._decompressor = wpull.decompression.DeflateDecompressor()
         else:
             self._decompressor = None
+
+    @staticmethod
+    def _hash_payload(response, data):
+        '''Feed the entity-body to an optional payload hasher.
+
+        Called after transfer coding is removed and before Content-Encoding is
+        decoded, matching the WARC definition of a response payload.
+        '''
+        hasher = getattr(response, 'payload_hasher', None)
+        if hasher is not None:
+            hasher.update(data)
 
     def _decompress_data(self, data):
         '''Decompress the given data and return the uncompressed data.'''

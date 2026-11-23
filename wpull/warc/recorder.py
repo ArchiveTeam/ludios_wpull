@@ -1,3 +1,4 @@
+import base64
 import textwrap
 from tempfile import NamedTemporaryFile
 import gettext
@@ -575,6 +576,9 @@ class HTTPWARCRecorderSession(BaseWARCRecorderSession):
             WARCRecord.WARC_RECORD_ID]
         record.block_file = self._response_temp_file
 
+        if self._recorder._params.digests:
+            response.hash_payload = True
+
     def response_data(self, data: bytes):
         self._response_temp_file.write(data)
 
@@ -586,6 +590,12 @@ class HTTPWARCRecorderSession(BaseWARCRecorderSession):
             self._response_record,
             payload_offset=payload_offset
         )
+
+        hasher = getattr(response, 'payload_hasher', None)
+        if hasher is not None:
+            self._response_record.fields['WARC-Payload-Digest'] = 'sha1:{0}'.format(
+                base64.b32encode(hasher.digest()).decode()
+            )
 
         if self._url_table is not None:
             self._record_revisit(payload_offset)
