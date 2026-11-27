@@ -44,7 +44,7 @@ class TestClient(BadAppTestCase):
         client = Client()
         self.add_loop_cleanup(client.close)
 
-        with client.session() as session:
+        with self.assertWarns(UserWarning), client.session() as session:
             request = Request('http://wpull-no-exist.invalid')
 
         with self.assertRaises(NetworkError):
@@ -55,7 +55,8 @@ class TestClient(BadAppTestCase):
         client = Client()
         self.add_loop_cleanup(client.close)
 
-        with self.assertRaises(DurationTimeout), client.session() as session:
+        with self.assertRaises(DurationTimeout), self.assertWarns(UserWarning), \
+                client.session() as session:
             request = Request(self.get_url('/sleep_long'))
             response = await session.start(request)
             self.addCleanup(lambda: response.body.close())
@@ -69,7 +70,9 @@ class TestClient(BadAppTestCase):
         self.add_loop_cleanup(client.close)
 
         for dummy in range(7):
-            with self.assertRaises(NetworkError), client.session() as session:
+            with self.assertRaises(NetworkError), \
+                    self.assertWarns(UserWarning), \
+                    client.session() as session:
                 request = Request(self.get_url('/header_early_close'))
                 await session.start(request)
 
@@ -111,7 +114,7 @@ class TestClient(BadAppTestCase):
         client = Client()
         self.add_loop_cleanup(client.close)
 
-        with self.assertRaises(MyException):
+        with self.assertRaises(MyException), self.assertWarns(UserWarning):
             with client.session() as session:
                 request = Request(self.get_url('/'))
                 await session.start(request)

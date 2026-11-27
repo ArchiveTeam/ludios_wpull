@@ -29,7 +29,13 @@ class SSLContextTask(ItemTask[AppSession]):
         args = session.args
 
         # Logic is based on tornado.netutil.ssl_options_to_context
-        ssl_context = ssl.SSLContext(args.secure_protocol)
+        if args.secure_protocol == ssl.PROTOCOL_TLS:
+            # PROTOCOL_TLS is deprecated; PROTOCOL_TLS_CLIENT is the
+            # replacement, but it enables hostname checking by default.
+            ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+            ssl_context.check_hostname = False
+        else:
+            ssl_context = ssl.SSLContext(args.secure_protocol)
 
         if args.check_certificate:
             ssl_context.verify_mode = ssl.CERT_REQUIRED

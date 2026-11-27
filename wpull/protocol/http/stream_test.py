@@ -522,7 +522,8 @@ class TestSSLStream(SSLBadAppTestCase, StreamTestsMixin):
             ca_certs=os.path.join(os.path.dirname(__file__),
                                   '..', '..', 'cert', 'ca-bundle.pem'),
         )
-        ssl_context = tornado.netutil.ssl_options_to_context(ssl_options)
+        ssl_context = tornado.netutil.ssl_options_to_context(
+            ssl_options, server_side=False)
         stream = self.new_stream(
             ssl=True, connection_kwargs=dict(ssl_context=ssl_context))
         request = Request(self.get_url('/'))

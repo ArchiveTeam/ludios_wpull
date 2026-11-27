@@ -78,8 +78,7 @@ class TestListing(unittest.TestCase):
         date_factory = functools.partial(datetime.datetime,
                                          tzinfo=datetime.timezone.utc)
 
-        datetime_now = datetime.datetime.utcnow()
-        datetime_now = datetime_now.replace(tzinfo=datetime.timezone.utc)
+        datetime_now = datetime.datetime.now(datetime.timezone.utc)
         current_year = datetime_now.year
 
         datetime_1 = date_factory(current_year, 1, 29, 3, 26)
