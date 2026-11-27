@@ -578,8 +578,43 @@ class HTTPWARCRecorderSession(BaseWARCRecorderSession):
     def response_data(self, data: bytes):
         self._response_temp_file.write(data)
 
+    @staticmethod
+    def _find_response_payload_offset(block_file, fallback):
+        '''Return the offset of the HTTP payload in the recorded block.
+
+        Re-serializing the response headers with ``Response.to_bytes()`` is not
+        reliable for this purpose: parsing normalizes header whitespace and
+        casing, so the rebuilt head can differ in length from the bytes that
+        were actually received. Locate the header terminator in the captured
+        bytes instead and fall back to the old behaviour only if no terminator
+        is found.
+        '''
+        search_limit = 1024 * 1024
+        head = b''
+
+        with wpull.util.reset_file_offset(block_file):
+            block_file.seek(0)
+
+            while len(head) < search_limit:
+                chunk = block_file.read(min(4096, search_limit - len(head)))
+                if not chunk:
+                    break
+                head += chunk
+
+                offset = head.find(b'\r\n\r\n')
+                if offset >= 0:
+                    return offset + 4
+
+                offset = head.find(b'\n\n')
+                if offset >= 0:
+                    return offset + 2
+
+        return fallback
+
     def end_response(self, response: HTTPResponse):
-        payload_offset = len(response.to_bytes())
+        payload_offset = self._find_response_payload_offset(
+            self._response_record.block_file, len(response.to_bytes())
+        )
 
         self._response_record.block_file.seek(0)
         self._recorder.set_length_and_maybe_checksums(
