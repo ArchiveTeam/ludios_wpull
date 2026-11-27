@@ -36,7 +36,7 @@ class TestYoutubeDl(AppTestCase):
             data = warc_file.read()
 
             self.assertTrue(b'youtube-dl/' in data, 'include version')
-            self.assertTrue(re.search(b'Fetched.*googlevideo\.com/videoplayback', data))
+            self.assertTrue(re.search(rb'Fetched.*googlevideo\.com/videoplayback', data))
             self.assertTrue(b'WARC-Target-URI: metadata://www.youtube.com/watch?v=tPEE9ZwTmy0' in data)
             self.assertTrue(b'Content-Type: application/vnd.youtube-dl_formats+json' in data)
 
@@ -76,8 +76,8 @@ class TestYoutubeDl(AppTestCase):
         with open('test.log', 'rb') as test_log:
             data = test_log.read()
 
-            self.assertTrue(re.search(b'Starting process \[\'youtube-dl.*--force-ipv4', data))
-            self.assertTrue(re.search(b'Starting process \[\'youtube-dl.*--no-check-certificate', data))
+            self.assertTrue(re.search(rb'Starting process \[\'youtube-dl.*--force-ipv4', data))
+            self.assertTrue(re.search(rb'Starting process \[\'youtube-dl.*--no-check-certificate', data))
 
     @unittest.skip('not a good idea to test continuously on external servers')
     @gen_test(timeout=30)
@@ -101,7 +101,7 @@ class TestYoutubeDl(AppTestCase):
         with open('test.log', 'rb') as test_log:
             data = test_log.read()
 
-            self.assertFalse(re.search(b'Starting process \[\'youtube-dl.*--force-ipv4', data))
+            self.assertFalse(re.search(rb'Starting process \[\'youtube-dl.*--force-ipv4', data))
             # XXX: --no-check-certificate required regardless since MITM proxy
             # uses invalid cert
             # self.assertFalse(re.search(b'Starting process \[\'youtube-dl.*--no-check-certificate', data))

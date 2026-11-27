@@ -44,7 +44,7 @@ class PluginLocator(IPluginLocator):
 
     @classmethod
     def _is_plugin_filename(cls, filename):
-        return re.match('.+\.plugin\.py', filename)
+        return re.match(r'.+\.plugin\.py', filename)
 
     @classmethod
     def _plugin_info_from_path(cls, path):
