@@ -117,10 +117,14 @@ class TestUtil(unittest.TestCase):
             for num in range(10):
                 stream.dump(num)
 
+            stream.close()
+
             stream = GzipPickleStream(filename, mode='rb')
 
             for num, obj in enumerate(stream.iter_load()):
                 self.assertEqual(num, obj)
+
+            stream.close()
 
     def test_pickle_stream_file_obj(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -132,7 +136,12 @@ class TestUtil(unittest.TestCase):
             for num in range(10):
                 stream.dump(num)
 
+            stream.close()
+
             stream = GzipPickleStream(file=file, mode='rb')
 
             for num, obj in enumerate(stream.iter_load()):
                 self.assertEqual(num, obj)
+
+            stream.close()
+            file.close()

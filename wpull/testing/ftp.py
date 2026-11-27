@@ -6,6 +6,7 @@ import asyncio
 
 # from wpull.testing.async_ import AsyncTestCase
 from tornado.testing import AsyncTestCase
+from wpull.testing.async_ import LoopCleanupMixin
 
 
 _logger = logging.getLogger(__name__)
@@ -23,8 +24,9 @@ class MockFTPServer:
             await session.process()
         except Exception:
             _logger.exception('Server error')
-            writer.close()
-        else:
+        finally:
+            # Also runs when the handler is cancelled at test tear down.
+            session.close()
             writer.close()
 
 
@@ -78,6 +80,17 @@ class FTPSession:
         self.path = '/'
         self.evil_flags = set()
         self.restart_value = None
+
+    def close(self):
+        '''Close any passive mode data connection resources.'''
+        if self.data_writer:
+            self.data_writer.close()
+            self.data_writer = None
+
+        data_server = getattr(self, 'data_server', None)
+
+        if data_server:
+            data_server.close()
 
     async def process(self):
         self.writer.write(b'220-Welcome to Smaug\'s FTP server\r\n')
@@ -329,7 +342,7 @@ class FTPSession:
         self.evil_flags.add('bad_pasv_addr')
 
 
-class FTPTestCase(AsyncTestCase):
+class FTPTestCase(LoopCleanupMixin, AsyncTestCase):
     def server_port(self):
         return self.sock.getsockname()[1]
 
@@ -349,8 +362,10 @@ class FTPTestCase(AsyncTestCase):
         )
 
     def tearDown(self):
+        self.run_loop_cleanups()
         self.server_handle.close()
         AsyncTestCase.tearDown(self)
+        self.event_loop.close()
         # IsolatedAsyncioTestCase.tearDown(self)
 
     def get_url(self, path, username='', password=''):

@@ -17,6 +17,7 @@ class TestWebClient(GoodAppTestCase):
     @gen_test(timeout=30)
     async def test_basic(self):
         client = WebClient()
+        self.add_loop_cleanup(client.close)
         session = client.session(Request(self.get_url('/')))
 
         self.assertFalse(session.done())
@@ -32,6 +33,7 @@ class TestWebClient(GoodAppTestCase):
     @gen_test(timeout=30)
     async def test_redirect(self):
         client = WebClient()
+        self.add_loop_cleanup(client.close)
         session = client.session(Request(self.get_url('/redirect')))
 
         status_codes = []
@@ -50,6 +52,7 @@ class TestWebClient(GoodAppTestCase):
     @gen_test(timeout=30)
     async def test_redirect_repeat(self):
         client = WebClient()
+        self.add_loop_cleanup(client.close)
         session = client.session(Request(self.get_url('/redirect?code=307')))
 
         status_codes = []
@@ -70,6 +73,7 @@ class TestWebClientBadCase(BadAppTestCase):
     @gen_test(timeout=30)
     async def test_bad_redirect(self):
         client = WebClient()
+        self.add_loop_cleanup(client.close)
         session = client.session(Request(self.get_url('/bad_redirect')))
 
         with self.assertRaises(ProtocolError):
@@ -80,6 +84,7 @@ class TestWebClientBadCase(BadAppTestCase):
     @gen_test(timeout=30)
     async def test_bad_redirect_ipv6(self):
         client = WebClient()
+        self.add_loop_cleanup(client.close)
         session = client.session(Request(self.get_url('/bad_redirect_ipv6')))
 
         with self.assertRaises(ProtocolError):
@@ -90,8 +95,10 @@ class TestWebClientBadCase(BadAppTestCase):
     @gen_test(timeout=30)
     async def test_duration_timeout(self):
         client = WebClient()
+        self.add_loop_cleanup(client.close)
         session = client.session(Request(self.get_url('/sleep_long')))
 
         with self.assertRaises(DurationTimeout):
-            await session.start()
+            response = await session.start()
+            self.addCleanup(lambda: response.body.close())
             await session.download(duration_timeout=0.1)

@@ -46,6 +46,7 @@ class TestWriter(unittest.TestCase, TempDirMixin):
         session.process_request(request1)
         session.process_response(response1)
         session.save_document(response1)
+        self.addCleanup(response1.body.close)
 
         self.assertTrue(os.path.exists('my_file.txt'))
 
@@ -60,6 +61,7 @@ class TestWriter(unittest.TestCase, TempDirMixin):
         session.process_request(request2)
         session.process_response(response2)
         session.save_document(response2)
+        self.addCleanup(response2.body.close)
 
         self.assertTrue(os.path.exists('my_file.txt'))
 
@@ -86,6 +88,7 @@ class TestWriter(unittest.TestCase, TempDirMixin):
         response.body.flush()
 
         session.save_document(response)
+        self.addCleanup(response.body.close)
 
         with open('my_file.txt', 'rb') as file:
             data = file.read()
@@ -126,6 +129,7 @@ class TestWriter(unittest.TestCase, TempDirMixin):
         session.process_request(request)
         session.process_response(response)
         session.save_document(response)
+        self.addCleanup(response.body.close)
 
         print(list(os.walk('.')))
         self.assertTrue(os.path.isdir('dir_or_file'))
@@ -144,6 +148,7 @@ class TestWriter(unittest.TestCase, TempDirMixin):
         session.process_request(request)
         session.process_response(response)
         session.save_document(response)
+        self.addCleanup(response.body.close)
 
         print(list(os.walk('.')))
         self.assertTrue(os.path.isdir('dir_or_file.d'))
@@ -176,6 +181,7 @@ class TestWriter(unittest.TestCase, TempDirMixin):
             session.process_request(request)
             session.process_response(response)
             session.save_document(response)
+            self.addCleanup(response.body.close)
 
             print(filename, list(os.walk('.')))
             self.assertTrue(os.path.exists(filename))
@@ -205,6 +211,7 @@ class TestWriter(unittest.TestCase, TempDirMixin):
             session.process_request(request)
             session.process_response(response)
             session.save_document(response)
+            self.addCleanup(response.body.close)
 
             print(list(os.walk('.')))
             self.assertTrue(os.path.exists(filename))
@@ -233,6 +240,7 @@ class TestWriter(unittest.TestCase, TempDirMixin):
         session.process_response(response2)
 
         session.save_document(response2)
+        self.addCleanup(response2.body.close)
 
         print(list(os.walk('.')))
         self.assertTrue(os.path.exists('my_file.html'))

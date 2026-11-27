@@ -22,6 +22,7 @@ class TestStream(FTPTestCase):
             _logger.debug(__('{0}={1}', data_type, data))
 
         connection = Connection(('127.0.0.1', self.server_port()))
+        self.add_loop_cleanup(connection.close)
         await connection.connect()
 
         control_stream = ControlStream(connection)
@@ -47,6 +48,7 @@ class TestStream(FTPTestCase):
         address = parse_address(reply.text)
 
         data_connection = Connection(address)
+        self.add_loop_cleanup(data_connection.close)
         await data_connection.connect()
 
         data_stream = DataStream(data_connection)
