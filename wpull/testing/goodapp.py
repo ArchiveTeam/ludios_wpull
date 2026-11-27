@@ -9,6 +9,7 @@ import time
 
 from tornado.testing import AsyncHTTPTestCase, AsyncHTTPSTestCase
 from tornado.web import HTTPError
+from wpull.testing.async_ import LoopCleanupMixin
 import tornado.web
 
 
@@ -240,21 +241,29 @@ class GoodApp(tornado.web.Application):
         )
 
 
-class GoodAppTestCase(AsyncHTTPTestCase):
+class GoodAppTestCase(LoopCleanupMixin, AsyncHTTPTestCase):
     def setUp(self):
         AsyncHTTPTestCase.setUp(self)
         # Wait for the app to start up properly (for good luck).
         time.sleep(0.5)
 
+    def tearDown(self):
+        self.run_loop_cleanups()
+        AsyncHTTPTestCase.tearDown(self)
+
     def get_app(self):
         return GoodApp()
 
 
-class GoodAppHTTPSTestCase(AsyncHTTPSTestCase):
+class GoodAppHTTPSTestCase(LoopCleanupMixin, AsyncHTTPSTestCase):
     def setUp(self):
         AsyncHTTPSTestCase.setUp(self)
         # Wait for the app to start up properly (for good luck).
         time.sleep(0.5)
+
+    def tearDown(self):
+        self.run_loop_cleanups()
+        AsyncHTTPSTestCase.tearDown(self)
 
     def get_app(self):
         return GoodApp()

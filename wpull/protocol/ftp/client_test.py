@@ -17,6 +17,7 @@ class TestClient(FTPTestCase):
     @gen_test(timeout=30)
     async def test_fetch_file(self):
         client = Client()
+        self.add_loop_cleanup(client.close)
         file = io.BytesIO()
 
         with client.session() as session:
@@ -32,6 +33,7 @@ class TestClient(FTPTestCase):
     @gen_test(timeout=30)
     async def test_duration_timeout(self):
         client = Client()
+        self.add_loop_cleanup(client.close)
         file = io.BytesIO()
 
         with self.assertRaises(DurationTimeout), client.session() as session:
@@ -42,6 +44,7 @@ class TestClient(FTPTestCase):
     @gen_test(timeout=30)
     async def test_fetch_no_file(self):
         client = Client()
+        self.add_loop_cleanup(client.close)
         file = io.BytesIO()
 
         with client.session() as session:
@@ -57,6 +60,7 @@ class TestClient(FTPTestCase):
     @gen_test(timeout=30)
     async def test_fetch_file_restart(self):
         client = Client()
+        self.add_loop_cleanup(client.close)
         file = io.BytesIO()
 
         with client.session() as session:
@@ -74,6 +78,7 @@ class TestClient(FTPTestCase):
     @gen_test(timeout=30)
     async def test_fetch_file_restart_not_supported(self):
         client = Client()
+        self.add_loop_cleanup(client.close)
         file = io.BytesIO()
 
         with client.session() as session:
@@ -91,6 +96,7 @@ class TestClient(FTPTestCase):
     @gen_test(timeout=30)
     async def test_fetch_listing(self):
         client = Client()
+        self.add_loop_cleanup(client.close)
         file = io.BytesIO()
         with client.session() as session:
             response = await \
@@ -108,6 +114,7 @@ class TestClient(FTPTestCase):
     @gen_test(timeout=30)
     async def test_fetch_bad_pasv_addr(self):
         client = Client()
+        self.add_loop_cleanup(client.close)
         file = io.BytesIO()
 
         with client.session() as session:
@@ -128,6 +135,7 @@ class TestClient(FTPTestCase):
     @gen_test(timeout=30)
     async def test_login_no_password_required(self):
         client = Client()
+        self.add_loop_cleanup(client.close)
         file = io.BytesIO()
 
         with client.session() as session:
