@@ -7,7 +7,7 @@ on:
             - master
             - main
 permissions:
-  pull-requests: write
+  contents: read
 jobs:
   testing:
     runs-on: ubuntu-latest
@@ -39,7 +39,7 @@ jobs:
       - name: Run unittests with coverage report
         # continue-on-error: true
         run: |
-          coverage run --include="./wpull/**/*.py" -m unittest discover -p "*_test.py"
+          coverage run --include="./wpull/**/*.py" -m unittest discover -v -b -p "*_test.py"
       - name: Generate coverage report
         if: always()
         run: |
@@ -47,10 +47,19 @@ jobs:
       # You can test your matrix by printing the current Python version
       # - name: Display Python version
         # run: python -c "import sys; print(sys.version)"
-      - name: Get Cover 
+      - name: Upload coverage report
         if: always()
-        uses: orgoro/coverage@v3.3.1
+        uses: actions/upload-artifact@v7
         with:
-          coverageFile: coverage.xml
-          token: ${{ secrets.GITHUB_TOKEN }}
-          title: Python Coverage ${{ matrix.python-version }}
+          name: coverage-${{ matrix.python-version }}
+          path: coverage.xml
+      - name: Write coverage job summary
+        # The job summary needs no token, so it works for PRs from forks too.
+        if: always()
+        run: |
+          {
+            echo "## Python Coverage ${{ matrix.python-version }}"
+            echo '```'
+            coverage report --data-file=.coverage || echo "No coverage data was produced."
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

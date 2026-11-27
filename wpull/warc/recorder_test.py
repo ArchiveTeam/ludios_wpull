@@ -66,6 +66,7 @@ class TestWARC(unittest.TestCase, TempDirMixin):
         request.prepare_for_send()
         response = HTTPResponse(200, 'OK')
         response.body = Body()
+        self.addCleanup(response.body.close)
 
         with wpull.util.reset_file_offset(response.body):
             response.body.write(b'KITTEH DOGE')
@@ -172,6 +173,7 @@ class TestWARC(unittest.TestCase, TempDirMixin):
         response = FTPResponse()
         response.reply = FTPReply(200, 'OK')
         response.body = Body()
+        self.addCleanup(response.body.close)
         response.data_address = ('0.0.0.0', 12345)
 
         with wpull.util.reset_file_offset(response.body):
@@ -254,6 +256,7 @@ class TestWARC(unittest.TestCase, TempDirMixin):
         request.address = ('0.0.0.0', 80)
         response = HTTPResponse(200, 'OK')
         response.body = Body()
+        self.addCleanup(response.body.close)
 
         with wpull.util.reset_file_offset(response.body):
             response.body.write(b'KITTEH DOGE')
@@ -272,6 +275,7 @@ class TestWARC(unittest.TestCase, TempDirMixin):
         request.address = ('0.0.0.0', 80)
         response = HTTPResponse(200, 'OK')
         response.body = Body()
+        self.addCleanup(response.body.close)
 
         with wpull.util.reset_file_offset(response.body):
             response.body.write(b'DOGE KITTEH')
@@ -345,6 +349,7 @@ class TestWARC(unittest.TestCase, TempDirMixin):
         request.address = ('0.0.0.0', 80)
         response = HTTPResponse(200, 'OK')
         response.body = Body()
+        self.addCleanup(response.body.close)
 
         with wpull.util.reset_file_offset(response.body):
             response.body.write(b'KITTEH DOGE')
@@ -391,6 +396,7 @@ class TestWARC(unittest.TestCase, TempDirMixin):
         request.address = ('0.0.0.0', 80)
         response = HTTPResponse(200, 'OK')
         response.body = Body()
+        self.addCleanup(response.body.close)
 
         with wpull.util.reset_file_offset(response.body):
             response.body.write(b'KITTEH DOGE')
@@ -457,6 +463,7 @@ class TestWARC(unittest.TestCase, TempDirMixin):
         request.address = ('0.0.0.0', 80)
         response = HTTPResponse(200, 'OK')
         response.body = Body()
+        self.addCleanup(response.body.close)
         revisit_response_header_size = len(response.to_bytes())
 
         with wpull.util.reset_file_offset(response.body):
@@ -476,6 +483,7 @@ class TestWARC(unittest.TestCase, TempDirMixin):
         request.address = ('0.0.0.0', 80)
         response = HTTPResponse(200, 'OKaaaaaaaaaaaaaaaaaaaaaaaaaa')
         response.body = Body()
+        self.addCleanup(response.body.close)
 
         with wpull.util.reset_file_offset(response.body):
             response.body.write(b'kitbit')
@@ -573,6 +581,7 @@ class TestWARC(unittest.TestCase, TempDirMixin):
         request.address = ('0.0.0.0', 80)
         response = HTTPResponse(200, 'OK')
         response.body = Body()
+        self.addCleanup(response.body.close)
 
         with wpull.util.reset_file_offset(response.body):
             response.body.write(b'BLAH')
@@ -616,6 +625,7 @@ class TestWARC(unittest.TestCase, TempDirMixin):
         request.address = ('0.0.0.0', 80)
         response = HTTPResponse(200, 'OK')
         response.body = Body()
+        self.addCleanup(response.body.close)
 
         with wpull.util.reset_file_offset(response.body):
             response.body.write(b'BLAH')

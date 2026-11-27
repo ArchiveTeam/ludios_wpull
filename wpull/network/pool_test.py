@@ -12,6 +12,7 @@ class TestConnectionPool(BadAppTestCase):
     @gen_test(timeout=30)
     async def test_basic_acquire(self):
         pool = ConnectionPool(max_host_count=2)
+        self.add_loop_cleanup(pool.close)
 
         conn1 = await pool.acquire('localhost', self.get_http_port())
         conn2 = await pool.acquire('localhost', self.get_http_port())
@@ -28,6 +29,7 @@ class TestConnectionPool(BadAppTestCase):
     @gen_test(timeout=30)
     async def test_session(self):
         pool = ConnectionPool()
+        self.add_loop_cleanup(pool.close)
 
         for dummy in range(10):
             session = await \
@@ -44,6 +46,7 @@ class TestConnectionPool(BadAppTestCase):
     @gen_test(timeout=30)
     async def test_host_max_limit(self):
         pool = ConnectionPool(max_host_count=2)
+        self.add_loop_cleanup(pool.close)
 
         await pool.acquire('localhost', self.get_http_port())
         await pool.acquire('localhost', self.get_http_port())
@@ -57,6 +60,7 @@ class TestConnectionPool(BadAppTestCase):
     @gen_test(timeout=30)
     async def test_at_host_max_limit_cycling(self):
         pool = ConnectionPool(max_host_count=10, max_count=10)
+        self.add_loop_cleanup(pool.close)
 
         async def con_fut():
             session = await pool.session('localhost', self.get_http_port())
@@ -77,6 +81,7 @@ class TestConnectionPool(BadAppTestCase):
     @gen_test(timeout=30)
     async def test_over_host_max_limit_cycling(self):
         pool = ConnectionPool(max_host_count=10, max_count=10)
+        self.add_loop_cleanup(pool.close)
 
         async def con_fut():
             session = await pool.session('localhost', self.get_http_port())
@@ -97,6 +102,7 @@ class TestConnectionPool(BadAppTestCase):
     @gen_test(timeout=30)
     async def test_multiple_hosts(self):
         pool = ConnectionPool(max_host_count=5, max_count=20)
+        self.add_loop_cleanup(pool.close)
 
         for port in range(10):
             session = await pool.session('localhost', port)
@@ -107,6 +113,7 @@ class TestConnectionPool(BadAppTestCase):
     @gen_test(timeout=30)
     async def test_clean(self):
         pool = ConnectionPool(max_host_count=2)
+        self.add_loop_cleanup(pool.close)
 
         conn1 = await pool.acquire('localhost', self.get_http_port())
         conn2 = await pool.acquire('localhost', self.get_http_port())
@@ -120,6 +127,7 @@ class TestConnectionPool(BadAppTestCase):
     @gen_test(timeout=30)
     async def test_connection_pool_release_clean_race_condition(self):
         pool = ConnectionPool(max_host_count=1)
+        self.add_loop_cleanup(pool.close)
 
         connection = await pool.acquire('127.0.0.1', 1234)
         connection_2_task = asyncio.ensure_future(pool.acquire('127.0.0.1', 1234))
@@ -137,6 +145,7 @@ class TestConnectionPool(BadAppTestCase):
         resolver = Resolver()
         pool = ConnectionPool(resolver=resolver,
                               connection_factory=connection_factory)
+        self.add_loop_cleanup(pool.close)
 
         conn1 = await pool.acquire('google.com', 80)
         conn2 = await pool.acquire('google.com', 80)

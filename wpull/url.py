@@ -281,7 +281,17 @@ class URLInfo:
             raise ValueError('Invalid IPv6 address: {}'
                              .format(ascii(hostname)))
 
-        hostname = ipaddress.IPv6Address(hostname[1:-1]).compressed
+        address = ipaddress.IPv6Address(hostname[1:-1])
+
+        if address.ipv4_mapped:
+            # Newer Python versions format IPv4-mapped addresses with a
+            # dotted quad. Always use hex groups so the result is stable.
+            value = int(address)
+            hostname = '::ffff:{:x}:{:x}'.format(
+                (value >> 16) & 0xffff, value & 0xffff
+            )
+        else:
+            hostname = address.compressed
 
         return hostname
 

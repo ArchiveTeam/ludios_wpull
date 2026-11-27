@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools >= 65.0"]
+requires = ["setuptools >= 77.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,10 +8,10 @@ description = "Wget-compatible web downloader and crawler."
 authors = [{name = "Christopher Foo", email = "chris.foo@gmail.com"}]
 readme = "README.orig.rst"
 version = "5.0.3"
+license = "GPL-3.0-only"
 license-files = ["LICENSE.txt"]
 classifiers=[
     'Development Status :: 5 - Production/Stable',
-    'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
     'Programming Language :: Python :: 3',
     'Topic :: Internet :: File Transfer Protocol (FTP)',
     'Topic :: Internet :: WWW/HTTP',
@@ -42,32 +42,12 @@ testing = [
     "warcat"
 ]
 
-[tool.setuptools]
-packages = [
-    "wpull",
-    "wpull.application",
-    "wpull.application.plugins",
-    "wpull.application.tasks",
-    "wpull.backport",
-    "wpull.database",
-    "wpull.document",
-    "wpull.document.htmlparse",
-    "wpull.driver",
-    "wpull.network",
-    "wpull.pipeline",
-    "wpull.processor",
-    "wpull.processor.coprocessor",
-    "wpull.protocol.abstract",
-    "wpull.protocol.ftp",
-    "wpull.protocol.ftp.ls",
-    "wpull.protocol.http",
-    "wpull.proxy",
-    "wpull.scraper",
-    "wpull.testing",
-    "wpull.testing.integration",
-    "wpull.thirdparty",
-    "wpull.warc",
-]
+[tool.setuptools.packages.find]
+# namespaces = true also picks up directories without __init__.py that hold
+# package data (wpull.cert, wpull.testing.samples, ...), which setuptools would
+# otherwise warn about and silently drop from the distribution.
+include = ["wpull*"]
+namespaces = true
 
 [project.urls]
 Source = "https://github.com/ArchiveTeam/ludios_wpull"

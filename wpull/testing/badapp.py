@@ -17,6 +17,7 @@ import time
 import zlib
 
 from tornado.testing import AsyncTestCase
+from wpull.testing.async_ import LoopCleanupMixin
 from unittest import IsolatedAsyncioTestCase
 
 from gzip import GzipFile
@@ -465,10 +466,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.send_header('Set-cookie', 'test=valid')
         self.send_header(
             'Set-cookie',
-            'bad=date?; Expires=Sit, 28 Dec 2024 01:59:61 GMT')
+            'bad=date?; Expires=Sit, 28 Dec 2099 01:59:61 GMT')
         self.send_header(
             'Set-cookie',
-            'bad=date?; Expires=Sat, 28 Dec-2024 01:59:61 GMT')
+            'bad=date?; Expires=Sat, 28 Dec-2099 01:59:61 GMT')
         self.send_header(
             'Set-cookie',
             '; Expires=Thu, 01 Jan 1970 00:00:10 GMT')
@@ -646,7 +647,7 @@ class Server(threading.Thread):
         return self._port
 
 
-class BadAppTestCase(AsyncTestCase):
+class BadAppTestCase(LoopCleanupMixin, AsyncTestCase):
     def setUp(self):
         AsyncTestCase.setUp(self)
         self.http_server = Server(enable_ssl=self.get_protocol() == 'https')
@@ -666,6 +667,7 @@ class BadAppTestCase(AsyncTestCase):
                                         self.get_http_port(), path)
 
     def tearDown(self):
+        self.run_loop_cleanups()
         self.http_server.stop()
         self.http_server.join(timeout=5)
         AsyncTestCase.tearDown(self)

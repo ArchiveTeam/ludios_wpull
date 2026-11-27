@@ -79,7 +79,9 @@ class WebSession:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self._current_session:
-            if not isinstance(exc_val, StopIteration):
+            completed = exc_val is None and self._current_session.done()
+
+            if not isinstance(exc_val, StopIteration) and not completed:
                 _logger.debug('Early close session.')
                 error = True
                 self._current_session.abort()

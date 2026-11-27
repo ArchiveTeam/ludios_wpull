@@ -209,7 +209,7 @@ def parse_datetime(text: str, date_format: str=None,
         -> Tuple[datetime.datetime, int, int]:
     '''Parse date/time from a line of text into datetime object.'''
     datetime_now = datetime_now or \
-        datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
+        datetime.datetime.now(datetime.timezone.utc)
     year = datetime_now.year
     month = datetime_now.month
     day = datetime_now.day

@@ -438,7 +438,10 @@ class SSLConnection(Connection):
         super().__init__(*args, **kwargs)
         self._ssl_context = ssl_context
         if self._ssl_context is True:
-            self._ssl_context = tornado.netutil.ssl_options_to_context({})
+            # Avoid the deprecated PROTOCOL_TLS that tornado defaults to.
+            self._ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+            self._ssl_context.check_hostname = False
+            self._ssl_context.verify_mode = ssl.CERT_NONE
         elif isinstance(self._ssl_context, dict):
             self._ssl_context = tornado.netutil.ssl_options_to_context(
                 self._ssl_context)

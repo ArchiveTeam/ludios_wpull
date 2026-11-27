@@ -141,7 +141,8 @@ class TestCookie(unittest.TestCase):
     def test_load_bad_cookie(self):
         cookie_jar = BetterMozillaCookieJar()
 
-        with self.assertRaises(http.cookiejar.LoadError):
+        with self.assertRaises(http.cookiejar.LoadError), \
+                self.assertWarns(UserWarning):
             with tempfile.TemporaryDirectory() as temp_dir:
                 filename = os.path.join(temp_dir, 'cookies.txt')
                 with open(filename, 'w') as file:

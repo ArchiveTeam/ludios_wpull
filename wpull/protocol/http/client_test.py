@@ -21,6 +21,7 @@ class TestClient(BadAppTestCase):
     @gen_test(timeout=30)
     async def test_basic(self):
         client = Client()
+        self.add_loop_cleanup(client.close)
 
         with client.session() as session:
             request = Request(self.get_url('/'))
@@ -41,8 +42,9 @@ class TestClient(BadAppTestCase):
     @gen_test(timeout=30)
     async def test_client_exception_throw(self):
         client = Client()
+        self.add_loop_cleanup(client.close)
 
-        with client.session() as session:
+        with self.assertWarns(UserWarning), client.session() as session:
             request = Request('http://wpull-no-exist.invalid')
 
         with self.assertRaises(NetworkError):
@@ -51,10 +53,13 @@ class TestClient(BadAppTestCase):
     @gen_test(timeout=30)
     async def test_client_duration_timeout(self):
         client = Client()
+        self.add_loop_cleanup(client.close)
 
-        with self.assertRaises(DurationTimeout), client.session() as session:
+        with self.assertRaises(DurationTimeout), self.assertWarns(UserWarning), \
+                client.session() as session:
             request = Request(self.get_url('/sleep_long'))
-            await session.start(request)
+            response = await session.start(request)
+            self.addCleanup(lambda: response.body.close())
             await session.download(duration_timeout=0.1)
 
     @gen_test(timeout=30)
@@ -62,9 +67,12 @@ class TestClient(BadAppTestCase):
         connection_factory = functools.partial(Connection, timeout=2.0)
         connection_pool = ConnectionPool(connection_factory=connection_factory)
         client = Client(connection_pool=connection_pool)
+        self.add_loop_cleanup(client.close)
 
         for dummy in range(7):
-            with self.assertRaises(NetworkError), client.session() as session:
+            with self.assertRaises(NetworkError), \
+                    self.assertWarns(UserWarning), \
+                    client.session() as session:
                 request = Request(self.get_url('/header_early_close'))
                 await session.start(request)
 
@@ -75,10 +83,12 @@ class TestClient(BadAppTestCase):
                 self.assertEqual(200, response.status_code)
                 await session.download()
                 self.assertTrue(session.done())
+                response.body.close()
 
     @gen_test(timeout=30)
     async def test_client_did_not_complete(self):
         client = Client()
+        self.add_loop_cleanup(client.close)
 
         with warnings.catch_warnings(record=True) as warn_list:
             warnings.simplefilter("always")
@@ -102,8 +112,9 @@ class TestClient(BadAppTestCase):
                 self.fail('Warning did not occur.')
 
         client = Client()
+        self.add_loop_cleanup(client.close)
 
-        with self.assertRaises(MyException):
+        with self.assertRaises(MyException), self.assertWarns(UserWarning):
             with client.session() as session:
                 request = Request(self.get_url('/'))
                 await session.start(request)

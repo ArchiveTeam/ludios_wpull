@@ -2,6 +2,7 @@ from tornado.platform.asyncio import BaseAsyncIOLoop
 import asyncio
 import os
 import functools
+import inspect
 from tornado.testing import bind_unused_port, get_async_test_timeout
 import unittest
 from tornado.httpclient import AsyncHTTPClient
@@ -19,6 +20,46 @@ from typing import Any
 #     def tearDown(self):
 #         self.event_loop.stop()
 #         self.event_loop.close()
+
+
+class LoopCleanupMixin:
+    '''Run cleanups while the event loop is still open.
+
+    ``unittest.TestCase.addCleanup`` callbacks run after ``tearDown``, by which
+    point Tornado's ``AsyncTestCase`` has already closed the event loop, so
+    anything that needs a running loop (e.g. closing asyncio transports)
+    cannot be registered there. Register such callbacks with
+    :meth:`add_loop_cleanup` and call :meth:`run_loop_cleanups` from
+    ``tearDown`` before the base class tears down the loop.
+    '''
+
+    def add_loop_cleanup(self, func):
+        '''Register a callable (sync or returning an awaitable) to run
+        in the event loop at tear down, in reverse order of registration.'''
+        if not hasattr(self, '_loop_cleanups'):
+            self._loop_cleanups = []
+
+        self._loop_cleanups.append(func)
+
+    def run_loop_cleanups(self):
+        cleanups = getattr(self, '_loop_cleanups', [])
+        self._loop_cleanups = []
+
+        if not cleanups:
+            return
+
+        async def run():
+            try:
+                for func in reversed(cleanups):
+                    result = func()
+                    if inspect.isawaitable(result):
+                        await result
+            finally:
+                # Let transports finish closing their sockets.
+                for dummy in range(3):
+                    await asyncio.sleep(0)
+
+        self.io_loop.run_sync(run)
 
 
 def async_test(func=None, timeout=30):

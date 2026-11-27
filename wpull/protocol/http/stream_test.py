@@ -1,4 +1,5 @@
 # encoding=utf-8
+import asyncio
 import io
 import logging
 import os.path
@@ -40,6 +41,19 @@ class StreamTestsMixin:
                 (host or '127.0.0.1', port or self._port), **connection_kwargs)
 
         stream = Stream(connection, **kwargs)
+
+        async def close_stream():
+            # SSL transports shut down gracefully, so wait for it to finish.
+            writer = connection.writer
+            stream.close()
+
+            if writer:
+                try:
+                    await asyncio.wait_for(writer.wait_closed(), timeout=5)
+                except (OSError, asyncio.TimeoutError):
+                    pass
+
+        self.add_loop_cleanup(close_stream)
 
         non_local_dict = {'count': 0}
 
@@ -508,7 +522,8 @@ class TestSSLStream(SSLBadAppTestCase, StreamTestsMixin):
             ca_certs=os.path.join(os.path.dirname(__file__),
                                   '..', '..', 'cert', 'ca-bundle.pem'),
         )
-        ssl_context = tornado.netutil.ssl_options_to_context(ssl_options)
+        ssl_context = tornado.netutil.ssl_options_to_context(
+            ssl_options, server_side=False)
         stream = self.new_stream(
             ssl=True, connection_kwargs=dict(ssl_context=ssl_context))
         request = Request(self.get_url('/'))
