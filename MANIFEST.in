@@ -1,5 +1,5 @@
 # Source Code
-recursive-include wpull *.html *.css *.txt *.lua *.pem *.rst *.js *.png *.xml *.crt *.key
+recursive-include wpull *.html *.htm *.css *.txt *.lua *.pem *.rst *.js *.png *.xml *.crt *.key
 
 # Documentation
 recursive-include doc *.rst
