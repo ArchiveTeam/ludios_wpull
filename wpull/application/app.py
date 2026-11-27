@@ -129,13 +129,14 @@ class Application(HookableMixin):
         Returns:
             int: The exit status.
         '''
-        exit_status = asyncio.get_event_loop().run_until_complete(self.run())
+        event_loop = asyncio.get_event_loop()
+        exit_status = event_loop.run_until_complete(self.run())
 
         # The following loop close procedure should avoid deadlock while
         # allowing all callbacks to process before close()
-        asyncio.get_event_loop().stop()
-        asyncio.get_event_loop().run_forever()
-        asyncio.get_event_loop().close()
+        event_loop.stop()
+        event_loop.run_forever()
+        event_loop.close()
         return exit_status
 
     

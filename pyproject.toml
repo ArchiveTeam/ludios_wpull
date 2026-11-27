@@ -8,7 +8,7 @@ description = "Wget-compatible web downloader and crawler."
 authors = [{name = "Christopher Foo", email = "chris.foo@gmail.com"}]
 readme = "README.orig.rst"
 version = "5.0.3"
-license = { file = "LICENSE.txt" }
+license-files = ["LICENSE.txt"]
 classifiers=[
     'Development Status :: 5 - Production/Stable',
     'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',

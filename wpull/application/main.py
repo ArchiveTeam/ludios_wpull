@@ -1,3 +1,4 @@
+import asyncio
 import sys
 import traceback
 
@@ -6,6 +7,8 @@ from wpull.application.options import AppArgumentParser
 
 
 def main(exit=True, use_signals=True):
+    asyncio.set_event_loop(asyncio.new_event_loop())
+
     arg_parser = AppArgumentParser()
     args = arg_parser.parse_args()
 
