@@ -3,9 +3,10 @@
 import codecs
 import itertools
 import unittest
+import unittest.mock
 
 from wpull.string import to_bytes, to_str, detect_encoding, printable_bytes, \
-    normalize_codec_name, format_size, printable_str
+    normalize_codec_name, format_size, printable_str, try_decoding
 
 
 class TestString(unittest.TestCase):
@@ -49,16 +50,34 @@ class TestString(unittest.TestCase):
             detect_encoding((krakozyabry * 10)[:-1], 'koi8-r')
         )
 
-        self.assertEqual(
-            'iso8859-1',
-            detect_encoding(b'\xff\xff\xff\x81')
-        )
+        # Disable chardet: newer versions confidently guess an encoding
+        # (e.g. cp1251) for this junk data, but we want to test the fallback.
+        with unittest.mock.patch(
+                'wpull.thirdparty.dammit.chardet_dammit', lambda data: None):
+            self.assertEqual(
+                'iso8859-1',
+                detect_encoding(b'\xff\xff\xff\x81')
+            )
 
-        self.assertRaises(
-            ValueError,
-            detect_encoding, b'\xff\xff\xff\x81',
-            'utf8', fallback=()
-        )
+            self.assertRaises(
+                ValueError,
+                detect_encoding, b'\xff\xff\xff\x81',
+                'utf8', fallback=()
+            )
+
+        # chardet's guess is used when it can decode the data.
+        with unittest.mock.patch(
+                'wpull.thirdparty.dammit.chardet_dammit',
+                lambda data: 'cp1251'):
+            self.assertEqual(
+                'cp1251',
+                detect_encoding(b'\xff\xff\xff\x81')
+            )
+
+        # With the real chardet the exact result depends on its version, but
+        # it must always be an encoding that can decode the data.
+        junk = b'\xff\xff\xff\x81'
+        self.assertTrue(try_decoding(junk, detect_encoding(junk)))
 
         self.assertEqual(
             'utf-8',

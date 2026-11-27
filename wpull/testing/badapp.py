@@ -466,10 +466,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.send_header('Set-cookie', 'test=valid')
         self.send_header(
             'Set-cookie',
-            'bad=date?; Expires=Sit, 28 Dec 2024 01:59:61 GMT')
+            'bad=date?; Expires=Sit, 28 Dec 2099 01:59:61 GMT')
         self.send_header(
             'Set-cookie',
-            'bad=date?; Expires=Sat, 28 Dec-2024 01:59:61 GMT')
+            'bad=date?; Expires=Sat, 28 Dec-2099 01:59:61 GMT')
         self.send_header(
             'Set-cookie',
             '; Expires=Thu, 01 Jan 1970 00:00:10 GMT')

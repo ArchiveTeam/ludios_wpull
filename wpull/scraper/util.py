@@ -38,6 +38,8 @@ def parse_refresh(text):
 def clean_link_soup(link):
     '''Strip whitespace and anchors from a link in HTML soup.
 
+    Hashbang (``#!``) fragments are kept.
+
     Args:
         link (str): A string containing the link with lots of whitespace.
 
@@ -61,8 +63,22 @@ def clean_link_soup(link):
         str: The cleaned link.
     '''
     return ''.join(
-        [line.split('#', 1)[0].strip().replace('\t', '') for line in link.splitlines()]
+        [_strip_anchor(line).strip().replace('\t', '')
+         for line in link.splitlines()]
     )
+
+
+def _strip_anchor(text):
+    '''Remove the anchor from a line, but keep hashbang (``#!``) fragments.
+
+    Hashbang fragments are needed for ``--escaped-fragment``.
+    '''
+    base, sep, fragment = text.partition('#')
+
+    if fragment.startswith('!'):
+        return base + sep + fragment
+
+    return base
 
 
 def urljoin_safe(base_url, url, allow_fragments=True):
@@ -71,14 +87,23 @@ def urljoin_safe(base_url, url, allow_fragments=True):
     Returns:
         str, None'''
     try:
-        return wpull.url.urljoin(
-            base_url, url, allow_fragments=allow_fragments
-        )
+        new_url = wpull.url.urljoin(base_url, url)
     except ValueError as error:
         _logger.warning(__(
             _('Unable to parse URL ‘{url}’: {error}.'),
             url=url, error=error
         ))
+        return None
+
+    if not allow_fragments:
+        # Strip anchors, but keep hashbang (#!) fragments since they are
+        # needed for --escaped-fragment.
+        base, _sep, fragment = new_url.partition('#')
+
+        if not fragment.startswith('!'):
+            return base
+
+    return new_url
 
 
 def is_likely_inline(link):
