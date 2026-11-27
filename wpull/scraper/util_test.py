@@ -104,3 +104,4 @@ class TestUtil(unittest.TestCase):
         self.assertEqual(LinkType.media, identify_link_type('hello.png'))
         self.assertEqual(LinkType.media, identify_link_type('hello.flv'))
         self.assertFalse(identify_link_type('hello.exe'))
+        self.assertFalse(identify_link_type('//[invalid]'))
