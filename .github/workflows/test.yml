@@ -11,15 +11,19 @@ permissions:
 jobs:
   testing:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.12', '3.13', '3.14', '3.15']
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Set up Python
         # This is the version of the action for setting up Python, not the Python version.
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v7
         with:
           # Semantic version range syntax or exact version of a Python version
-          python-version: '3.12'
+          python-version: ${{ matrix.python-version }}
           # Optional - x64 or x86 architecture, defaults to x64
           architecture: 'x64'
       - name: Install OS dependencies
@@ -45,7 +49,8 @@ jobs:
         # run: python -c "import sys; print(sys.version)"
       - name: Get Cover 
         if: always()
-        uses: orgoro/coverage@v3.1
+        uses: orgoro/coverage@v3.3.1
         with:
           coverageFile: coverage.xml
           token: ${{ secrets.GITHUB_TOKEN }}
+          title: Python Coverage ${{ matrix.python-version }}
