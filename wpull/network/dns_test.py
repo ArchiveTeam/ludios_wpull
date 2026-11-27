@@ -8,6 +8,9 @@ from wpull.testing.async_ import async_test
 from unittest import IsolatedAsyncioTestCase
 
 
+TIMEOUT = 0.1
+
+
 class TestDNS(IsolatedAsyncioTestCase):
     def get_resolver(self, *args, **kwargs):
         return Resolver(*args, **kwargs)
@@ -53,14 +56,27 @@ class TestDNS(IsolatedAsyncioTestCase):
         self.assertEqual(socket.AF_INET, address4.family)
         self.assertEqual('127.0.0.1', address4.ip_address)
 
-    # TODO: figure out a good way to test other than disconnecting network
-    @unittest.expectedFailure
     @async_test
     async def test_resolver_timeout(self):
-        resolver = Resolver(timeout=0.1)
+        # Point the resolver at a DNS server that never answers so the test
+        # is deterministic and needs no network access.
+        blackhole = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        blackhole.bind(('127.0.0.1', 0))
 
-        with self.assertRaises(NetworkError):
-            await resolver.resolve('google.com')
+        try:
+            resolver = Resolver(timeout=TIMEOUT, bind_address='127.0.0.1')
+            resolver._dns_resolver.nameservers = ['127.0.0.1']
+            resolver._dns_resolver.port = blackhole.getsockname()[1]
+            # ``timeout`` is per attempt; ``lifetime`` caps all retries.
+            resolver._dns_resolver.lifetime = TIMEOUT
+
+            with self.assertRaises(NetworkError) as ctx:
+                await resolver.resolve('timeout.test.invalid')
+
+            # Assert the DNS path failed, not the getaddrinfo() fallback.
+            self.assertIn('DNS resolution error', str(ctx.exception))
+        finally:
+            blackhole.close()
 
     @async_test
     async def test_resolver_fail(self):
